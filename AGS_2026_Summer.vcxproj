@@ -18,6 +18,32 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\manager\InputMapper.cpp" />
+    <ClCompile Include="src\manager\ResourceManager.cpp" />
+    <ClCompile Include="src\object\GameObject.cpp" />
+    <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\core\main.cpp" />
+    <ClCompile Include="src\manager\InputManager.cpp" />
+    <ClCompile Include="src\manager\SceneManager.cpp" />
+    <ClCompile Include="src\scene\Fader.cpp" />
+    <ClCompile Include="src\scene\TitleScene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\manager\InputMapper.h" />
+    <ClInclude Include="src\manager\ResourceManager.h" />
+    <ClInclude Include="src\object\GameObject.h" />
+    <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\core\StDefine.h" />
+    <ClInclude Include="src\manager\InputManager.h" />
+    <ClInclude Include="src\manager\SceneManager.h" />
+    <ClInclude Include="src\scene\Fader.h" />
+    <ClInclude Include="src\scene\TitleScene.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include=".default\file-exclamation-point.png" />
+    <Image Include="images\arrow-up.png" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -113,7 +139,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(DXLIB_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXLIB_DIR);$(SolutionDir)\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -131,7 +157,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(DXLIB_DIR)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXLIB_DIR);$(SolutionDir)\src\</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -140,9 +166,6 @@
       <AdditionalLibraryDirectories>$(DXLIB_DIR)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
