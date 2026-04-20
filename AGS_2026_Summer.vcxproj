@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\inubasiri\move.cpp" />
+    <ClCompile Include="src\manager\DebugManager.cpp" />
     <ClCompile Include="src\manager\InputMapper.cpp" />
     <ClCompile Include="src\manager\ResourceManager.cpp" />
     <ClCompile Include="src\object\GameObject.cpp" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\inubasiri\move.h" />
+    <ClInclude Include="src\manager\DebugManager.h" />
     <ClInclude Include="src\manager\InputMapper.h" />
     <ClInclude Include="src\manager\ResourceManager.h" />
     <ClInclude Include="src\object\GameObject.h" />
