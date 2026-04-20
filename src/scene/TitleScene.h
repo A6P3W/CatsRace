@@ -20,4 +20,7 @@ private:
 	int TitleImage; // タイトル画像
 	E_SCENE_ID nextScene; // 次のシーンID
 	int image; // タイトル画像のハンドル
+	int bgImage; // 背景画像（images/world.jpg）のハンドル [追加]
+
+	int Y = 0;
 };
