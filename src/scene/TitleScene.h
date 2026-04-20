@@ -1,4 +1,5 @@
 #pragma once
+#include "inubasiri/move.h"
 
 #include "core/StDefine.h"
 
@@ -17,6 +18,7 @@ public:
 	E_SCENE_ID GetNextScene();// 次のシーンID取得
 
 private:
+	Mover* bgMover; // 動かすオブジェクト
 	int TitleImage; // タイトル画像
 	E_SCENE_ID nextScene; // 次のシーンID
 	int image; // タイトル画像のハンドル

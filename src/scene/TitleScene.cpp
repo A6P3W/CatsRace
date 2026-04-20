@@ -2,6 +2,7 @@
 #include "manager/ResourceManager.h"
 #include "scene/TitleScene.h"
 #include "core/Application.h"
+#include "inubasiri/move.h"
 
 TitleScene::TitleScene()
 {
