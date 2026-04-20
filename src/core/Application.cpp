@@ -41,7 +41,7 @@ bool Application::SystemInit()
 bool Application::Run() 
 {
 	// メインループ
-	while (ProcessMessage() == 0 && !InputMapper::GetInstance().GetActionStart(E_INPUT_ACTION::CANCEL))
+	while (ProcessMessage() == 0 && !InputMapper::GetInstance().GetKeyPressStart(E_INPUT_ACTION::CANCEL))
 	{
 		// 更新
 		if (Update() == false) return false;

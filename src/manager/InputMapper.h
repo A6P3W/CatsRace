@@ -12,8 +12,9 @@ public:
 
 
     // アクション名での判定
-    bool GetActionStart(E_INPUT_ACTION action);
-    bool GetActioning(E_INPUT_ACTION action);
+    bool GetKeyPressStart(E_INPUT_ACTION action);
+    bool GetKeyPressing(E_INPUT_ACTION action);
+	bool GetKeyRelease(E_INPUT_ACTION action);
 
 private:
 	InputMapper();
