@@ -34,7 +34,7 @@ bool Application::SystemInit()
 	if (sceneMng == nullptr) return false;
 	if (!sceneMng->SystemInit()) return false;
 	
-	
+	DSetLog(4.0f,"SystemInit");
 
 	return true;
 }
@@ -57,6 +57,7 @@ bool Application::Update()
 {
 	InputManager::GetInstance().Update();
 	if (!sceneMng->Update()) return false;
+	DSetLog("CurrentScene");
 
 	return true;
 }
@@ -66,7 +67,6 @@ void Application::Draw()
 	SetDrawScreen(DX_SCREEN_BACK); // — ‰æ–Ê‚ð•`‰æ‘ÎÛ‚ÉÝ’è
 	ClearDrawScreen(); // ‰æ–ÊƒNƒŠƒA
 	sceneMng->Draw();
-	DSetLog("CurrentScene","a");
     DebugMng.Draw();
 	ScreenFlip(); // — ‰æ–Ê‚Æ•\‰æ–Ê‚Ì“ü‚ê‘Ö‚¦
 	
