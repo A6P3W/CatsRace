@@ -66,8 +66,8 @@ void Application::Draw()
 	SetDrawScreen(DX_SCREEN_BACK); // — ‰æ–Ê‚ð•`‰æ‘ÎÛ‚ÉÝ’è
 	ClearDrawScreen(); // ‰æ–ÊƒNƒŠƒA
 	sceneMng->Draw();
-	DebugManager::GetInstance().SetLog("a", "a");
-    DebugManager::GetInstance().Draw();
+	DSetLog("CurrentScene","a");
+    DebugMng.Draw();
 	ScreenFlip(); // — ‰æ–Ê‚Æ•\‰æ–Ê‚Ì“ü‚ê‘Ö‚¦
 	
 }
