@@ -18,6 +18,6 @@ public:
 	bool GetKeyRelease(int keyCode);
 	void Update();
 
-	int key[256];
-	int prevKey[256];
+   bool key[256];
+	bool prevKey[256];
 };
