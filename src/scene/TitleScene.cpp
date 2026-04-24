@@ -9,7 +9,6 @@ TitleScene::TitleScene()
 	TitleImage = -1;
 	image = -1;
 	bgImage = -1; // ‰Šú‰» [’Ç‰Á]
-	nextScene = E_SCENE_ID::E_SCENE_INIT;
 }
 
 TitleScene::~TitleScene()
@@ -23,7 +22,6 @@ bool TitleScene::SystemInit()
 
 bool TitleScene::SceneInit()
 {
-	nextScene = E_SCENE_ID::E_SCENE_NON;
 	// Šù‘¶‚Ì‰æ‘œ“Ç‚İ‚İ
 	image = ResourceManager::GetInstance().GetGraph("images/arroaw-up.png");
 	// ”wŒi‰æ‘œ‚Ì“Ç‚İ‚İ
@@ -70,9 +68,4 @@ bool TitleScene::Release()
 {
 	// ResourceManager‚ª‰ğ•ú‚ğŠÇ—‚·‚é‚½‚ßA‚±‚±‚Å‚Í“Á‚É‚È‚µ
 	return true;
-}
-
-E_SCENE_ID TitleScene::GetNextScene()
-{
-	return nextScene;
 }

@@ -2,8 +2,8 @@
 #include <memory>
 #include "core/StDefine.h"
 
-class TitleScene;
 class Fader;
+class BaseScene;
 
 class SceneManager
 {
@@ -22,6 +22,6 @@ private:
     std::unique_ptr<Fader> fader;		// フェーダー
 	E_SCENE_ID waitScene; // 待機シーンID
 	bool sceneChangeFlg; // シーン変更フラグ
-	std::unique_ptr<TitleScene> titleInst;	// タイトルシーン
+	std::unique_ptr<BaseScene> currentScene;
 	E_SCENE_ID scene_ID;	// 現在のシーンID
 };

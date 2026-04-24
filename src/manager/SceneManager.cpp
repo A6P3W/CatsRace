@@ -1,7 +1,12 @@
 #include <DxLib.h>
 #include "SceneManager.h"
+#include "scene/BaseScene.h"
 #include "scene/TitleScene.h"
+#include "scene/SceneA.h"
 #include "scene/Fader.h"
+#include "manager/DebugManager.h"
+#include "manager/InputMapper.h"
+#include "manager/InputManager.h"
 
 SceneManager::SceneManager()
 {
@@ -53,23 +58,22 @@ bool SceneManager::Update()
 	}
 	else
 	{
-		// 現在のシーンに応じて更新処理を実行
-		switch (scene_ID) {
-		case E_SCENE_TITLE:
+        if (currentScene)
+		{
+			currentScene->Update();
+		}
 
-			titleInst->Update();
-			// 次のシーンに遷移するときのみ次のシーンIDを取得
-			if (titleInst->GetNextScene() != E_SCENE_NON)
-			{
-				sceneChangeFlg = true;
-				waitScene = titleInst->GetNextScene();
-				fader->SetFade(E_STAT_FADE_OUT);
-				//scene_ID = titleInst->GetNextScene();
-			}
-			break;
-			// 他のシーンの更新処理をここに追加
-		default:
-			break;
+		if (scene_ID == E_SCENE_TITLE && InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_1))
+		{
+			sceneChangeFlg = true;
+			waitScene = E_SCENE_A;
+			fader->SetFade(E_STAT_FADE_OUT);
+		}
+		if (scene_ID != E_SCENE_TITLE && InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_0))
+		{
+			sceneChangeFlg = true;
+			waitScene = E_SCENE_TITLE;
+			fader->SetFade(E_STAT_FADE_OUT);
 		}
 	}
 	return true;
@@ -77,21 +81,19 @@ bool SceneManager::Update()
 
 void SceneManager::Draw()
 {
-	// 現在のシーンに応じて描画処理を実行
-	switch (scene_ID) {
-	case E_SCENE_TITLE:
-		titleInst->Draw();
-		break;
-	// 他のシーンの描画処理をここに追加
-	default:
-		break;
+    if (currentScene)
+	{
+		currentScene->Draw();
 	}
 	fader->Draw();
 }
 
 bool SceneManager::Release()
 {
-	ReleaseScene(E_SCENE_TITLE);
+    if (scene_ID != E_SCENE_NON)
+	{
+		if (!ReleaseScene(scene_ID)) return false;
+	}
    if (fader)
 	{
 		if (!fader->Release()) return false;
@@ -102,33 +104,37 @@ bool SceneManager::Release()
 
 bool SceneManager::ReleaseScene(E_SCENE_ID id)
 {
-	switch (id)
+ if (id != scene_ID)
 	{
-	case E_SCENE_TITLE:
-       if (titleInst)
-		{
-			if (!titleInst->Release()) return false;
-           titleInst.reset();
-		}
-		break;
+		return true;
+	}
+
+	if (currentScene)
+	{
+		if (!currentScene->Release()) return false;
+		currentScene.reset();
 	}
 	return true;
 }
 
 bool SceneManager::ChangeScene(E_SCENE_ID sceneID)
 {
-	//if (!ReleaseScene(sceneID)) return false;
-
+ DSetLog(5.0f, "scene_id={}", static_cast<int>(scene_ID));
 	switch (sceneID) {
 	case E_SCENE_TITLE:
-       if (!titleInst)
-		{
-           titleInst = std::make_unique<TitleScene>();
-			SetTransColor(0xff, 0x00, 0xff);
-			if (!titleInst->SystemInit()) return false;
-			if (!titleInst->SceneInit()) return false;
-		}
+      currentScene = std::make_unique<TitleScene>();
+		SetTransColor(0xff, 0x00, 0xff);
+		if (!currentScene->SystemInit()) return false;
+		if (!currentScene->SceneInit()) return false;
+		
 		break;
+	case E_SCENE_A:
+        currentScene = std::make_unique<SceneA>();
+		if (!currentScene->SystemInit()) return false;
+		if (!currentScene->SceneInit()) return false;
+		break;
+	default:
+		return false;
 
 	}
 	return true;
