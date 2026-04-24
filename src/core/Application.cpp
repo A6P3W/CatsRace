@@ -57,7 +57,6 @@ bool Application::Update()
 {
 	InputManager::GetInstance().Update();
 	if (!sceneMng->Update()) return false;
-	DSetLog("CurrentScene");
 
 	return true;
 }

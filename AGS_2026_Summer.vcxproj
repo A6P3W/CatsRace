@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\inubasiri\map.cpp" />
     <ClCompile Include="src\inubasiri\player.cpp" />
     <ClCompile Include="src\manager\DebugManager.cpp" />
     <ClCompile Include="src\manager\InputMapper.cpp" />
@@ -33,7 +32,6 @@
     <ClCompile Include="src\scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\inubasiri\map.h" />
     <ClInclude Include="src\inubasiri\player.h" />
     <ClInclude Include="src\manager\DebugManager.h" />
     <ClInclude Include="src\manager\InputMapper.h" />
@@ -43,6 +41,7 @@
     <ClInclude Include="src\core\StDefine.h" />
     <ClInclude Include="src\manager\InputManager.h" />
     <ClInclude Include="src\manager\SceneManager.h" />
+    <ClInclude Include="src\scene\BaseScene.h" />
     <ClInclude Include="src\scene\Fader.h" />
     <ClInclude Include="src\scene\TitleScene.h" />
   </ItemGroup>

@@ -5,6 +5,7 @@ enum E_SCENE_ID
 	E_SCENE_INIT = -2,
 	E_SCENE_NON = -1,
 	E_SCENE_TITLE,			// ƒ^ƒCƒgƒ‹‰æ–Ê
+	E_SCENE_A,
 	E_SCENE_ID_MAX,
 };
 
