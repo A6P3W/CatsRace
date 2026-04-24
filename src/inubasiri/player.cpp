@@ -23,23 +23,26 @@ void Player::Update() {
 	
 	//‰Á‘¬Œ¸‘¬
 	if (input.GetKeyPressing(E_INPUT_ACTION::UP)) {
-		speed += 0.1f;
+		speed += 0.04f;
 	}
 	else {
-		speed *= 0.85f; //–€ŽC
+		speed *= 0.97f; //–€ŽC
 	}
 	if (speed > MAX_SPEED) speed = MAX_SPEED;
 
 	pos += dir * speed;
 	DSetLog(speed);
+	DSetLog(GetPosition());
 	}
 
 void Player::Draw() {
 	float angle = std::arg(dir) + 3.141592f / 2.0f;
 
+
+
 	DrawRotaGraph(
 		(int)pos.real(), (int)pos.imag(), // •`‰æˆÊ’u
-		1.0,                             // Šg‘å—¦
+		1.0,					          // Šg‘å—¦
 		(double)angle,                   // ‰ñ“]Šp“x
 		graphHandle,                     // ‰æ‘œƒnƒ“ƒhƒ‹
 		TRUE                             // “§‰ßƒtƒ‰ƒO

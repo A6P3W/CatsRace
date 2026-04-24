@@ -19,7 +19,7 @@ private:
 	float speed;
 	int graphHandle;
 
-	const float MAX_SPEED = 5.0f;
-	const float TURN_ANGLE = 0.05f;
+	const float MAX_SPEED = 10.0f;
+	const float TURN_ANGLE = 0.01f;
 
 };
