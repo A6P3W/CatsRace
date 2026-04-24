@@ -2,7 +2,7 @@
 #include "manager/ResourceManager.h"
 #include "scene/TitleScene.h"
 #include "core/Application.h"
-#include "inubasiri/move.h"
+#include "inubasiri/player.h"
 
 TitleScene::TitleScene()
 {
@@ -28,13 +28,16 @@ bool TitleScene::SceneInit()
 	image = ResourceManager::GetInstance().GetGraph("images/arroaw-up.png");
 	// 背景画像の読み込み
 	bgImage = ResourceManager::GetInstance().GetGraph("images/road.png");
-
+	//プレイヤー生成
+	player = std::make_unique<Player>();
 	return true;
 }
 
 void TitleScene::Update()
 {
-	Y += 0;
+	if (player) {
+		player->Update(); // 複素数による移動・回転が実行される
+	}
 }
 
 void TitleScene::Draw()
@@ -57,6 +60,10 @@ void TitleScene::Draw()
 	);
 
 	DrawGraph(10, 10, image, TRUE);
+
+	if (player) {
+		player->Draw(); // 座標のデバッグ表示など
+	}
 }
 
 bool TitleScene::Release()

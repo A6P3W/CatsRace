@@ -21,4 +21,7 @@ enum E_INPUT_ACTION
 {
 	CANCEL,
 	UP,
+	DOWN, 
+	LEFT,  
+	RIGHT, 
 };
