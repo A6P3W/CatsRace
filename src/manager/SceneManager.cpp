@@ -62,14 +62,14 @@ bool SceneManager::Update()
 		{
 			currentScene->Update();
 		}
-
-		if (scene_ID == E_SCENE_TITLE && InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_1))
+		auto& IM = InputManager::GetInstance();
+		if (scene_ID == E_SCENE_TITLE && IM.GetKeyPressStart(KEY_INPUT_1))
 		{
 			sceneChangeFlg = true;
 			waitScene = E_SCENE_A;
 			fader->SetFade(E_STAT_FADE_OUT);
 		}
-		if (scene_ID != E_SCENE_TITLE && InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_0))
+		if (scene_ID != E_SCENE_TITLE && IM.GetKeyPressStart(KEY_INPUT_0))
 		{
 			sceneChangeFlg = true;
 			waitScene = E_SCENE_TITLE;
@@ -119,7 +119,7 @@ bool SceneManager::ReleaseScene(E_SCENE_ID id)
 
 bool SceneManager::ChangeScene(E_SCENE_ID sceneID)
 {
- DSetLog(5.0f, "scene_id={}", static_cast<int>(scene_ID));
+ DSetLog(5.0f, "scene_id={}",static_cast<int>(sceneID) );
 	switch (sceneID) {
 	case E_SCENE_TITLE:
       currentScene = std::make_unique<TitleScene>();

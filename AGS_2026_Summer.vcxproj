@@ -29,6 +29,7 @@
     <ClCompile Include="src\manager\InputManager.cpp" />
     <ClCompile Include="src\manager\SceneManager.cpp" />
     <ClCompile Include="src\scene\Fader.cpp" />
+    <ClCompile Include="src\scene\SceneA.cpp" />
     <ClCompile Include="src\scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <ClInclude Include="src\manager\SceneManager.h" />
     <ClInclude Include="src\scene\BaseScene.h" />
     <ClInclude Include="src\scene\Fader.h" />
+    <ClInclude Include="src\scene\SceneA.h" />
     <ClInclude Include="src\scene\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>

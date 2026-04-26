@@ -58,6 +58,14 @@ bool Application::Update()
 	InputManager::GetInstance().Update();
 	if (!sceneMng->Update()) return false;
 
+
+	std::string pressing_keys = "";
+	for (int i = 0; i < 256; i++) {
+		if (InputManager::GetInstance().GetKeyPressing(i)) {
+			pressing_keys += std::to_string(i) + " ";
+		}
+	}	
+	DebugMng.SetLog("PressingKeys", pressing_keys);
 	return true;
 }
 

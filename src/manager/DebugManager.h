@@ -65,7 +65,7 @@ public:
 
         // "ファイル名(行数)" の形式で登録
         std::string location = fileName + "("+ std::to_string(line) +")";
-        SetLog(location, std::vformat(formatText, std::make_format_args(std::forward<Args>(args)...)));
+        SetLog(location, std::vformat(formatText, std::make_format_args(args...)));
     }
 
     template<typename... Args, typename = std::enable_if_t<(sizeof...(Args) > 0)>>
@@ -73,7 +73,7 @@ public:
 
         std::string fileName = std::filesystem::path(filePath).filename().string();
         std::string location = fileName + "("+ std::to_string(line) +")";
-        SetLog(location, std::vformat(formatText, std::make_format_args(std::forward<Args>(args)...)), durationSeconds);
+        SetLog(location, std::vformat(formatText, std::make_format_args(args...)), durationSeconds);
     }
     // 蓄積されたログをすべて描画する
     void Draw();
