@@ -5,7 +5,7 @@
 #include <DxLib.h>
 
 Player::Player() : pos(400.0f, 300.0f), dir(0.0f, -1.0f), speed(0) {
-	graphHandle = ResourceManager::GetInstance().GetGraph("images/road.png");
+	graphHandle = ResourceManager::GetInstance().GetGraph("images/arrow-up.png");
 }
 void Player::Update() {
 	auto& input = InputMapper::GetInstance();

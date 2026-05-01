@@ -2,6 +2,7 @@
 #include <memory>
 #include "scene/BaseScene.h"
 #include "inubasiri/player.h"
+#include "inubasiri/map.h"
 
 #include "core/StDefine.h"
 
@@ -20,6 +21,7 @@ public:
 
 private:
 	std::unique_ptr<Player> player;
+	Map map;
 	int TitleImage; // タイトル画像
 	int image; // タイトル画像のハンドル
 	int bgImage; // 背景画像（images/world.jpg）のハンドル [追加]

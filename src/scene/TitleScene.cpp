@@ -22,10 +22,10 @@ bool TitleScene::SystemInit()
 
 bool TitleScene::SceneInit()
 {
-	// 既存の画像読み込み
-	image = ResourceManager::GetInstance().GetGraph("images/arroaw-up.png");
-	// 背景画像の読み込み
-	bgImage = ResourceManager::GetInstance().GetGraph("images/road.png");
+	if (!map.Load("images/otamesi.csv", "images/map.bmp")) {
+		printfDx("Map Load Failed! Check file path.\n");
+		return false;
+	}
 	//プレイヤー生成
 	player = std::make_unique<Player>();
 	return true;
@@ -42,12 +42,10 @@ void TitleScene::Draw()
 {
 	float screenW = Application::SCREEN_WID;
 	float screenH = Application::SCREEN_HIG;
+	map.Draw();
 
 	// 描画モードをバイリニアに設定
 	SetDrawMode(DX_DRAWMODE_BILINEAR);
-
-	// 修正案：極端な変形を避け、パース補正を期待できる描画方法を検討する
-	// 現状の DrawModiGraph では「波打ち」は原理上避けられません
 
 	DrawModiGraph(
 		0, Y+screenH * 0.25f,
