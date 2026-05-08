@@ -36,7 +36,7 @@ bool ACSVMap::LoadCSV(const std::string& path, int xSize, int ySize, int totalCh
                     tile->SubmitGraph(1.0, m_ChipHandles[chipID], 255);
 
                     tile->SetParentComponent(this->GetRootComponent());
-                    tile->SetRelativeLocation({ (float)x * xSize, (float)y * ySize });
+                    tile->SetRelativeLocation({ (float)x * (float)0.97 * xSize, (float)y * (float)0.97 * ySize });
                     AddComponent(std::move(tile));
                 }
             }
