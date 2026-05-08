@@ -19,12 +19,60 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\inubasiri\map.cpp" />
-    <ClCompile Include="Game\inubasiri\player.cpp" />
+    <ClCompile Include="Engine\EngineCore\Components\Private\CameraComponent.cpp" />
+    <ClCompile Include="Engine\EngineCore\Components\Private\CollisionComponent.cpp" />
+    <ClCompile Include="Engine\EngineCore\Components\Private\SceneComponent.cpp" />
+    <ClCompile Include="Engine\EngineCore\Components\Private\SpriteComponent.cpp" />
+    <ClCompile Include="Engine\EngineCore\Core\Private\Actor.cpp" />
+    <ClCompile Include="Engine\EngineCore\Core\Private\ActorComponent.cpp" />
+    <ClCompile Include="Engine\EngineCore\Core\Private\Application.cpp" />
+    <ClCompile Include="Engine\EngineCore\Core\Private\BaseObject.cpp" />
+    <ClCompile Include="Engine\EngineCore\Core\Private\EngineEntry.cpp" />
+    <ClCompile Include="Engine\EngineCore\GameFramework\Private\DefaultPawn.cpp" />
+    <ClCompile Include="Engine\EngineCore\GameFramework\Private\GameModeBase.cpp" />
+    <ClCompile Include="Engine\EngineCore\GameFramework\Private\PlayerController.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\CollisionSystem.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\InputManager.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\InputMapper.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\ObjectManager.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\RenderSystem.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\ResourceManager.cpp" />
+    <ClCompile Include="Engine\EngineCore\Systems\Private\SceneManager.cpp" />
+    <ClCompile Include="Engine\EngineSide\GridLine.cpp" />
+    <ClCompile Include="Game\GameMain.cpp" />
+    <ClCompile Include="Game\Objects\DefaultScene.cpp" />
+    <ClCompile Include="Game\Objects\DefaultScene2.cpp" />
+    <ClCompile Include="Game\Objects\Map.cpp" />
+    <ClCompile Include="Game\Objects\Player.cpp" />
+    <ClCompile Include="Game\Objects\SampleA.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\inubasiri\map.h" />
-    <ClInclude Include="Game\inubasiri\player.h" />
+    <ClInclude Include="Engine\EngineCore\Components\Public\CameraComponent.h" />
+    <ClInclude Include="Engine\EngineCore\Components\Public\CollisionComponent.h" />
+    <ClInclude Include="Engine\EngineCore\Components\Public\SceneComponent.h" />
+    <ClInclude Include="Engine\EngineCore\Components\Public\SpriteComponent.h" />
+    <ClInclude Include="Engine\EngineCore\Core\Public\Actor.h" />
+    <ClInclude Include="Engine\EngineCore\Core\Public\ActorComponent.h" />
+    <ClInclude Include="Engine\EngineCore\Core\Public\Application.h" />
+    <ClInclude Include="Engine\EngineCore\Core\Public\BaseObject.h" />
+    <ClInclude Include="Engine\EngineCore\GameFramework\Public\DefaultPawn.h" />
+    <ClInclude Include="Engine\EngineCore\GameFramework\Public\GameModeBase.h" />
+    <ClInclude Include="Engine\EngineCore\GameFramework\Public\PlayerController.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\CollisionSystem.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\InputManager.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\InputMapper.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\ObjectManager.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\RenderSystem.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\ResourceManager.h" />
+    <ClInclude Include="Engine\EngineCore\Systems\Public\SceneManager.h" />
+    <ClInclude Include="Engine\EngineCore\Utils\Log.h" />
+    <ClInclude Include="Engine\EngineCore\Utils\UMath.h" />
+    <ClInclude Include="Engine\EngineSide\GridLine.h" />
+    <ClInclude Include="Game\Objects\DefaultScene.h" />
+    <ClInclude Include="Game\Objects\DefaultScene2.h" />
+    <ClInclude Include="Game\Objects\Map.h" />
+    <ClInclude Include="Game\Objects\Player.h" />
+    <ClInclude Include="Game\Objects\SampleA.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
