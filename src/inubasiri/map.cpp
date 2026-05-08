@@ -52,7 +52,7 @@ bool Map::Load(const std::string& csvPath, const std::string& chipPath) {
 	}
 	return true;
 }
-void Map::Draw() {
+void Map::Draw(int offsetX, int offsetY) {
 	if (chipGraphHandle == -1)return;
 
 	int imgW, imgH;
@@ -67,8 +67,8 @@ void Map::Draw() {
 		int srcX = (chipID % chipsPerRow) * TILE_SIZE;
 		int srcY = (chipID / chipsPerRow) * TILE_SIZE;
 
-		int drawX = x * TILE_SIZE;
-		int drawY = y * TILE_SIZE;
+		int drawX = x * TILE_SIZE - offsetX;
+		int drawY = y * TILE_SIZE - offsetY;
 
 		DrawRectGraph(drawX, drawY, srcX, srcY, TILE_SIZE, TILE_SIZE, chipGraphHandle, TRUE);
 		}

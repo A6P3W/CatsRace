@@ -4,6 +4,7 @@
 #include "core/Application.h"
 #include "inubasiri/player.h"
 
+
 TitleScene::TitleScene()
 {
 	TitleImage = -1;
@@ -33,6 +34,8 @@ bool TitleScene::SceneInit()
 
 void TitleScene::Update()
 {
+	
+
 	if (player) {
 		player->Update(); // 複素数による移動・回転が実行される
 	}
@@ -42,7 +45,6 @@ void TitleScene::Draw()
 {
 	float screenW = Application::SCREEN_WID;
 	float screenH = Application::SCREEN_HIG;
-	map.Draw();
 
 	// 描画モードをバイリニアに設定
 	SetDrawMode(DX_DRAWMODE_BILINEAR);

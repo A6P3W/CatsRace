@@ -21,7 +21,8 @@ public:
 
 private:
 	std::unique_ptr<Player> player;
-	Map map;
+	Map map; 
+
 	int TitleImage; // タイトル画像
 	int image; // タイトル画像のハンドル
 	int bgImage; // 背景画像（images/world.jpg）のハンドル [追加]
