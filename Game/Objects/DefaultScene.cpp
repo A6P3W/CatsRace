@@ -8,6 +8,7 @@
 #include <Utils/Umath.h>
 #include <Utils/Log.h>
 #include <SpriteComponent.h>
+#include "CSVMap.h"
 ADefaultScene::ADefaultScene() {
 	//ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
 	ObjectManager::GetInstance().SpawnObject<APlayer>({ 0,0 }, { 0 });
@@ -19,6 +20,9 @@ ADefaultScene::ADefaultScene() {
 	auto sprite2 = std::make_unique<MSpriteComponent>(-10000, RenderSpace::World);
 	sprite2->SubmitText("center", 0xFF0000, -1, 255);
 	AddComponent(std::move(sprite2));
+
+
+	ObjectManager::GetInstance().SpawnObject<ACSVMap>({ 0,0 }, { 0 });
 }
 
 void ADefaultScene::OnUpdate(float DeltaTime)
