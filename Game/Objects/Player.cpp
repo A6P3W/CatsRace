@@ -7,6 +7,8 @@
 #include "SceneManager.h"
 #include "Objects/DefaultScene.h"
 #include <DxLib.h>
+#include <ObjectManager.h>
+#include "CSVMap.h"
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
 	SetActorLocation(location);
@@ -20,10 +22,11 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 
 
-	auto camera = std::make_unique<MCameraComponent>();
-	auto m_camera = camera.get();
+ auto camera = std::make_unique<MCameraComponent>();
+	m_camera = camera.get();
 	AddComponent(std::move(camera));
 	m_camera->SetActiveCamera();
+	m_camera->SetFOV(0.2);
 }
 void APlayer::OnUpdate(float DeltaTime)
 {
@@ -49,8 +52,15 @@ void APlayer::OnUpdate(float DeltaTime)
 		sprite->AddWorldOffset({ 220.0f, -100.0f });
 		sprite->SetScale(0.5f);
 		AddComponent(std::move(sprite));
+		ObjectManager::GetInstance().SpawnObject<ACSVMap>(GetActorLocation(), FRotator{0});
 	}
 	if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_Z)) {
 		SceneManager::GetInstance().OpenScene<ADefaultScene>();
+	}
+	if (InputManager::GetInstance().GetMouseWheelUp()) {
+		m_camera->SetFOV(m_camera->GetFOV()*1.05);
+	}
+	if (InputManager::GetInstance().GetMouseWheelDown()) {
+		m_camera->SetFOV(m_camera->GetFOV() *0.95);
 	}
 }

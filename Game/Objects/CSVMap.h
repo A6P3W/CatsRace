@@ -6,7 +6,7 @@
 class ACSVMap : public AActor
 {
 public:
-    ACSVMap(const std::string& csvPath, const std::string& chipPath, int xNum, int yNum, int xSize, int ySize);
+    ACSVMap(FVector2D location, FRotator rotation);
     ACSVMap();
 
 private:

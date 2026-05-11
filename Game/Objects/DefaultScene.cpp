@@ -10,19 +10,20 @@
 #include <SpriteComponent.h>
 #include "CSVMap.h"
 ADefaultScene::ADefaultScene() {
-	//ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-	ObjectManager::GetInstance().SpawnObject<APlayer>({ 0,0 }, { 0 });
+	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
+	ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
 	ObjectManager::GetInstance().SpawnObject<ASampleA>({ 0,0 }, { 0 });
 	M_LOG("Default scene initialized", 0);
 	auto sprite = std::make_unique<MSpriteComponent>(-10000, RenderSpace::World);
 	sprite->SubmitCircle(300.0f, 0xFF0000, 1, 128);
-	//AddComponent(std::move(sprite));
+	AddComponent(std::move(sprite));
 	auto sprite2 = std::make_unique<MSpriteComponent>(-10000, RenderSpace::World);
 	sprite2->SubmitText("center", 0xFF0000, -1, 255);
 	AddComponent(std::move(sprite2));
+	ObjectManager::GetInstance().SpawnObject<ACSVMap>(FVector2D{0,0 }, FRotator{ 0 });
 
 
-	ObjectManager::GetInstance().SpawnObject<ACSVMap>({ 0,0 }, { 0 });
+		
 }
 
 void ADefaultScene::OnUpdate(float DeltaTime)

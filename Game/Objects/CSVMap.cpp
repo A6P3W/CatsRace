@@ -4,15 +4,17 @@
 #include <fstream>
 #include <sstream>
 #include <DxLib.h>
+#include <RenderSystem.h>
 
-ACSVMap::ACSVMap(const std::string& csvPath, const std::string& chipPath, int xNum, int yNum, int xSize, int ySize)
+ACSVMap::ACSVMap(FVector2D location, FRotator rotation)
 {
-    int totalChips = xNum * yNum;
+    SetActorLocation(location);
+    int totalChips =64;
+    SetActorScale(5);
     m_ChipHandles.resize(totalChips);
+    LoadDivGraph("images/map.bmp", totalChips, 8, 8, 32, 32, m_ChipHandles.data(), TRUE);
 
-    LoadDivGraph(chipPath.c_str(), totalChips, xNum, yNum, xSize, ySize, m_ChipHandles.data(), TRUE);
-
-    LoadCSV(csvPath, xSize, ySize, totalChips);
+    LoadCSV("images/otamesi.csv", 32, 32, totalChips);
 }
 
 
@@ -31,12 +33,13 @@ bool ACSVMap::LoadCSV(const std::string& path, int xSize, int ySize, int totalCh
             if (!cell.empty()) {
                 int chipID = std::stoi(cell);
                 if (chipID >= 0 && chipID < totalChips) {
+
                     auto tile = std::make_unique<MSpriteComponent>(-500, RenderSpace::World);
 
                     tile->SubmitGraph(1.0, m_ChipHandles[chipID], 255);
 
                     tile->SetParentComponent(this->GetRootComponent());
-                    tile->SetRelativeLocation({ (float)x * (float)0.97 * xSize, (float)y * (float)0.97 * ySize });
+                    tile->SetRelativeLocation({ GetActorLocation().X+(float)x * (float)0.97 * xSize, GetActorLocation().Y+(float)y * (float)0.97 * ySize });
                     AddComponent(std::move(tile));
                 }
             }
@@ -48,4 +51,3 @@ bool ACSVMap::LoadCSV(const std::string& path, int xSize, int ySize, int totalCh
 }
 
 // デフォルト設定
-ACSVMap::ACSVMap() : ACSVMap("images/otamesi.csv", "images/map.bmp", 8, 8, 32, 32) {}
