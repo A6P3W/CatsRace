@@ -40,6 +40,7 @@
     <ClCompile Include="Engine\EngineCore\Systems\Private\SceneManager.cpp" />
     <ClCompile Include="Engine\EngineSide\GridLine.cpp" />
     <ClCompile Include="Game\GameMain.cpp" />
+    <ClCompile Include="Game\Objects\CSVMap.cpp" />
     <ClCompile Include="Game\Objects\DefaultScene.cpp" />
     <ClCompile Include="Game\Objects\DefaultScene2.cpp" />
     <ClCompile Include="Game\Objects\Map.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="Engine\EngineCore\Utils\Log.h" />
     <ClInclude Include="Engine\EngineCore\Utils\UMath.h" />
     <ClInclude Include="Engine\EngineSide\GridLine.h" />
+    <ClInclude Include="Game\Objects\CSVMap.h" />
     <ClInclude Include="Game\Objects\DefaultScene.h" />
     <ClInclude Include="Game\Objects\DefaultScene2.h" />
     <ClInclude Include="Game\Objects\Map.h" />
