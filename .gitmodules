@@ -1,0 +1,3 @@
+[submodule "BroccoliEngine"]
+	path = BroccoliEngine
+	url = https://github.com/A6P3W/BroccoliEngine.git

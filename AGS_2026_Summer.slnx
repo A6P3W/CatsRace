@@ -3,5 +3,8 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="AGS_2026_Summer.vcxproj" Id="8bdd17fe-c01c-4909-9079-9d45c2cb229f" />
+  <Project Path="AGS_2026_Summer.vcxproj" Id="8bdd17fe-c01c-4909-9079-9d45c2cb229f">
+    <BuildDependency Project="BroccoliEngine/VS-DxLib-Learn-01.vcxproj" />
+  </Project>
+  <Project Path="BroccoliEngine/VS-DxLib-Learn-01.vcxproj" Id="118bd4ba-a816-42c0-95d2-aeafcd33bac5" />
 </Solution>
