@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Objects\ClearScene.cpp" />
     <ClCompile Include="Game\GameMain.cpp" />
     <ClCompile Include="Game\Objects\CSVMap.cpp" />
     <ClCompile Include="Game\Objects\DefaultScene.cpp" />
@@ -26,14 +27,17 @@
     <ClCompile Include="Game\Objects\Map.cpp" />
     <ClCompile Include="Game\Objects\Player.cpp" />
     <ClCompile Include="Game\Objects\SampleA.cpp" />
+    <ClCompile Include="Game\Objects\Goal.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Objects\ClearScene.h" />
     <ClInclude Include="Game\Objects\CSVMap.h" />
     <ClInclude Include="Game\Objects\DefaultScene.h" />
     <ClInclude Include="Game\Objects\DefaultScene2.h" />
     <ClInclude Include="Game\Objects\Map.h" />
     <ClInclude Include="Game\Objects\Player.h" />
     <ClInclude Include="Game\Objects\SampleA.h" />
+    <ClInclude Include="Game\Objects\Goal.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
