@@ -9,6 +9,7 @@
 #include <DxLib.h>
 #include <ObjectManager.h>
 #include "CSVMap.h"
+#include "CircleCollisionComponent.h"
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
 	SetActorLocation(location);
@@ -19,6 +20,10 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 	auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
 	sprite->SubmitGraph(1.0, handle);
 	AddComponent(std::move(sprite));
+
+	auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
+	col->SetParentComponent(GetRootComponent());
+	AddComponent(std::move(col));
 
 
 

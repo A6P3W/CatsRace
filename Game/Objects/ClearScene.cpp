@@ -1,0 +1,27 @@
+#include "ClearScene.h"
+#include "SpriteComponent.h"
+#include "InputManager.h"
+#include "SceneManager.h"
+#include "Objects/DefaultScene.h"
+#include <DxLib.h>
+AClearScene::AClearScene()
+{
+    // 画面中央にテキストを表示
+    auto textComp = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
+    textComp->SubmitText("GAME CLEAR!", 0xFFFF00, -1, 255);
+    // スクリーン座標(RenderSpace::Screen)なので、解像度に合わせて調整
+    textComp->SetRelativeLocation({ 800.0f, 500.0f });
+    AddComponent(std::move(textComp));
+
+    auto subText = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
+    subText->SubmitText("Press Z to Return", 0xFFFFFF, -1, 255);
+    subText->SetRelativeLocation({ 820.0f, 600.0f });
+    AddComponent(std::move(subText));
+}
+
+void AClearScene::OnUpdate(float DeltaTime)
+{
+    if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_R)) {
+        SceneManager::GetInstance().OpenScene<ADefaultScene>();
+    }
+}
