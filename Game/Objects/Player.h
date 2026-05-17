@@ -11,10 +11,12 @@ public:
 
 	void OnUpdate(float DeltaTime) override;
 	void OnPossesed() override;
-	void FowardBack(float Scale)override;
-	void LeftRight(float Scale)override;
+
+	
 private:
 	MMovementComponent* m_movement = nullptr;
 	float m_slider = 0.0f;
+
+	void OnMove();
 };
 

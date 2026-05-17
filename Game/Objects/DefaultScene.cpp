@@ -10,9 +10,10 @@
 #include <SpriteComponent.h>
 #include "CSVMap.h"
 #include <PlayerController.h>
+#include <Pawn.h>
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-	auto* Pawn = ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
+	auto* Pawn = ObjectManager::GetInstance().SpawnObject<APawn>({ 1111,0 }, { 0 });
 	auto* MyController = ObjectManager::GetInstance().SpawnObject<APlayerController>();
 	MyController->Possess(Pawn);
 

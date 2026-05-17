@@ -76,22 +76,22 @@ void APlayer::OnPossesed()
 	m_camera->SetFOV(0.2);
 }
 
-void APlayer::FowardBack(float Scale)
-{
-	if (Scale > 0) {
-		m_movement->AddLocalForce({ 0.0f, -2.0f });
-	}
-	else {
-		m_movement->AddLocalForce({ 0.0f, 2.0f });
-	}
-}
 
-void APlayer::LeftRight(float Scale)
-{
-	if (Scale > 0) {
-		m_slider -= 0.1;
-	}
-	else {
-		m_slider += 0.1;
-	}
-}
+//{
+//	if (Scale > 0) {
+//		m_movement->AddLocalForce({ 0.0f, -2.0f });
+//	}
+//	else {
+//		m_movement->AddLocalForce({ 0.0f, 2.0f });
+//	}
+//}
+//
+//
+//{
+//	if (Scale > 0) {
+//		m_slider -= 0.1;
+//	}
+//	else {
+//		m_slider += 0.1;
+//	}
+//}
