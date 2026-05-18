@@ -11,6 +11,7 @@
 #include "CSVMap.h"
 #include <MovementComponent.h>
 #include <algorithm>
+#include <EnhancedInputComponent.h>
 APlayer::APlayer()
 {
 
@@ -74,6 +75,12 @@ void APlayer::OnPossesed()
 {
 	m_camera->SetActiveCamera();
 	m_camera->SetFOV(0.2);
+}
+
+void APlayer::OnMove(const FInputActionValue& Value)
+{
+	m_movement->AddLocalForce({ 0.0f, Value.Axis2D.Y*-2});
+	m_slider -= Value.Axis2D.X*0.1;
 }
 
 

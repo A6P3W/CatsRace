@@ -17,6 +17,6 @@ private:
 	MMovementComponent* m_movement = nullptr;
 	float m_slider = 0.0f;
 
-	void OnMove();
+	void OnMove(const FInputActionValue& Value);
 };
 
