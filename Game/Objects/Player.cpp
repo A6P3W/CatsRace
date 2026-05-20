@@ -12,11 +12,9 @@
 #include <MovementComponent.h>
 #include <algorithm>
 #include "CircleCollisionComponent.h"
-APlayer::APlayer(FVector2D location, FRotator rotation)
+#include <EnhancedInputComponent.h>
+APlayer::APlayer()
 {
-	SetActorLocation(location);
-	SetActorRotation(rotation);
-
 
 	int handle = ResourceManager::GetInstance().LoadResourceGraph("BaseFile/texture_Checker_64px.png");
 	auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
@@ -33,27 +31,23 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 	AddComponent(std::move(movement));
 
 
-	auto camera = std::make_unique<MCameraComponent>();
-	m_camera = camera.get();
-	AddComponent(std::move(camera));
-	m_camera->SetActiveCamera();
-	m_camera->SetFOV(0.2);
+
 }
 void APlayer::OnUpdate(float DeltaTime)
 {
 	float moveSpeed = 1000.0f;
 	float rotationSpeed = 180.0f;
 	if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::UP)) {
-		m_movement->AddLocalForce({ 0.0f, -2.0f });
+		
 	}
 	if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::DOWN)) {
-		m_movement->AddLocalForce({ 0.0f, 2.0f });
+		
 	}
 	if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::LEFT)) {
-		m_slider -= 0.1;
+		
 	}
 	if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::RIGHT)) {
-		m_slider += 0.1;
+		
 		
 	}
 	m_slider = std::clamp(m_slider, -1.0f, 1.0f);
@@ -81,3 +75,35 @@ void APlayer::OnUpdate(float DeltaTime)
 		m_camera->SetFOV(m_camera->GetFOV() * 0.95);
 	}
 }
+
+void APlayer::OnPossesed()
+{
+	m_camera->SetActiveCamera();
+	m_camera->SetFOV(0.2);
+}
+
+void APlayer::OnMove(const FInputActionValue& Value)
+{
+	m_movement->AddLocalForce({ 0.0f, Value.Axis2D.Y*-2});
+	m_slider -= Value.Axis2D.X*0.1;
+}
+
+
+//{
+//	if (Scale > 0) {
+//		m_movement->AddLocalForce({ 0.0f, -2.0f });
+//	}
+//	else {
+//		m_movement->AddLocalForce({ 0.0f, 2.0f });
+//	}
+//}
+//
+//
+//{
+//	if (Scale > 0) {
+//		m_slider -= 0.1;
+//	}
+//	else {
+//		m_slider += 0.1;
+//	}
+//}

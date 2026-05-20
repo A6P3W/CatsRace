@@ -5,15 +5,20 @@
 #include "Objects/SampleA.h"
 #include "Objects/Map.h"
 #include "ObjectManager.h"
-#include "CSVMap.h"
-#include "Goal.h"
 #include <Utils/Umath.h>
 #include <Utils/Log.h>
 #include <SpriteComponent.h>
-
+#include "CSVMap.h"
+#include <PlayerController.h>
+#include <Pawn.h>
+#include "Player.h"
+#include "Goal.h"
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-	ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
+	auto* Pawn = ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
+	auto* MyController = ObjectManager::GetInstance().SpawnObject<APlayerController>();
+	MyController->Possess(Pawn);
+
 	ObjectManager::GetInstance().SpawnObject<ASampleA>({ 0,0 }, { 0 });
 	M_LOG("Default scene initialized", 0);
 	auto sprite = std::make_unique<MSpriteComponent>(-10000, RenderSpace::World);
