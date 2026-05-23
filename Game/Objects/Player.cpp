@@ -23,6 +23,7 @@ APlayer::APlayer()
 
 	auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
 	col->SetParentComponent(GetRootComponent());
+	col->SetCollisionType(ECollisionType::Block);
 	AddComponent(std::move(col));
 
 
