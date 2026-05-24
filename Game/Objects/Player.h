@@ -11,12 +11,14 @@ public:
 
 	void OnUpdate(float DeltaTime) override;
 	void OnPossesed() override;
-
+	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
 	
 private:
 	MMovementComponent* m_movement = nullptr;
 	float m_slider = 0.0f;
 
 	void OnMove(const FInputActionValue& Value);
+	void OnRestartPressed();
+	void OnWheel(const FInputActionValue& Value);
 };
 
