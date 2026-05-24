@@ -18,9 +18,8 @@
 #include "UserTimer.h"
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-	auto* Pawn = ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
-	auto* MyController = ObjectManager::GetInstance().SpawnObject<APlayerController>();
-	MyController->Possess(Pawn);
+
+	SpawnPlayer<APlayer, APlayerController>(FVector2D{ 1111, 0 }, 0);
 
 	ObjectManager::GetInstance().SpawnObject<ASampleA>({ 0,0 }, { 0 });
 	M_LOG("Default scene initialized", 0);

@@ -68,7 +68,7 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
 	PlayerInputComponent->BindAction(InputAction::MoveX, ETriggerEvent::Triggered, this, &APlayer::OnMove);
 	PlayerInputComponent->BindAction(InputAction::MoveY, ETriggerEvent::Triggered, this, &APlayer::OnMove);
-	PlayerInputComponent->BindAction(InputAction::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
+	PlayerInputComponent->BindAction(InputActionMouse::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
 
 }
 
