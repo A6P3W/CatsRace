@@ -29,6 +29,7 @@
     <ClCompile Include="Game\Objects\SampleA.cpp" />
     <ClCompile Include="Game\Objects\Goal.cpp" />
     <ClCompile Include="Game\Objects\UserTimer.cpp" />
+    <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="Game\Objects\SampleA.h" />
     <ClInclude Include="Game\Objects\Goal.h" />
     <ClInclude Include="Game\Objects\UserTimer.h" />
+    <ClInclude Include="Game\Objects\Items\SpeedUpItem.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
