@@ -12,7 +12,6 @@ class APlayer : public APawn
 {
 public:
     APlayer(FVector2D location, FRotator rotation);
-    void OnUpdate(float DeltaTime) override;
 
 	void OnUpdate(float DeltaTime) override;
 	void OnPossesed() override;

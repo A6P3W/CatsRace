@@ -37,10 +37,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 	col->SetStatic(false);
 	AddComponent(std::move(col));
 
-    // コリジョン
-    auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
-    col->SetParentComponent(GetRootComponent());
-    AddComponent(std::move(col));
 
     // 移動
     auto movement = std::make_unique<MMovementComponent>();
@@ -68,24 +64,10 @@ void APlayer::OnUpdate(float DeltaTime)
     const float HandleReturn = 10.0f;
     const float MaxRot = 150.0f;
 
-    // ---------- 前後移動 ----------
-    if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::UP)) {
-        m_movement->AddLocalForce(FVector2D{ 0.0f, -AccelPower * DeltaTime * 60.0f });
-    }
-    if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::DOWN)) {
-        m_movement->AddLocalForce(FVector2D{ 0.0f, AccelPower * 0.6f * DeltaTime * 60.0f });
-    }
 
     // ---------- ステアリング ----------
     bool bIn = false;
-    if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::LEFT)) {
-        m_slider -= HandleSpeed * DeltaTime;
-        bIn = true;
-    }
-    if (InputMapper::GetInstance().GetKeyPressing(E_INPUT_ACTION::RIGHT)) {
-        m_slider += HandleSpeed * DeltaTime;
-        bIn = true;
-    }
+
     if (!bIn) {
         if (std::abs(m_slider) < 0.05f) m_slider = 0.0f;
         else m_slider -= (m_slider > 0.0f ? HandleReturn : -HandleReturn) * DeltaTime;
@@ -134,19 +116,6 @@ void APlayer::OnUpdate(float DeltaTime)
 
     }
 
-    // ---------- その他 ----------
-    if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_SPACE)) {
-        ObjectManager::GetInstance().SpawnObject<ACSVMap>(GetActorLocation(), FRotator{ 0.0f });
-    }
-    if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_Z)) {
-        SceneManager::GetInstance().OpenScene<ADefaultScene>();
-    }
-    if (InputManager::GetInstance().GetMouseWheelUp()) {
-        m_camera->SetFOV(std::min(m_camera->GetFOV() * 1.05f, 5.0f));
-    }
-    if (InputManager::GetInstance().GetMouseWheelDown()) {
-        m_camera->SetFOV(std::max(m_camera->GetFOV() * 0.95f, 0.05f));
-    }
 	float moveSpeed = 1000.0f;
 	float rotationSpeed = 180.0f;
 
