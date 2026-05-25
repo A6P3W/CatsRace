@@ -1,5 +1,5 @@
 #include "Goal.h"
-#include "CircleCollisionComponent.h"
+#include "RectAngleCollisionComponent.h"
 #include "SceneManager.h"
 #include "Objects/Player.h" // プレイヤー判定用
 #include "Utils/Log.h"
@@ -11,7 +11,7 @@ AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
     SetActorLocation(location);
 
     // 半径50の円形コリジョンを追加
-    auto collision = std::make_unique<MCircleCollisionComponent>(50.0f);
+    auto collision = std::make_unique<MRectangleCollisionComponent>(20000.0f);
     collision->SetParentComponent(GetRootComponent());
     AddComponent(std::move(collision));
 }
