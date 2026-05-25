@@ -15,6 +15,7 @@
 #include <CircleCollisionComponent.h>
 #include <RectangleCollisionComponent.h>
 #include "UserTimer.h"
+#include "Objects/Items/SpeedUpItem.h"
 #include "ResourceManager.h" 
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
@@ -53,6 +54,7 @@ ADefaultScene::ADefaultScene() {
 	c->SetWorldLocation({ -4500,-2393 });
 	AddComponent(std::move(c));
 
+	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 0,400 }, FRotator{ 0 });
 	auto d = std::make_unique<MRectangleCollisionComponent>();
 	d->SetCollisionType(ECollisionType::Block);
 	d->SetScale(90.0f);
