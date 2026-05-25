@@ -11,7 +11,6 @@
 #include "CSVMap.h"
 #include <PlayerController.h>
 #include <Pawn.h>
-#include "Player.h"
 #include "Goal.h"
 #include <CircleCollisionComponent.h>
 #include <RectangleCollisionComponent.h>
