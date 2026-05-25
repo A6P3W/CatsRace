@@ -8,11 +8,13 @@ class MCameraComponent;
 class MMovementComponent;
 class MSpriteComponent;
 
-class APlayer : public AActor
+class APlayer : public APawn
 {
 public:
     APlayer(FVector2D location, FRotator rotation);
     void OnUpdate(float DeltaTime) override;
+
+    void OnPossesed() override;
 
 private:
     MCameraComponent* m_camera = nullptr;
@@ -23,4 +25,6 @@ private:
     float m_prevSpeed = 0.0f;
     float m_moveAnimTime = 0.0f;
     int m_walkAnimFrame = 0;
+
+    void OnMove(const FInputActionValue& Value);
 };

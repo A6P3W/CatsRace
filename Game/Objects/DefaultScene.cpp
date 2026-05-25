@@ -11,7 +11,6 @@
 #include "CSVMap.h"
 #include <PlayerController.h>
 #include <Pawn.h>
-#include "Player.h"
 #include "Goal.h"
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);

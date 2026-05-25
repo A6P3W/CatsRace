@@ -14,7 +14,7 @@
 #include <algorithm>
 #include "CircleCollisionComponent.h"
 #include "Utils/Log.h"
-#include "SoundManager.h"
+#include <EnhancedInputComponent.h>
 
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
@@ -51,9 +51,9 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
-    SoundManager::GetInstance().PlayBGM("images/carsound_0_7s.mp3", true);
-    SoundManager::GetInstance().SetBGMVolume(0);
+
 }
+
 
 void APlayer::OnUpdate(float DeltaTime)
 {
@@ -127,7 +127,6 @@ void APlayer::OnUpdate(float DeltaTime)
         float t = std::clamp((currentSpeed - SpeedMin) / (SpeedMax - SpeedMin), 0.0f, 1.0f);
         int volume = static_cast<int>(t * 255.0f);
 
-        SoundManager::GetInstance().SetBGMVolume(volume);
     }
 
     // ---------- その他 ----------
