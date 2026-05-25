@@ -58,6 +58,16 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 void APlayer::OnUpdate(float DeltaTime)
 {
+
+    float moveSpeed = 1000.0f;
+    float rotationSpeed = 180.0f;
+
+    m_slider = std::clamp(m_slider, -1.0f, 1.0f);
+    float velocity = std::clamp(m_movement->GetVelocitySizeSquared() - 0.9f, 0.0f, 1.0f);
+    AddActorRotation(rotationSpeed * m_slider * velocity * DeltaTime);
+    m_movement->AddVelocityRotation(rotationSpeed * m_slider * velocity * DeltaTime);
+
+
     // ---------- パラメータ ----------
     const float AccelPower = 5.0f;
     const float HandleSpeed = 12.0f;
@@ -68,19 +78,11 @@ void APlayer::OnUpdate(float DeltaTime)
     // ---------- ステアリング ----------
     bool bIn = false;
 
-    if (!bIn) {
-        if (std::abs(m_slider) < 0.05f) m_slider = 0.0f;
-        else m_slider -= (m_slider > 0.0f ? HandleReturn : -HandleReturn) * DeltaTime;
-    }
-    m_slider = std::clamp(m_slider, -1.0f, 1.0f);
 
     // ---------- 旋回計算 ----------
     FVector2D v = m_movement->GetVelocity();
     float s = std::sqrt(v.SizeSquared());
     float ability = std::clamp(s / 1.5f, 0.0f, 1.0f);
-    float rot = MaxRot * m_slider * ability * DeltaTime;
-    AddActorRotation(FRotator{ rot });
-    m_movement->AddVelocityRotation(FRotator{ rot });
 
     // ---------- 移動アニメーション ----------
     if (m_sprite) {
@@ -116,14 +118,6 @@ void APlayer::OnUpdate(float DeltaTime)
 
     }
 
-	float moveSpeed = 1000.0f;
-	float rotationSpeed = 180.0f;
-
-	m_slider = std::clamp(m_slider, -1.0f, 1.0f);
-	float velocity = std::clamp(m_movement->GetVelocitySizeSquared()-0.9f, 0.0f, 1.0f);
-	AddActorRotation(rotationSpeed* m_slider*velocity * DeltaTime);
-	m_movement->AddVelocityRotation(rotationSpeed * m_slider * velocity * DeltaTime);
-
 	//if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_SPACE)) {
 	//	int handle = ResourceManager::GetInstance().LoadResourceGraph("BaseFile/texture_Checker_64px.png");
 	//	auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
@@ -155,6 +149,7 @@ void APlayer::OnMove(const FInputActionValue& Value)
 {
 	m_movement->AddLocalForce({ 0.0f, Value.Axis2D.Y*-2});
 	m_slider -= Value.Axis2D.X*0.1;
+    
 }
 
 void APlayer::OnRestartPressed()
