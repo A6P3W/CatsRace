@@ -5,7 +5,7 @@
 #include <sstream>
 #include <DxLib.h>
 #include <RenderSystem.h>
-
+#include <RectangleCollisionComponent.h>
 ACSVMap::ACSVMap(FVector2D location, FRotator rotation)
 {
     SetActorLocation(location);
@@ -35,12 +35,15 @@ bool ACSVMap::LoadCSV(const std::string& path, int xSize, int ySize, int totalCh
                 if (chipID >= 0 && chipID < totalChips) {
 
                     auto tile = std::make_unique<MSpriteComponent>(-500, RenderSpace::World);
-
+                    auto collision = std::make_unique<MRectangleCollisionComponent>(32,32);
+					collision->SetCollisionType(ECollisionType::Block);
                     tile->SubmitGraph(1.0, m_ChipHandles[chipID], 255);
+                    collision->SetParentComponent(tile.get());
 
                     tile->SetParentComponent(this->GetRootComponent());
                     tile->SetRelativeLocation({ GetActorLocation().X+(float)x * (float)0.97 * xSize, GetActorLocation().Y+(float)y * (float)0.97 * ySize });
                     AddComponent(std::move(tile));
+                    AddComponent(std::move(collision));
                 }
             }
             x++;

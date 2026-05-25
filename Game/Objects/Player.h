@@ -14,8 +14,10 @@ public:
     APlayer(FVector2D location, FRotator rotation);
     void OnUpdate(float DeltaTime) override;
 
-    void OnPossesed() override;
-
+	void OnUpdate(float DeltaTime) override;
+	void OnPossesed() override;
+	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
+	
 private:
     MCameraComponent* m_camera = nullptr;
     MMovementComponent* m_movement = nullptr;
@@ -26,5 +28,7 @@ private:
     float m_moveAnimTime = 0.0f;
     int m_walkAnimFrame = 0;
 
-    void OnMove(const FInputActionValue& Value);
+	void OnMove(const FInputActionValue& Value);
+	void OnRestartPressed();
+	void OnWheel(const FInputActionValue& Value);
 };

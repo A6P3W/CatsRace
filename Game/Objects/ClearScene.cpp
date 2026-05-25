@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Objects/DefaultScene.h"
+#include <KeyboardDevice.h>
 #include <DxLib.h>
 AClearScene::AClearScene()
 {
@@ -21,7 +22,8 @@ AClearScene::AClearScene()
 
 void AClearScene::OnUpdate(float DeltaTime)
 {
-    if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_R)) {
-        SceneManager::GetInstance().OpenScene<ADefaultScene>();
-    }
+    auto* kb = InputManager::GetInstance().GetDevice<KeyboardDevice>();
+    if (kb && kb->GetPressStart(KEY_INPUT_R)) {
+		SceneManager::GetInstance().OpenScene<ADefaultScene>();
+	}
 }

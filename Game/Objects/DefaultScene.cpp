@@ -12,11 +12,13 @@
 #include <PlayerController.h>
 #include <Pawn.h>
 #include "Goal.h"
+#include <CircleCollisionComponent.h>
+#include <RectangleCollisionComponent.h>
+#include "UserTimer.h"
 ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-	auto* Pawn = ObjectManager::GetInstance().SpawnObject<APlayer>({ 1111,0 }, { 0 });
-	auto* MyController = ObjectManager::GetInstance().SpawnObject<APlayerController>();
-	MyController->Possess(Pawn);
+
+	SpawnPlayer<APlayer, APlayerController>(FVector2D{ 1111, 0 }, 0);
 
 	ObjectManager::GetInstance().SpawnObject<ASampleA>({ 0,0 }, { 0 });
 	M_LOG("Default scene initialized", 0);
@@ -32,7 +34,11 @@ ADefaultScene::ADefaultScene() {
 	ObjectManager::GetInstance().SpawnObject<ACSVMap>(FVector2D{0,0 }, FRotator{ 0 });
 
 
-		
+	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
+	auto c = std::make_unique<MRectangleCollisionComponent>();
+	c->SetCollisionType(ECollisionType::Block);
+	c->SetScale(5.0f);
+	AddComponent(std::move(c));
 }
 
 void ADefaultScene::OnUpdate(float DeltaTime)

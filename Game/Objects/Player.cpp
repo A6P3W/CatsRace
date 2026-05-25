@@ -31,6 +31,11 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_sprite = sprite.get();
     sprite->SubmitGraph(1.0, m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
+	auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
+	col->SetParentComponent(GetRootComponent());
+	col->SetCollisionType(ECollisionType::Block);
+	col->SetStatic(false);
+	AddComponent(std::move(col));
 
     // コリジョン
     auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
@@ -142,6 +147,24 @@ void APlayer::OnUpdate(float DeltaTime)
     if (InputManager::GetInstance().GetMouseWheelDown()) {
         m_camera->SetFOV(std::max(m_camera->GetFOV() * 0.95f, 0.05f));
     }
+	float moveSpeed = 1000.0f;
+	float rotationSpeed = 180.0f;
+
+	m_slider = std::clamp(m_slider, -1.0f, 1.0f);
+	float velocity = std::clamp(m_movement->GetVelocitySizeSquared()-0.9f, 0.0f, 1.0f);
+	AddActorRotation(rotationSpeed* m_slider*velocity * DeltaTime);
+	m_movement->AddVelocityRotation(rotationSpeed * m_slider * velocity * DeltaTime);
+
+	//if (InputManager::GetInstance().GetKeyPressStart(KEY_INPUT_SPACE)) {
+	//	int handle = ResourceManager::GetInstance().LoadResourceGraph("BaseFile/texture_Checker_64px.png");
+	//	auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
+	//	sprite->SubmitGraph(1.0, handle);
+	//	sprite->SetParentComponent(this->GetRootComponent());
+	//	sprite->AddWorldOffset({ 220.0f, -100.0f });
+	//	sprite->SetScale(0.5f);
+	//	AddComponent(std::move(sprite));
+	//	ObjectManager::GetInstance().SpawnObject<ACSVMap>(GetActorLocation(), FRotator{ 0 });
+	//}
 }
 
 void APlayer::OnPossesed()
@@ -150,11 +173,33 @@ void APlayer::OnPossesed()
 	m_camera->SetFOV(0.2);
 }
 
+void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent)
+{
+	PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
+	PlayerInputComponent->BindAction(InputAction::MoveX, ETriggerEvent::Triggered, this, &APlayer::OnMove);
+	PlayerInputComponent->BindAction(InputAction::MoveY, ETriggerEvent::Triggered, this, &APlayer::OnMove);
+	PlayerInputComponent->BindAction(InputActionMouse::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
+
+}
+
 void APlayer::OnMove(const FInputActionValue& Value)
 {
 	m_movement->AddLocalForce({ 0.0f, Value.Axis2D.Y*-2});
 	m_slider -= Value.Axis2D.X*0.1;
 }
+
+void APlayer::OnRestartPressed()
+{
+	SceneManager::GetInstance().OpenScene<ADefaultScene>();
+}
+
+void APlayer::OnWheel(const FInputActionValue& Value)
+{
+	float fov = m_camera->GetFOV();
+	m_camera->SetFOV(fov*=1+Value.Axis1D*0.1);
+}
+
+
 
 
 //{
