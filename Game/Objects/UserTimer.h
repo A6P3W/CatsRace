@@ -3,6 +3,7 @@
 class UserTimer : public AActor
 {
 public:
+	DEFINE_ACTOR_CLASS(UserTimer);
 	void OnUpdate(float DeltaTime) override;
 
 private:
