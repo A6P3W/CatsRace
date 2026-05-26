@@ -6,6 +6,7 @@
 class ACSVMap : public AActor
 {
 public:
+    DEFINE_ACTOR_CLASS(ACSVMap);
     ACSVMap(FVector2D location, FRotator rotation);
     ACSVMap();
 

@@ -11,6 +11,7 @@ class MSpriteComponent;
 class APlayer : public APawn
 {
 public:
+	DEFINE_ACTOR_CLASS(APlayer);
     APlayer(FVector2D location, FRotator rotation);
 
 	void OnUpdate(float DeltaTime) override;
