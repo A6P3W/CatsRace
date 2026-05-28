@@ -24,6 +24,6 @@ void AClearScene::OnUpdate(float DeltaTime)
 {
     auto* kb = InputManager::GetInstance().GetDevice<KeyboardDevice>();
     if (kb && kb->GetPressStart(KEY_INPUT_R)) {
-		SceneManager::GetInstance().OpenScene<ADefaultScene>();
+		SceneManager::GetInstance().OpenScene<AGameScene01>();
 	}
 }
