@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "GameModeBase.h"
-class ADefaultScene :public AGameModeBase
+class AGameScene01 :public AGameModeBase
 {
 public:
-	ADefaultScene();
+	AGameScene01();
 	void OnUpdate(float DeltaTime) override;
 private:
 

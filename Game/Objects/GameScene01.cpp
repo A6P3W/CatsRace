@@ -16,7 +16,7 @@
 #include "UserTimer.h"
 #include "Objects/Items/SpeedUpItem.h"
 #include "ResourceManager.h" 
-ADefaultScene::ADefaultScene() {
+AGameScene01::AGameScene01() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
 
 	SpawnPlayer<APlayer, APlayerController>(FVector2D{ 1111, 0 }, 0);
@@ -108,6 +108,6 @@ ADefaultScene::ADefaultScene() {
 
 }
 
-void ADefaultScene::OnUpdate(float DeltaTime)
+void AGameScene01::OnUpdate(float DeltaTime)
 {
 }

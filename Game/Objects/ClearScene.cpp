@@ -2,7 +2,7 @@
 #include "SpriteComponent.h"
 #include "InputManager.h"
 #include "SceneManager.h"
-#include "Objects/DefaultScene.h"
+#include "Objects/GameScene01.h"
 #include <KeyboardDevice.h>
 #include <DxLib.h>
 AClearScene::AClearScene()
