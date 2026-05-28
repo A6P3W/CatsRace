@@ -1,4 +1,4 @@
-﻿#include "DefaultScene.h"
+﻿#include "GameScene01.h"
 #include <string>
 #include "ObjectManager.h"
 #include "Objects/Player.h"
@@ -8,7 +8,6 @@
 #include <Utils/Umath.h>
 #include <Utils/Log.h>
 #include <SpriteComponent.h>
-#include "CSVMap.h"
 #include <PlayerController.h>
 #include <Pawn.h>
 #include "Goal.h"
@@ -40,9 +39,6 @@ ADefaultScene::ADefaultScene() {
 	AddComponent(std::move(sprite2));
 
 	ObjectManager::GetInstance().SpawnObject<AGoalActor>(FVector2D{ 1000.0f, -21000.0f }, 0.0f);
-
-
-	ObjectManager::GetInstance().SpawnObject<ACSVMap>(FVector2D{0,0 }, FRotator{ 0 });
 
 
 	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });

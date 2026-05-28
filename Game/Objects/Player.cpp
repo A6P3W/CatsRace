@@ -9,7 +9,6 @@
 #include "Objects/DefaultScene.h"
 #include <DxLib.h>
 #include "ObjectManager.h"
-#include "CSVMap.h"
 #include "MovementComponent.h"
 #include <algorithm>
 #include "CircleCollisionComponent.h"
@@ -153,7 +152,7 @@ void APlayer::OnMove(const FInputActionValue& Value)
 
 void APlayer::OnRestartPressed()
 {
-	SceneManager::GetInstance().OpenScene<ADefaultScene>();
+	SceneManager::GetInstance().OpenScene<AGameScene01>();
 }
 
 void APlayer::OnWheel(const FInputActionValue& Value)
