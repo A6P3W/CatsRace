@@ -145,6 +145,7 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 
 void APlayer::OnMove(const FInputActionValue& Value)
 {
+	if (CanMove == false)return;
 	m_movement->AddLocalForce({ 0.0f, Value.Axis2D.Y*-2});
 	m_slider -= Value.Axis2D.X*0.1;
     

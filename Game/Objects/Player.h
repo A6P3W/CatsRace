@@ -18,6 +18,7 @@ public:
 	void OnPossesed() override;
 	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
 	
+	void SetCanMove(bool canMove) { CanMove = canMove; }
 private:
     MCameraComponent* m_camera = nullptr;
     MMovementComponent* m_movement = nullptr;
@@ -31,4 +32,6 @@ private:
 	void OnMove(const FInputActionValue& Value);
 	void OnRestartPressed();
 	void OnWheel(const FInputActionValue& Value);
+
+	bool CanMove=false;
 };

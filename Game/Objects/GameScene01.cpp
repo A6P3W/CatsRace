@@ -15,7 +15,9 @@
 #include <RectangleCollisionComponent.h>
 #include "UserTimer.h"
 #include "Objects/Items/SpeedUpItem.h"
-#include "ResourceManager.h" 
+#include "ResourceManager.h"
+#include <TimerHandle.h>
+#include <TimerManager.h>
 AGameScene01::AGameScene01() {
 	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
 
@@ -41,7 +43,7 @@ AGameScene01::AGameScene01() {
 	ObjectManager::GetInstance().SpawnObject<AGoalActor>(FVector2D{ 1000.0f, -21000.0f }, 0.0f);
 
 
-	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
+	
 
 
 	auto c = std::make_unique<MRectangleCollisionComponent>();
@@ -106,8 +108,47 @@ AGameScene01::AGameScene01() {
 	h->SetWorldLocation({ -3330,-10970 });
 	AddComponent(std::move(h));
 
+	
+	auto countSprite = std::make_unique<MSpriteComponent>(110, RenderSpace::World);
+	m_CountDownSprite = countSprite.get();
+	AddComponent(std::move(countSprite));
+
+
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 0);
 }
 
 void AGameScene01::OnUpdate(float DeltaTime)
 {
 }
+
+void AGameScene01::RaceCountDown()
+{
+	auto text = ResourceManager::GetInstance().GetFont(240, 1);
+	if (m_CountDown <= 0) {
+		GetWorldTimerManager().ClearTimer(CountHandle);
+		RaceStart();
+		
+		m_CountDownSprite->SubmitText("Go!", 0xFFFFFF, text, 255);
+	}
+	else {
+		m_CountDownSprite->SubmitText(std::to_string(m_CountDown), 0xFFFFFF, text, 255);
+		M_LOG(std::to_string(m_CountDown), 0);
+		m_CountDown--;
+	}
+}
+
+
+void AGameScene01::RaceStart()
+{
+	M_LOG("start", 0);
+	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
+	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
+
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
+}
+
+void AGameScene01::ClearCountDownSprite()
+{
+	m_CountDownSprite->DestroyComponent();
+}
+
