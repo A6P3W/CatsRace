@@ -18,5 +18,7 @@ private:
 	MSpriteComponent* m_CountDownSprite = nullptr;
 
 	void ClearCountDownSprite();
+
+
 };
 
