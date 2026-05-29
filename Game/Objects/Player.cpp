@@ -31,12 +31,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_sprite = sprite.get();
     sprite->SubmitGraph(1.0, m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
-	auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
-	col->SetParentComponent(GetRootComponent());
-	col->SetCollisionType(ECollisionType::Block);
-	col->SetStatic(false);
-	m_collision = col.get();
-	AddComponent(std::move(col));
+
 
     auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
     col->SetParentComponent(GetRootComponent());
