@@ -14,6 +14,7 @@
 #include "CircleCollisionComponent.h"
 #include "Utils/Log.h"
 #include <EnhancedInputComponent.h>
+#include <EasyShakeComponent.h>
 
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
@@ -30,6 +31,12 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_sprite = sprite.get();
     sprite->SubmitGraph(1.0, m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
+	auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
+	col->SetParentComponent(GetRootComponent());
+	col->SetCollisionType(ECollisionType::Block);
+	col->SetStatic(false);
+	m_collision = col.get();
+	AddComponent(std::move(col));
 
     auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
     col->SetParentComponent(GetRootComponent());
@@ -41,11 +48,19 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_movement = movement.get();
     AddComponent(std::move(movement));
 
+	auto shake = std::make_unique<MEasyShakeComponent>();
+	m_shake = shake.get();
+	AddComponent(std::move(shake));
+    // カメラ
     auto camera = std::make_unique<MCameraComponent>();
     m_camera = camera.get();
     AddComponent(std::move(camera));
     m_camera->SetActiveCamera();
     m_camera->SetFOV(0.2f);
+	m_camera->SetParentComponent(m_shake);
+    // 走行音をループ再生開始・最初は無音
+    // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
+
 }
 
 void APlayer::OnUpdate(float DeltaTime)
@@ -128,6 +143,41 @@ void APlayer::OnRestartPressed()
 
 void APlayer::OnWheel(const FInputActionValue& Value)
 {
-    float fov = m_camera->GetFOV();
-    m_camera->SetFOV(fov *= 1 + Value.Axis1D * 0.1);
+	float fov = m_camera->GetFOV();
+	m_camera->SetFOV(fov*=1+Value.Axis1D*0.1);
 }
+
+void APlayer::BeginOverlap(AActor* OtherActor)
+{
+	M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
+    m_shake->StartShake(m_crashshake, {15,15},2011);
+}
+
+
+void APlayer::EndOverlap(AActor * OtherActor)
+{
+	M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
+	m_shake->EndShake(m_crashshake, false);
+}
+
+
+
+
+//{
+//	if (Scale > 0) {
+//		m_movement->AddLocalForce({ 0.0f, -2.0f });
+//	}
+//	else {
+//		m_movement->AddLocalForce({ 0.0f, 2.0f });
+//	}
+//}
+//
+//
+//{
+//	if (Scale > 0) {
+//		m_slider -= 0.1;
+//	}
+//	else {
+//		m_slider += 0.1;
+//	}
+//}
