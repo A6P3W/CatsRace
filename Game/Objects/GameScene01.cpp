@@ -111,6 +111,7 @@ AGameScene01::AGameScene01() {
 	
 	auto countSprite = std::make_unique<MSpriteComponent>(110, RenderSpace::World);
 	m_CountDownSprite = countSprite.get();
+	m_CountDownSprite->SetRelativeLocation({ 0.0f, -2000.0f });
 	AddComponent(std::move(countSprite));
 
 
@@ -145,22 +146,19 @@ void AGameScene01::RaceStart()
 	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
-	M_LOG("start", 0);
+
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 1111,  -3000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
-	M_LOG("start", 0);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -1111,  -9000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
-	M_LOG("start", 0);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -7000,  -10000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
-	M_LOG("start", 0);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 2000,  -15000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);

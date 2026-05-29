@@ -53,6 +53,8 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_camera->SetActiveCamera();
     m_camera->SetFOV(0.2f);
 	m_camera->SetParentComponent(m_shake);
+
+	m_camera->AddLocalOffset({ 0.0f, -600.0f });
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
 
@@ -119,7 +121,7 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 {
     PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
     PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Triggered, this, &APlayer::OnMove);
-    PlayerInputComponent->BindAction(InputActionMouse::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
+    //PlayerInputComponent->BindAction(InputActionMouse::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
 }
 
 void APlayer::OnMove(const FInputActionValue& Value)
