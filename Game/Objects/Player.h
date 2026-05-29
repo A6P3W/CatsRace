@@ -13,7 +13,7 @@ class MCircleCollisionComponent;
 class APlayer : public APawn
 {
 public:
-	DEFINE_ACTOR_CLASS(APlayer);
+
     APlayer(FVector2D location, FRotator rotation);
 
 	void OnUpdate(float DeltaTime) override;
@@ -28,8 +28,15 @@ private:
     MSpriteComponent* m_sprite = nullptr;
     MCircleCollisionComponent* m_collision = nullptr;
     std::array<int, 5> m_walkAnimHandles{};
+private:
+    float m_accelInput = 0.0f;
     float m_slider = 0.0f;
-    float m_prevSpeed = 0.0f;
+    
+    const float MaxSpeed = 70.0f;  
+    const float MaxReverseSpeed = 20.0f; 
+    const float AccelForce = 3.5f;   
+    const float ReverseForce = 2.0f;   
+    const float MaxSteer = 5.5f;
     float m_moveAnimTime = 0.0f;
     int m_walkAnimFrame = 0;
 

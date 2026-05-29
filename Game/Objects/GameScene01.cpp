@@ -40,7 +40,7 @@ AGameScene01::AGameScene01() {
 	sprite2->SubmitText("center", 0xFF0000, -1, 255);
 	AddComponent(std::move(sprite2));
 
-	ObjectManager::GetInstance().SpawnObject<AGoalActor>(FVector2D{ 1000.0f, -21000.0f }, 0.0f);
+	ObjectManager::GetInstance().SpawnObject<AGoalActor>(FVector2D{ 1000.0f, -21150.0f }, 0.0f);
 
 
 	
@@ -62,7 +62,7 @@ AGameScene01::AGameScene01() {
 	auto e = std::make_unique<MRectangleCollisionComponent>();
 	e->SetCollisionType(ECollisionType::Block);
 	e->SetScale(90.0f);
-	e->SetWorldLocation({ -11950,-10500 });
+	e->SetWorldLocation({ -11950,-10700 });
 	AddComponent(std::move(e));
 
 	auto a = std::make_unique<MRectangleCollisionComponent>();
@@ -143,10 +143,28 @@ void AGameScene01::RaceStart()
 	M_LOG("start", 0);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
+	M_LOG("start", 0);
+	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
+	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 1111,  -3000 }, FRotator{ 0 });
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
+
+	M_LOG("start", 0);
+	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
+	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -1111,  -9000 }, FRotator{ 0 });
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
+
+	M_LOG("start", 0);
+	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
+	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -7000,  -10000 }, FRotator{ 0 });
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
+
+	M_LOG("start", 0);
+	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
+	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 2000,  -15000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 }
-
 void AGameScene01::ClearCountDownSprite()
 {
 	m_CountDownSprite->DestroyComponent();
