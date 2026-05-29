@@ -1,5 +1,5 @@
 #include "SceneManager.h"
-#include "Objects/GameScene01.h"
+#include "Objects/TitleScene.h"
 void SetupGame() {
-	SceneManager::GetInstance().OpenScene<AGameScene01>();
+	SceneManager::GetInstance().OpenScene<ATitleScene>();
 }
