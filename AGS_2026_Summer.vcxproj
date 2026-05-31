@@ -147,13 +147,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DXLIB_DIR);$(MSBuildThisFileDirectory)Game;$(MSBuildThisFileDirectory)BroccoliEngine</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4819;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DXLIB_DIR)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/WHOLEARCHIVE:VS-DxLib-Learn-01.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -166,7 +167,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DXLIB_DIR);$(MSBuildThisFileDirectory)Game;$(MSBuildThisFileDirectory)BroccoliEngine</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <DisableSpecificWarnings>4819;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
