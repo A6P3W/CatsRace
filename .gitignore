@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 Log.txt
 /imgui.ini
+
+.codex/
+/.antigravitycli
