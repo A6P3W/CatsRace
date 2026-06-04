@@ -9,6 +9,7 @@ class AGameScene01 :public AGameModeBase
 public:
 	AGameScene01();
 	void OnUpdate(float DeltaTime) override;
+	void BeginPlay() override;
 private:
 	void RaceCountDown();
 	void RaceStart();
