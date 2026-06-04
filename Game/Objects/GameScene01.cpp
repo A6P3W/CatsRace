@@ -19,18 +19,11 @@
 #include <TimerHandle.h>
 #include <TimerManager.h>
 AGameScene01::AGameScene01() {
-	ObjectManager::GetInstance().SpawnObject<AMap>(FVector2D::ZeroVector, 0.0f);
-
-	SpawnPlayer<APlayer, APlayerController>(FVector2D{ 1111, 0 }, 0);
-
-	ObjectManager::GetInstance().SpawnObject<ASampleA>({ 0,0 }, { 0 });
-	M_LOG("Default scene initialized", 0);
-
-	int imgHandle = ResourceManager::GetInstance().LoadResourceGraph("images/Sprite-0004.png"); 
+	int imgHandle = ResourceManager::GetInstance().LoadResourceGraph("images/Sprite-0004.png");
 	auto imgSprite = std::make_unique<MSpriteComponent>(-5000, RenderSpace::World);
 	imgSprite->SubmitGraph(1.0, imgHandle, 255);
 	imgSprite->SetScale(50.0);
-	imgSprite->SetRelativeLocation({ 500.0f, 300.0f }); 
+	imgSprite->SetRelativeLocation({ 500.0f, 300.0f });
 	AddComponent(std::move(imgSprite));
 
 	auto sprite = std::make_unique<MSpriteComponent>(-10000, RenderSpace::World);
@@ -40,23 +33,16 @@ AGameScene01::AGameScene01() {
 	sprite2->SubmitText("center", 0xFF0000, -1, 255);
 	AddComponent(std::move(sprite2));
 
-	ObjectManager::GetInstance().SpawnObject<AGoalActor>(FVector2D{ 1000.0f, -21150.0f }, 0.0f);
-
-
-	
-
-
 	auto c = std::make_unique<MRectangleCollisionComponent>();
 	c->SetCollisionType(ECollisionType::Block);
 	c->SetScale(90.0f);
 	c->SetWorldLocation({ -4500,-2393 });
 	AddComponent(std::move(c));
 
-	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 0,400 }, FRotator{ 0 });
 	auto d = std::make_unique<MRectangleCollisionComponent>();
 	d->SetCollisionType(ECollisionType::Block);
 	d->SetScale(90.0f);
-	d->SetWorldLocation({ -4450,-19550});
+	d->SetWorldLocation({ -4450,-19550 });
 	AddComponent(std::move(d));
 
 	auto e = std::make_unique<MRectangleCollisionComponent>();
@@ -92,7 +78,7 @@ AGameScene01::AGameScene01() {
 	auto f = std::make_unique<MRectangleCollisionComponent>();
 	f->SetCollisionType(ECollisionType::Block);
 	f->SetScale(34.2f);
-	f->SetWorldLocation({800,-10970 });
+	f->SetWorldLocation({ 800,-10970 });
 	AddComponent(std::move(f));
 
 
@@ -108,18 +94,30 @@ AGameScene01::AGameScene01() {
 	h->SetWorldLocation({ -3330,-10970 });
 	AddComponent(std::move(h));
 
-	
+
 	auto countSprite = std::make_unique<MSpriteComponent>(110, RenderSpace::World);
 	m_CountDownSprite = countSprite.get();
 	m_CountDownSprite->SetRelativeLocation({ 0.0f, -2000.0f });
 	AddComponent(std::move(countSprite));
-
-
-	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 0);
 }
 
 void AGameScene01::OnUpdate(float DeltaTime)
 {
+}
+
+void AGameScene01::BeginPlay()
+{
+	SpawnActor<AMap>(FVector2D::ZeroVector, 0.0f);
+
+	SpawnPlayer<APlayer, APlayerController>(FVector2D{ 1111, 0 }, 0);
+
+	SpawnActor<ASampleA>({ 0,0 }, { 0 });
+	M_LOG("Default scene initialized", 0);
+
+	SpawnActor<AGoalActor>(FVector2D{ 1000.0f, -21150.0f }, 0.0f);
+
+	SpawnActor<SpeedUpItem>(FVector2D{ 0,400 }, FRotator{ 0 });
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 0);
 }
 
 void AGameScene01::RaceCountDown()
@@ -143,24 +141,24 @@ void AGameScene01::RaceStart()
 {
 	M_LOG("start", 0);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
-	ObjectManager::GetInstance().SpawnObject<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
+	SpawnActor<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
 
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
-	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 1111,  -3000 }, FRotator{ 0 });
+	SpawnActor<SpeedUpItem>(FVector2D{ 1111,  -3000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
-	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -1111,  -9000 }, FRotator{ 0 });
+	SpawnActor<SpeedUpItem>(FVector2D{ -1111,  -9000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
-	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ -7000,  -10000 }, FRotator{ 0 });
+	SpawnActor<SpeedUpItem>(FVector2D{ -7000,  -10000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
-	ObjectManager::GetInstance().SpawnObject<SpeedUpItem>(FVector2D{ 2000,  -15000 }, FRotator{ 0 });
+	SpawnActor<SpeedUpItem>(FVector2D{ 2000,  -15000 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
 }
 void AGameScene01::ClearCountDownSprite()
