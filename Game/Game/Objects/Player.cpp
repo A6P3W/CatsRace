@@ -29,7 +29,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
     auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
     m_sprite = sprite.get();
-    sprite->SubmitGraph(1.0, m_walkAnimHandles[0]);
+    sprite->SubmitGraph( m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
 
 
@@ -101,12 +101,12 @@ void APlayer::OnUpdate(float DeltaTime)
                 m_moveAnimTime -= frameTime;
                 m_walkAnimFrame = (m_walkAnimFrame + 1) % static_cast<int>(m_walkAnimHandles.size());
             }
-            m_sprite->SubmitGraph(1.0, m_walkAnimHandles[m_walkAnimFrame]);
+            m_sprite->SubmitGraph( m_walkAnimHandles[m_walkAnimFrame]);
         }
         else {
             m_moveAnimTime = 0.0f;
             m_walkAnimFrame = 0;
-            m_sprite->SubmitGraph(1.0, m_walkAnimHandles[m_walkAnimFrame]);
+            m_sprite->SubmitGraph( m_walkAnimHandles[m_walkAnimFrame]);
         }
     }
 }
