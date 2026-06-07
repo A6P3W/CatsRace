@@ -10,7 +10,7 @@ ATitleScene::ATitleScene()
 {
     int handle = ResourceManager::GetInstance().LoadResourceGraph("images/CatsRace.png");
     auto imgSprite = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
-    imgSprite->SubmitGraph(0.8, handle);
+    imgSprite->SubmitGraph( handle);
     imgSprite->SetRelativeLocation({ 480.0f, 270.0f }); 
     AddComponent(std::move(imgSprite));
 

@@ -21,8 +21,8 @@
 AGameScene01::AGameScene01() {
 	int imgHandle = ResourceManager::GetInstance().LoadResourceGraph("images/Sprite-0004.png");
 	auto imgSprite = std::make_unique<MSpriteComponent>(-5000, RenderSpace::World);
-	imgSprite->SubmitGraph(1.0, imgHandle, 255);
-	imgSprite->SetScale(50.0);
+	imgSprite->SubmitGraph( imgHandle);
+	imgSprite->SetWorldScale(50.0);
 	imgSprite->SetRelativeLocation({ 500.0f, 300.0f });
 	AddComponent(std::move(imgSprite));
 
@@ -35,62 +35,62 @@ AGameScene01::AGameScene01() {
 
 	auto c = std::make_unique<MRectangleCollisionComponent>();
 	c->SetCollisionType(ECollisionType::Block);
-	c->SetScale(90.0f);
+	c->SetWorldScale(90.0f);
 	c->SetWorldLocation({ -4500,-2393 });
 	AddComponent(std::move(c));
 
 	auto d = std::make_unique<MRectangleCollisionComponent>();
 	d->SetCollisionType(ECollisionType::Block);
-	d->SetScale(90.0f);
+	d->SetWorldScale(90.0f);
 	d->SetWorldLocation({ -4450,-19550 });
 	AddComponent(std::move(d));
 
 	auto e = std::make_unique<MRectangleCollisionComponent>();
 	e->SetCollisionType(ECollisionType::Block);
-	e->SetScale(90.0f);
+	e->SetWorldScale(90.0f);
 	e->SetWorldLocation({ -11950,-10700 });
 	AddComponent(std::move(e));
 
 	auto a = std::make_unique<MRectangleCollisionComponent>();
 	a->SetCollisionType(ECollisionType::Block);
-	a->SetScale(180.0f);
+	a->SetWorldScale(180.0f);
 	a->SetWorldLocation({ 11400,0 });
 	AddComponent(std::move(a));
 
 	auto b = std::make_unique<MRectangleCollisionComponent>();
 	b->SetCollisionType(ECollisionType::Block);
-	b->SetScale(180.0f);
+	b->SetWorldScale(180.0f);
 	b->SetWorldLocation({ 11450,-15000 });
 	AddComponent(std::move(b));
 
 	auto i = std::make_unique<MRectangleCollisionComponent>();
 	i->SetCollisionType(ECollisionType::Block);
-	i->SetScale(90.0f);
+	i->SetWorldScale(90.0f);
 	i->SetWorldLocation({ 0,-28500 });
 	AddComponent(std::move(i));
 
 	auto j = std::make_unique<MRectangleCollisionComponent>();
 	j->SetCollisionType(ECollisionType::Block);
-	j->SetScale(90.0f);
+	j->SetWorldScale(90.0f);
 	j->SetWorldLocation({ 0, 5500 });
 	AddComponent(std::move(j));
 
 	auto f = std::make_unique<MRectangleCollisionComponent>();
 	f->SetCollisionType(ECollisionType::Block);
-	f->SetScale(34.2f);
+	f->SetWorldScale(34.2f);
 	f->SetWorldLocation({ 800,-10970 });
 	AddComponent(std::move(f));
 
 
 	auto g = std::make_unique<MRectangleCollisionComponent>();
 	g->SetCollisionType(ECollisionType::Block);
-	g->SetScale(34.2f);
+	g->SetWorldScale(34.2f);
 	g->SetWorldLocation({ -1800,-10970 });
 	AddComponent(std::move(g));
 
 	auto h = std::make_unique<MRectangleCollisionComponent>();
 	h->SetCollisionType(ECollisionType::Block);
-	h->SetScale(34.2f);
+	h->SetWorldScale(34.2f);
 	h->SetWorldLocation({ -3330,-10970 });
 	AddComponent(std::move(h));
 
