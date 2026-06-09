@@ -2,7 +2,7 @@
 #include "RectAngleCollisionComponent.h"
 #include "SceneManager.h"
 #include "Objects/Player.h" // プレイヤー判定用
-#include "Utils/Log.h"
+#include "Log.h"
 #include "ClearScene.h"
 // #include "ClearScene.h"  // クリア画面のGameModeができたらインクルード
 

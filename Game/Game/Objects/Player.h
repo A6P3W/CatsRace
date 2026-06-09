@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Actor.h"
 #include <Pawn.h>
-#include <Utils/Umath.h>
+#include "UMath.h"
 #include <array>
 #include <EasyShakeComponent.h>
 class MCameraComponent;

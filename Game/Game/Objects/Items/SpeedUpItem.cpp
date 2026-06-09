@@ -1,7 +1,7 @@
 #include "SpeedUpItem.h"
 #include "CircleCollisionComponent.h"
 #include "Objects/Player.h"
-#include "Utils/Log.h"
+#include "Log.h"
 #include "MovementComponent.h"
 #include <SpriteComponent.h>
 SpeedUpItem::SpeedUpItem()

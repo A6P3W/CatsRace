@@ -5,8 +5,8 @@
 #include "Objects/SampleA.h"
 #include "Objects/Map.h"
 #include "ObjectManager.h"
-#include <Utils/Umath.h>
-#include <Utils/Log.h>
+#include "UMath.h"
+#include "Log.h"
 #include <SpriteComponent.h>
 #include <PlayerController.h>
 #include <Pawn.h>
@@ -18,6 +18,8 @@
 #include "ResourceManager.h"
 #include <TimerHandle.h>
 #include <TimerManager.h>
+#include <SoundManager.h>
+#include <LevelSerializer.h>
 AGameScene01::AGameScene01() {
 	int imgHandle = ResourceManager::GetInstance().LoadResourceGraph("images/Sprite-0004.png");
 	auto imgSprite = std::make_unique<MSpriteComponent>(-5000, RenderSpace::World);
@@ -126,13 +128,14 @@ void AGameScene01::RaceCountDown()
 	if (m_CountDown <= 0) {
 		GetWorldTimerManager().ClearTimer(CountHandle);
 		RaceStart();
-		
 		m_CountDownSprite->SubmitText("Go!", 0xFFFFFF, text, 255);
 	}
 	else {
 		m_CountDownSprite->SubmitText(std::to_string(m_CountDown), 0xFFFFFF, text, 255);
 		M_LOG(std::to_string(m_CountDown), 0);
 		m_CountDown--;
+		GetWorld()->GetSoundManager()->PlaySE("soundreality-pop-423717.mp3", false);
+
 	}
 }
 
