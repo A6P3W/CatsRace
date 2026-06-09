@@ -2,7 +2,7 @@
 #include "Dxlib.h"
 #include "ResourceManager.h"
 #include "SpriteComponent.h" 
-#include <Utils/Umath.h>
+#include "UMath.h"
 REGISTER_ACTOR(ASampleA)
 ASampleA::ASampleA(FVector2D location, FRotator rotation) : AActor()
 {

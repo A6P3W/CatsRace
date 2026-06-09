@@ -12,7 +12,7 @@
 #include "MovementComponent.h"
 #include <algorithm>
 #include "CircleCollisionComponent.h"
-#include "Utils/Log.h"
+#include "Log.h"
 #include <EnhancedInputComponent.h>
 #include <EasyShakeComponent.h>
 
