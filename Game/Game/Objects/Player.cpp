@@ -12,6 +12,7 @@
 #include "MovementComponent.h"
 #include <algorithm>
 #include "CircleCollisionComponent.h"
+#include "RectangleCollisionComponent.h"
 #include "Log.h"
 #include <EnhancedInputComponent.h>
 #include <EasyShakeComponent.h>
@@ -62,7 +63,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 void APlayer::OnUpdate(float DeltaTime)
 {
-    const float MaxSpeed = 30.0f;
+    const float MaxSpeed = 10.0f;
     const float AccelForce = 3.5f;
     const float BrakeForce = 6.0f;
     const float MaxSteer = 2.5f;

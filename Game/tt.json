@@ -1568,11 +1568,1763 @@
             "instance_name": "",
             "transform": {
                 "location": {
-                    "x": -2355.658203125,
-                    "y": 1014.81494140625
+                    "x": -2120.388671875,
+                    "y": 1282.123291015625
                 },
                 "rotation": 0.0,
-                "scale": 7.204127311706543
+                "scale": 6.955923080444336
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1109.728271484375,
+                    "y": -841.156494140625
+                },
+                "rotation": 0.0,
+                "scale": 9.09000015258789
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2438.302490234375,
+                    "y": 314.30889892578125
+                },
+                "rotation": 45.0,
+                "scale": 2.1577537059783936
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2431.42822265625,
+                    "y": 1065.2279052734375
+                },
+                "rotation": 48.75,
+                "scale": 8.003600120544434
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2537.60205078125,
+                    "y": 191.0406494140625
+                },
+                "rotation": 0.0,
+                "scale": 2.0906078815460205
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2529.041748046875,
+                    "y": 398.1997985839844
+                },
+                "rotation": 109.25,
+                "scale": 3.543428421020508
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2630.05322265625,
+                    "y": 690.9619140625
+                },
+                "rotation": 109.25,
+                "scale": 3.543428421020508
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2717.3681640625,
+                    "y": 944.3465576171875
+                },
+                "rotation": 109.25,
+                "scale": 3.543428421020508
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2292.085693359375,
+                    "y": 864.3154296875
+                },
+                "rotation": 45.0,
+                "scale": 8.003600120544434
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -1723.152099609375,
+                    "y": 1581.3525390625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -1558.8460693359375,
+                    "y": 1580.1533203125
+                },
+                "rotation": 0.0,
+                "scale": 1.0232034921646118
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -1602.021484375,
+                    "y": 1582.5518798828125
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -1636.801513671875,
+                    "y": 1581.3525390625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -1229.268310546875,
+                    "y": 288.4480285644531
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -397.0918884277344,
+                    "y": 288.3038635253906
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 19.296798706054688,
+                    "y": 770.8336791992188
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 669.4139404296875,
+                    "y": 133.55545043945313
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1478.1817626953125,
+                    "y": 135.84658813476563
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 95.978515625,
+                    "y": 2797.39453125
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 935.7362060546875,
+                    "y": 2799.636962890625
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1173.2471923828125,
+                    "y": 2133.6572265625
+                },
+                "rotation": 0.0,
+                "scale": 5.31645393371582
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1173.2471923828125,
+                    "y": 1640.79345703125
+                },
+                "rotation": 0.0,
+                "scale": 5.31645393371582
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1175.135498046875,
+                    "y": 1240.45947265625
+                },
+                "rotation": 0.0,
+                "scale": 5.31645393371582
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2411.86865234375,
+                    "y": 1011.595458984375
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2341.513427734375,
+                    "y": 135.3525390625
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2961.919189453125,
+                    "y": 934.8436889648438
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2507.219482421875,
+                    "y": -1532.0455322265625
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1641.304443359375,
+                    "y": -1526.44091796875
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2548.2080078125,
+                    "y": 3601.5380859375
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3364.82568359375,
+                    "y": 3513.33203125
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1828.332275390625,
+                    "y": 3524.7138671875
+                },
+                "rotation": 19.75,
+                "scale": 11.094792366027832
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1134.06494140625,
+                    "y": 2895.8896484375
+                },
+                "rotation": -21.75,
+                "scale": 8.917150497436523
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4424.8515625,
+                    "y": 3057.87646484375
+                },
+                "rotation": 39.75,
+                "scale": 11.094792366027832
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4747.8759765625,
+                    "y": 2064.371337890625
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4900.498046875,
+                    "y": 1170.4443359375
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4906.72705078125,
+                    "y": 357.5002746582031
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2480.354736328125,
+                    "y": -695.27783203125
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2962.9677734375,
+                    "y": 2156.90869140625
+                },
+                "rotation": 0.0,
+                "scale": 9.24455451965332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3521.347412109375,
+                    "y": 2007.3426513671875
+                },
+                "rotation": 0.0,
+                "scale": 6.264306545257568
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3863.687255859375,
+                    "y": 3386.67333984375
+                },
+                "rotation": -19.75,
+                "scale": 8.899031639099121
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3336.084716796875,
+                    "y": 596.415283203125
+                },
+                "rotation": 57.5,
+                "scale": 5.286053657531738
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2898.44677734375,
+                    "y": 155.535400390625
+                },
+                "rotation": 57.5,
+                "scale": 6.142978668212891
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3323.11767578125,
+                    "y": 298.1730041503906
+                },
+                "rotation": 0.0,
+                "scale": 2.2968502044677734
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3689.43701171875,
+                    "y": 55.04072570800781
+                },
+                "rotation": 0.0,
+                "scale": 1.6585942506790161
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4062.23974609375,
+                    "y": 1160.482177734375
+                },
+                "rotation": 0.0,
+                "scale": 2.0830562114715576
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3789.931640625,
+                    "y": 181.46951293945313
+                },
+                "rotation": 0.0,
+                "scale": 2.0709011554718018
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3877.459228515625,
+                    "y": 265.75537109375
+                },
+                "rotation": 0.0,
+                "scale": 1.8671951293945313
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3939.052734375,
+                    "y": 375.975341796875
+                },
+                "rotation": 0.0,
+                "scale": 2.47335147857666
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3666.74462890625,
+                    "y": 1218.8338623046875
+                },
+                "rotation": 0.0,
+                "scale": 2.438913345336914
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3339.326416015625,
+                    "y": 998.3939208984375
+                },
+                "rotation": 0.0,
+                "scale": 6.683897495269775
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4097.8974609375,
+                    "y": 995.152099609375
+                },
+                "rotation": 0.0,
+                "scale": 3.021841287612915
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4097.8974609375,
+                    "y": 722.8439331054688
+                },
+                "rotation": 0.0,
+                "scale": 3.021841287612915
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3977.9521484375,
+                    "y": 573.7227783203125
+                },
+                "rotation": 0.0,
+                "scale": 3.021841287612915
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3977.9521484375,
+                    "y": 790.9209594726563
+                },
+                "rotation": 0.0,
+                "scale": 3.021841287612915
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4512.841796875,
+                    "y": -214.0257110595703
+                },
+                "rotation": 51.25,
+                "scale": 6.578901767730713
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4629.54541015625,
+                    "y": -1267.598876953125
+                },
+                "rotation": 57.5,
+                "scale": 7.415485858917236
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4441.5234375,
+                    "y": -752.158447265625
+                },
+                "rotation": 18.75,
+                "scale": 9.98185920715332
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4269.7099609375,
+                    "y": -489.57562255859375
+                },
+                "rotation": 39.0,
+                "scale": 6.578901767730713
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 334.78045654296875,
+                    "y": 1816.2413330078125
+                },
+                "rotation": 0.0,
+                "scale": 2.793610095977783
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 337.2287292480469,
+                    "y": 1292.3125
+                },
+                "rotation": 0.0,
+                "scale": 2.793610095977783
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 334.78045654296875,
+                    "y": 1537.1390380859375
+                },
+                "rotation": 0.0,
+                "scale": 2.793610095977783
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -451.11285400390625,
+                    "y": 1507.7598876953125
+                },
+                "rotation": 0.0,
+                "scale": 1.2791717052459717
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -350.73394775390625,
+                    "y": 1507.7598876953125
+                },
+                "rotation": 0.0,
+                "scale": 1.2791717052459717
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -350.73394775390625,
+                    "y": 1507.7598876953125
+                },
+                "rotation": 0.0,
+                "scale": 1.2791717052459717
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -301.76861572265625,
+                    "y": 1507.7598876953125
+                },
+                "rotation": 0.0,
+                "scale": 1.2791717052459717
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1021.3663940429688,
+                    "y": -1953.546875
+                },
+                "rotation": 40.75,
+                "scale": 7.451429843902588
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 582.7626342773438,
+                    "y": -2322.16064453125
+                },
+                "rotation": 40.75,
+                "scale": 7.451429843902588
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 358.7947998046875,
+                    "y": -2518.132568359375
+                },
+                "rotation": 40.75,
+                "scale": 7.451429843902588
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 116.25845336914063,
+                    "y": -2822.83447265625
+                },
+                "rotation": 0.0,
+                "scale": 3.9800000190734863
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2685.503173828125,
+                    "y": -3003.829345703125
+                },
+                "rotation": 45.0,
+                "scale": 2.8399999141693115
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2768.5654296875,
+                    "y": -2891.450927734375
+                },
+                "rotation": 0.0,
+                "scale": 2.2899999618530273
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2695.06201171875,
+                    "y": -3820.36572265625
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3406.8818359375,
+                    "y": -3229.77294921875
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3717.72021484375,
+                    "y": -3540.611328125
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3866.922607421875,
+                    "y": -4224.45556640625
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3242.137451171875,
+                    "y": -2011.28662109375
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3549.867431640625,
+                    "y": -2309.69140625
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3086.71875,
+                    "y": -1803.024658203125
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2866.0234375,
+                    "y": -1585.4378662109375
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4591.1748046875,
+                    "y": -4914.51611328125
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2580.05078125,
+                    "y": -5004.66015625
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2533.42333984375,
+                    "y": -4140.52783203125
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3730.1513671875,
+                    "y": -4224.4541015625
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3871.78955078125,
+                    "y": -2123.068115234375
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3997.9892578125,
+                    "y": -2579.32861328125
+                },
+                "rotation": 45.0,
+                "scale": 5.75
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3519.078125,
+                    "y": 2290.687255859375
+                },
+                "rotation": 45.0,
+                "scale": 4.7092108726501465
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3632.33447265625,
+                    "y": -1977.4530029296875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4062.7080078125,
+                    "y": -2385.175537109375
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4473.666015625,
+                    "y": 1937.97509765625
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2464.45703125,
+                    "y": 1957.22607421875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3654.0595703125,
+                    "y": -2712.3994140625
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3973.65380859375,
+                    "y": -3000.921875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3982.53125,
+                    "y": -3906.438720703125
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3893.755126953125,
+                    "y": -3453.680419921875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3600.793701171875,
+                    "y": -4368.07421875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3183.5458984375,
+                    "y": -5198.13134765625
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3645.181884765625,
+                    "y": -5193.69287109375
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4075.74609375,
+                    "y": -5193.69287109375
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2366.8056640625,
+                    "y": -4523.43310546875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4874.73193359375,
+                    "y": -4385.830078125
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4927.99755859375,
+                    "y": -4004.09228515625
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4865.85400390625,
+                    "y": -4230.4716796875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5087.79443359375,
+                    "y": -3484.751953125
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5012.3349609375,
+                    "y": -3893.122314453125
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5021.2138671875,
+                    "y": -1651.524169921875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4999.01953125,
+                    "y": -3027.5546875
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5092.234375,
+                    "y": -2534.846923828125
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5096.67333984375,
+                    "y": -2184.18115234375
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 5092.234375,
+                    "y": -1864.5869140625
+                },
+                "rotation": 0.0,
+                "scale": 5.139999866485596
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3487.174560546875,
+                    "y": -935.1934204101563
+                },
+                "rotation": 0.0,
+                "scale": 3.7311933040618896
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3545.434814453125,
+                    "y": -637.3931884765625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3706.375732421875,
+                    "y": -1240.3548583984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3812.9140625,
+                    "y": -1251.688720703125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3450.230224609375,
+                    "y": -1086.2142333984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3593.036865234375,
+                    "y": -1127.01611328125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3776.6455078125,
+                    "y": -1117.9490966796875
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3484.23193359375,
+                    "y": -777.93310546875
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3701.842041015625,
+                    "y": -991.009765625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3651.97314453125,
+                    "y": -870.870849609375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2322.235107421875,
+                    "y": 2256.3330078125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2525.256103515625,
+                    "y": 2454.842529296875
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2423.74560546875,
+                    "y": 2364.61083984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2202.67822265625,
+                    "y": 1931.4993896484375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2128.2373046875,
+                    "y": 1805.1751708984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2764.370361328125,
+                    "y": 2621.77099609375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2931.298828125,
+                    "y": 2635.3056640625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3089.2041015625,
+                    "y": 2633.0498046875
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3215.5283203125,
+                    "y": 2635.3056640625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3375.689453125,
+                    "y": 2547.329833984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4302.9091796875,
+                    "y": 2411.67919921875
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4228.64453125,
+                    "y": 1672.126708984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4411.2119140625,
+                    "y": 1421.4833984375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4318.380859375,
+                    "y": 1551.446533203125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2892.59423828125,
+                    "y": 961.0928955078125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3089.112060546875,
+                    "y": -4557.1376953125
+                },
+                "rotation": 0.0,
+                "scale": 2.0464529991149902
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3261.14306640625,
+                    "y": -4397.1787109375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3249.070556640625,
+                    "y": -4511.8662109375
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3095.1484375,
+                    "y": -3905.2314453125
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2941.22607421875,
+                    "y": -4016.900634765625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultCircleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2609.236328125,
+                    "y": -4714.0791015625
+                },
+                "rotation": 0.0,
+                "scale": 2.482558012008667
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4502.18896484375,
+                    "y": -3606.14794921875
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4502.18896484375,
+                    "y": -3299.0
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4502.18896484375,
+                    "y": -3496.89404296875
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4502.18896484375,
+                    "y": -3381.455810546875
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4213.59375,
+                    "y": -4158.60205078125
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 4267.18994140625,
+                    "y": -4096.76025390625
+                },
+                "rotation": 0.0,
+                "scale": 1.2742929458618164
+            }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3716.797607421875,
+                    "y": -3898.865478515625
+                },
+                "rotation": 0.0,
+                "scale": 4.67712926864624
             }
         }
     ]
