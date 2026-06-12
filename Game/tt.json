@@ -1358,6 +1358,18 @@
                 "rotation": 0.0,
                 "scale": 3.2899999618530273
             }
+        },
+        {
+            "class": "ADefaultRectangleCollisionActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1109.728271484375,
+                    "y": -841.156494140625
+                },
+                "rotation": 0.0,
+                "scale": 9.09000015258789
+            }
         }
     ]
 }
