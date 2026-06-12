@@ -3,6 +3,7 @@
 #include "SpriteComponent.h"
 #include "MovementComponent.h"
 #include "Log.h"
+REGISTER_ACTOR(ASlowFloor);
 
 ASlowFloor::ASlowFloor(float width, float height, float slowStrength)
     : m_width(width)
@@ -15,7 +16,7 @@ ASlowFloor::ASlowFloor(float width, float height, float slowStrength)
     col->SetParentComponent(GetRootComponent());
     AddComponent(std::move(col));
 
-    auto sprite = std::make_unique<MSpriteComponent>(-9000, RenderSpace::World);
+    auto sprite = std::make_unique<MSpriteComponent>(10, RenderSpace::World);
     sprite->SubmitBox(m_width, m_height, 0x4488FF, 1, 100); 
     sprite->SetRelativeLocation({ -m_width * 0.5f, -m_height * 0.5f });
     sprite->SetParentComponent(GetRootComponent());

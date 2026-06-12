@@ -11,7 +11,7 @@ public:
     DEFINE_ACTOR_CLASS(ASlowFloor);
 
 
-    ASlowFloor(float width = 1000.0f, float height = 300.0f, float slowStrength = 0.85f);
+    ASlowFloor(float width = 300.0f, float height = 300.0f, float slowStrength = 0.85f);
 
     void OnUpdate(float DeltaTime) override;
 

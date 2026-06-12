@@ -55,7 +55,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_camera->SetFOV(1);
 	m_camera->SetParentComponent(m_shake);
 
-	m_camera->AddLocalOffset({ 0.0f, -120.0f });
+	m_camera->AddLocalOffset({ 0.0f, -1500.0f });
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
 
@@ -148,7 +148,8 @@ void APlayer::OnWheel(const FInputActionValue& Value)
 void APlayer::BeginOverlap(AActor* OtherActor)
 {
 	M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
-    m_shake->StartShake(m_crashshake, {15,15},2011);
+    m_shake->StartShake(m_crashshake, {45,45},2011);
+	m_accelInput *= 0.5f;
 }
 
 

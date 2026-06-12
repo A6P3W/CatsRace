@@ -3326,6 +3326,174 @@
                 "rotation": 0.0,
                 "scale": 4.67712926864624
             }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2766.8955078125,
+                    "y": -2310.702880859375
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ASlowFloor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -768.430908203125,
+                    "y": -2504.98095703125
+                },
+                "rotation": 46.5,
+                "scale": 0.4415152966976166
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -906.57666015625,
+                    "y": -1719.4876708984375
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -374.9222717285156,
+                    "y": -2036.1688232421875
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -386.47998046875,
+                    "y": -2597.873291015625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -967.443115234375,
+                    "y": -3801.125
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 86.77081298828125,
+                    "y": -3123.7744140625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 977.9248046875,
+                    "y": -2932.81298828125
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1562.93408203125,
+                    "y": -2096.21923828125
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 777.869873046875,
+                    "y": -4211.9521484375
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 977.9248046875,
+                    "y": -3757.281982421875
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 1769.051513671875,
+                    "y": -3357.171875
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 2399.528076171875,
+                    "y": -2350.83447265625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "SpeedUpItem",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 3430.11474609375,
+                    "y": -3723.939697265625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
         }
     ]
 }

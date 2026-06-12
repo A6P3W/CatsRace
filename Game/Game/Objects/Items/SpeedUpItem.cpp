@@ -4,15 +4,17 @@
 #include "Log.h"
 #include "MovementComponent.h"
 #include <SpriteComponent.h>
+
+REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem()
 {
-	auto collision = std::make_unique<MCircleCollisionComponent>(500.0f);
+	auto collision = std::make_unique<MCircleCollisionComponent>(100.0f);
 	collision->SetParentComponent(GetRootComponent());
 	collision->SetCollisionType(ECollisionType::Overlap);
 	AddComponent(std::move(collision));
 
 	auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-	sprite->SubmitCircle(500.0f, 0x00FF00, 1, 128);
+	sprite->SubmitCircle(100.0f, 0x00FF00, 1, 128);
 	sprite->SetParentComponent(GetRootComponent());
 	AddComponent(std::move(sprite));
 }
@@ -20,7 +22,7 @@ SpeedUpItem::SpeedUpItem()
 void SpeedUpItem::BeginOverlap(AActor* OtherActor)
 {
 	if (dynamic_cast<APlayer*>(OtherActor)) {
-		OtherActor->GetComponents<MMovementComponent>()[0]->AddLocalForce({ 0, -250.0f });
+		OtherActor->GetComponents<MMovementComponent>()[0]->AddLocalForce({ 0, -25.0f });
 		M_LOG("Speed Up!");
 	}
 }
