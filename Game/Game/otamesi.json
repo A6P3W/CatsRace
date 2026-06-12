@@ -1,0 +1,64 @@
+{
+    "actors": [
+        {
+            "class": "AStressTestActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 0.0,
+                    "y": -136.0
+                },
+                "rotation": -137.5,
+                "scale": 0.3759821653366089
+            }
+        },
+        {
+            "class": "AStressTestActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -406.0,
+                    "y": -216.0
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "AStressTestActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 135.0,
+                    "y": 73.0
+                },
+                "rotation": 0.0,
+                "scale": 0.9980000257492065
+            }
+        },
+        {
+            "class": "AStressTestActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": 46.0,
+                    "y": -317.0
+                },
+                "rotation": 0.0,
+                "scale": 1.00600004196167
+            }
+        },
+        {
+            "class": "AStressTestActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -268.0,
+                    "y": -209.0
+                },
+                "rotation": 0.0,
+                "scale": 0.9959999918937683
+            }
+        }
+    ]
+}

@@ -37,6 +37,7 @@
     <ClCompile Include="Game\Objects\UserTimer.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp" />
     <ClCompile Include="Game\Objects\TitleScene.cpp" />
+    <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Game\Objects\UserTimer.h" />
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h" />
     <ClInclude Include="Game\Objects\TitleScene.h" />
+    <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />

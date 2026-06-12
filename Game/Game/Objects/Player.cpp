@@ -32,7 +32,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     sprite->SubmitGraph( m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
 
-
+	SetActorScale(0.2f);
     auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
     col->SetParentComponent(GetRootComponent());
     col->SetCollisionType(ECollisionType::Block);
@@ -51,10 +51,10 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_camera = camera.get();
     AddComponent(std::move(camera));
     m_camera->SetActiveCamera();
-    m_camera->SetFOV(0.2f);
+    m_camera->SetFOV(1);
 	m_camera->SetParentComponent(m_shake);
 
-	m_camera->AddLocalOffset({ 0.0f, -600.0f });
+	m_camera->AddLocalOffset({ 0.0f, -120.0f });
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
 
@@ -62,7 +62,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 void APlayer::OnUpdate(float DeltaTime)
 {
-    const float MaxSpeed = 70.0f;
+    const float MaxSpeed = 30.0f;
     const float AccelForce = 3.5f;
     const float BrakeForce = 6.0f;
     const float MaxSteer = 2.5f;
@@ -114,7 +114,7 @@ void APlayer::OnUpdate(float DeltaTime)
 void APlayer::OnPossesed()
 {
     m_camera->SetActiveCamera();
-    m_camera->SetFOV(0.2);
+    m_camera->SetFOV(1);
 }
 
 void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent)
