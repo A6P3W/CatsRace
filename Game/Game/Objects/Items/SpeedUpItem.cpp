@@ -1,4 +1,4 @@
-#include "SpeedUpItem.h"
+﻿#include "SpeedUpItem.h"
 #include "CircleCollisionComponent.h"
 #include "Objects/Player.h"
 #include "Log.h"

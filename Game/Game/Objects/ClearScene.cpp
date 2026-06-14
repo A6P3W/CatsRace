@@ -1,4 +1,4 @@
-#include "ClearScene.h"
+ï»¿#include "ClearScene.h"
 #include "SpriteComponent.h"
 #include "InputManager.h"
 #include "SceneManager.h"
@@ -7,10 +7,10 @@
 #include <DxLib.h>
 AClearScene::AClearScene()
 {
-    // ‰æ–Ê’†‰›‚ÉƒeƒLƒXƒg‚ð•\Ž¦
+    // ï¿½ï¿½Ê’ï¿½ï¿½ï¿½ï¿½Éƒeï¿½Lï¿½Xï¿½gï¿½ï¿½\ï¿½ï¿½
     auto textComp = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
     textComp->SubmitText("GAME CLEAR!", 0xFFFF00, -1, 255);
-    // ƒXƒNƒŠ[ƒ“À•W(RenderSpace::Screen)‚È‚Ì‚ÅA‰ð‘œ“x‚É‡‚í‚¹‚Ä’²®
+    // ï¿½Xï¿½Nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½W(RenderSpace::Screen)ï¿½È‚Ì‚ÅAï¿½ð‘œ“xï¿½Éï¿½ï¿½í‚¹ï¿½Ä’ï¿½ï¿½ï¿½
     textComp->SetRelativeLocation({ 800.0f, 500.0f });
     AddComponent(std::move(textComp));
 

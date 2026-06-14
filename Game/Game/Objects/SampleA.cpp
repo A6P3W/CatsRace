@@ -22,6 +22,6 @@ void ASampleA::OnUpdate(float DeltaTime)
 {
 	float RotationSpeed = 45.0f;
 	float MoveSpeed = 500.0f;
-	AddActorRotation(RotationSpeed * DeltaTime); // 毎フレーム回転させる
-	AddActorLocalOffset({ MoveSpeed * DeltaTime, 0.0f }); // 毎フレーム右に移動させる
+	AddActorRotation(FRotator(RotationSpeed * DeltaTime)); // 毎フレーム回転させる
+	AddActorLocalOffset(FVector2D(MoveSpeed * DeltaTime, 0.0f)); // 毎フレーム右に移動させる
 }
