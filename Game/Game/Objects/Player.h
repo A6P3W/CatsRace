@@ -22,6 +22,8 @@ public:
 	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
 	
 	void SetCanMove(bool canMove) { CanMove = canMove; }
+    void ApplyFOVEffect(float targetFOV, float duration);
+
 private:
     MCameraComponent* m_camera = nullptr;
 	MEasyShakeComponent* m_shake = nullptr;
@@ -32,6 +34,7 @@ private:
 private:
     float m_accelInput = 0.0f;
     float m_slider = 0.0f;
+    bool m_isSpeedUp = false;
     
     const float MaxSpeed = 70.0f;  
     const float MaxReverseSpeed = 20.0f; 
@@ -40,6 +43,10 @@ private:
     const float MaxSteer = 5.5f;
     float m_moveAnimTime = 0.0f;
     int m_walkAnimFrame = 0;
+    float m_fovEffectTimer = 0.0f;
+    float m_fovEffectDuration = 0.0f;
+    float m_fovTarget = 1.0f;
+    float m_fovBase = 1.0f;
 
 	void OnMove(const FInputActionValue& Value);
 	void OnRestartPressed();

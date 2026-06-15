@@ -2,7 +2,7 @@
 #include "Actor.h"
 #include "UMath.h"
 #include <unordered_set>
-
+#include "SoundComponent.h"
 class MMovementComponent;
 
 class ASlowFloor : public AActor
@@ -31,4 +31,5 @@ private:
     float m_slowStrength = 0.85f; 
     float m_width = 1000.0f;
     float m_height = 300.0f;
+    MSoundComponent* m_sound = nullptr;
 };

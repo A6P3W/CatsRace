@@ -37,7 +37,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     sprite->SubmitGraph( m_walkAnimHandles[0]);
     AddComponent(std::move(sprite));
 
-	SetActorScale(0.2f);
+	SetActorScale(0.4f);
     auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
     col->SetParentComponent(GetRootComponent());
     col->SetCollisionType(ECollisionType::Block);
@@ -59,7 +59,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     m_camera->SetFOV(1);
 	m_camera->SetParentComponent(m_shake);
 
-	m_camera->AddLocalOffset({ 0.0f, -1500.0f });
+	m_camera->AddLocalOffset({ 0.0f, -750.0f });
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
 
@@ -118,13 +118,33 @@ void APlayer::OnUpdate(float DeltaTime)
             m_sprite->SubmitGraph( m_walkAnimHandles[m_walkAnimFrame]);
         }
     }
+    // ---- FOVエフェクト補間 ----
+    if (m_fovEffectTimer > 0.0f) {
+        m_fovEffectTimer -= DeltaTime;
+        // alphaは0→1（タイマー終了に近づくほど1.0fに戻る）
+        float alpha = 1.0f - std::clamp(m_fovEffectTimer / m_fovEffectDuration, 0.0f, 1.0f);
+        float currentFOV = m_fovTarget + (m_fovBase - m_fovTarget) * alpha;
+        if (m_fovEffectTimer <= 0.0f) {
+            currentFOV = 1.0f;
+            m_isSpeedUp = false;
+        }
+        if (m_camera) m_camera->SetFOV(currentFOV);
+    }
+    else {
+        // タイマーが0以下の時は必ずフラグをリセット
+        m_isSpeedUp = false;
+    }
+
     // ---- 走行音 ----
     if (m_sound) {
         float t = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
         m_sound->SetVolume(m_engineIdleHandle, 1.0f - t); // 速いほど小さく
         m_sound->SetVolume(m_engineRunHandle, t);         // 速いほど大きく
     }
-    DrawSpeedLines(speed);
+    // スピードアップ中のみ加速線を表示
+    if (m_isSpeedUp) {
+        DrawSpeedLines(speed);
+    }
    
 }
 
@@ -226,6 +246,16 @@ void APlayer::DrawSpeedLines(float speed)
             0xFFFFFF, RenderSpace::Screen, 200, alpha
         );
     }
+}
+void APlayer::ApplyFOVEffect(float targetFOV, float duration) {
+    m_fovBase = 1.0f;
+    m_fovTarget = targetFOV;
+    m_fovEffectTimer = duration;
+    m_fovEffectDuration = duration;
+    if (m_camera) m_camera->SetFOV(targetFOV);
+
+    // FOVが変化する場合はスピードアップフラグを立てる（SpeedUpのみ、SpeedDownは除く）
+    m_isSpeedUp = (targetFOV != 1.0f) && (targetFOV < 1.0f); // 0.7fなので < 1.0f
 }
 //{
 //	if (Scale > 0) {
