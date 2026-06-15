@@ -40,7 +40,7 @@ AGameScene01::AGameScene01() {
 
 	auto countSprite = std::make_unique<MSpriteComponent>(110, RenderSpace::World);
 	m_CountDownSprite = countSprite.get();
-	m_CountDownSprite->SetRelativeLocation({ 0.0f, -2000.0f });
+	m_CountDownSprite->SetRelativeLocation({ -2900.0f, -2200.0f });
 	AddComponent(std::move(countSprite));
 }
 

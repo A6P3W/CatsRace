@@ -5,7 +5,7 @@
 #include "Log.h"
 #include "ClearScene.h"
 // #include "ClearScene.h"  // クリア画面のGameModeができたらインクルード
-
+REGISTER_ACTOR(AGoalActor);  // クラスをエンジンに登録するマクロ
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
     SetActorLocation(location);

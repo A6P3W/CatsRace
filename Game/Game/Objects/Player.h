@@ -4,6 +4,7 @@
 #include "UMath.h"
 #include <array>
 #include <EasyShakeComponent.h>
+#include "SoundComponent.h"
 class MCameraComponent;
 class MMovementComponent;
 class MSpriteComponent;
@@ -43,9 +44,14 @@ private:
 	void OnMove(const FInputActionValue& Value);
 	void OnRestartPressed();
 	void OnWheel(const FInputActionValue& Value);
+    void BeginPlay();
+    void DrawSpeedLines(float speed);
+	MSoundComponent* m_sound = nullptr;
+    int m_engineIdleHandle = -1;   // 停止時
+    int m_engineRunHandle = -1;   // 走行時
 
 	bool CanMove=false;
 	FShakeHandle m_crashshake;
 	void BeginOverlap(AActor* OtherActor) override;
-	void EndOverlap(AActor* OtherActor) override;
+    void EndOverlap(AActor* OtherActor) override;
 };

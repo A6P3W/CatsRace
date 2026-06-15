@@ -16,6 +16,10 @@
 #include "Log.h"
 #include <EnhancedInputComponent.h>
 #include <EasyShakeComponent.h>
+#include "RenderSystem.h"
+#include <random>
+
+
 
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
@@ -58,6 +62,10 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 	m_camera->AddLocalOffset({ 0.0f, -1500.0f });
     // 走行音をループ再生開始・最初は無音
     // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
+
+    auto sound = std::make_unique<MSoundComponent>();
+    m_sound = sound.get();
+    AddComponent(std::move(sound));
 
 }
 
@@ -110,6 +118,14 @@ void APlayer::OnUpdate(float DeltaTime)
             m_sprite->SubmitGraph( m_walkAnimHandles[m_walkAnimFrame]);
         }
     }
+    // ---- 走行音 ----
+    if (m_sound) {
+        float t = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+        m_sound->SetVolume(m_engineIdleHandle, 1.0f - t); // 速いほど小さく
+        m_sound->SetVolume(m_engineRunHandle, t);         // 速いほど大きく
+    }
+    DrawSpeedLines(speed);
+   
 }
 
 void APlayer::OnPossesed()
@@ -159,9 +175,58 @@ void APlayer::EndOverlap(AActor * OtherActor)
 	m_shake->EndShake(m_crashshake, false);
 }
 
+void APlayer::BeginPlay()
+{
+    m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("images/cat19.mp3", true);
+}
+void APlayer::DrawSpeedLines(float speed)
+{
+    const float MaxSpeed = 30.0f;
+    float t = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+    if (t < 0.1f) return;
 
+    int lineCount = static_cast<int>(t * 60);
+    int alpha = static_cast<int>(t * 1800);
 
+    const float CenterX = 960.0f;
+    const float CenterY = 540.0f;
 
+    static std::mt19937 rng(12345);
+    // 画面端付近にランダムな始点を置くための分布
+    std::uniform_real_distribution<float> distX(0.0f, 1920.0f);
+    std::uniform_real_distribution<float> distY(0.0f, 1080.0f);
+    std::uniform_real_distribution<float> distLen(0.05f, 0.25f); // 中心方向に何割進むか
+
+    rng.seed(static_cast<uint32_t>(GetNowCount()));
+
+    for (int i = 0; i < lineCount; ++i)
+    {
+        // 始点を画面端付近に配置（端20%の帯の中）
+        float sx, sy;
+        int edge = i % 4;
+        switch (edge)
+        {
+        case 0: sx = distX(rng) * 0.35f;               sy = distY(rng) * 0.35f;               break; // 左上
+        case 1: sx = 1920.0f - distX(rng) * 0.35f;     sy = distY(rng) * 0.35f;               break; // 右上
+        case 2: sx = distX(rng) * 0.35f;               sy = 1080.0f - distY(rng) * 0.35f;     break; // 左下
+        case 3: sx = 1920.0f - distX(rng) * 0.35f;     sy = 1080.0f - distY(rng) * 0.35f;     break; // 右下
+        }
+
+        // 中心方向のベクトルを作り、その途中まで伸ばす
+        float dx = CenterX - sx;
+        float dy = CenterY - sy;
+        float len = distLen(rng) * t;
+
+        float ex = sx + dx * len;
+        float ey = sy + dy * len;
+
+        RenderSystem::GetInstance().SubmitLine(
+            { sx, sy }, { ex, ey },
+            0xFFFFFF, RenderSpace::Screen, 200, alpha
+        );
+    }
+}
 //{
 //	if (Scale > 0) {
 //		m_movement->AddLocalForce({ 0.0f, -2.0f });
