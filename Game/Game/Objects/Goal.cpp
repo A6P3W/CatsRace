@@ -1,16 +1,16 @@
-ï»¿#include "Goal.h"
+#include "Goal.h"
 #include "RectAngleCollisionComponent.h"
 #include "SceneManager.h"
-#include "Objects/Player.h" // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½p
+#include "Objects/Player.h" // ƒvƒŒƒCƒ„[”»’è—p
 #include "Log.h"
 #include "ClearScene.h"
-// #include "ClearScene.h"  // ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½Ê‚ï¿½GameModeï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½[ï¿½h
-
+// #include "ClearScene.h"  // ƒNƒŠƒA‰æ–Ê‚ÌGameMode‚ª‚Å‚«‚½‚çƒCƒ“ƒNƒ‹[ƒh
+REGISTER_ACTOR(AGoalActor);  // ƒNƒ‰ƒX‚ğƒGƒ“ƒWƒ“‚É“o˜^‚·‚éƒ}ƒNƒ
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
     SetActorLocation(location);
 
-    // ï¿½ï¿½ï¿½a50ï¿½Ì‰~ï¿½`ï¿½Rï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‰ï¿½
+    // ”¼Œa50‚Ì‰~Œ`ƒRƒŠƒWƒ‡ƒ“‚ğ’Ç‰Á
     auto collision = std::make_unique<MRectangleCollisionComponent>(20000.0f);
     collision->SetParentComponent(GetRootComponent());
     AddComponent(std::move(collision));
@@ -18,12 +18,12 @@ AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 
 void AGoalActor::BeginOverlap(AActor* OtherActor)
 {
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è‚ªï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½iAPlayerï¿½jï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½Fï¿½bï¿½N
+    // “–‚½‚Á‚½‘Šè‚ªƒvƒŒƒCƒ„[iAPlayerj‚©‚Ç‚¤‚©‚ğƒ`ƒFƒbƒN
     if (dynamic_cast<APlayer*>(OtherActor)) {
-        // ï¿½Vï¿½[ï¿½ï¿½ï¿½Jï¿½Úiï¿½ï¿½Fï¿½Nï¿½ï¿½ï¿½Aï¿½Vï¿½[ï¿½ï¿½ï¿½Öj
+        // ƒV[ƒ“‘JˆÚi—áFƒNƒŠƒAƒV[ƒ“‚Öj
         SceneManager::GetInstance().OpenScene<AClearScene>();
 
-        // ï¿½eï¿½Xï¿½gï¿½pï¿½Éƒï¿½ï¿½Oï¿½oï¿½ï¿½
+        // ƒeƒXƒg—p‚ÉƒƒOo—Í
         M_LOG("Goal Reached! Transitioning to Clear Scene...");
     }
 }
