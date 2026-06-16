@@ -30,7 +30,6 @@
     <ClCompile Include="Game\Objects\ClearScene.cpp" />
     <ClCompile Include="Game\GameMain.cpp" />
     <ClCompile Include="Game\Objects\GameScene01.cpp" />
-    <ClCompile Include="Game\Objects\Map.cpp" />
     <ClCompile Include="Game\Objects\Player.cpp" />
     <ClCompile Include="Game\Objects\SampleA.cpp" />
     <ClCompile Include="Game\Objects\Goal.cpp" />
@@ -42,7 +41,6 @@
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
     <ClInclude Include="Game\Objects\GameScene01.h" />
-    <ClInclude Include="Game\Objects\Map.h" />
     <ClInclude Include="Game\Objects\Player.h" />
     <ClInclude Include="Game\Objects\SampleA.h" />
     <ClInclude Include="Game\Objects\Goal.h" />

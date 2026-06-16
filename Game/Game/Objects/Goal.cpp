@@ -4,12 +4,14 @@
 #include "Objects/Player.h"
 #include "Log.h"
 #include "GameScene01.h"
+REGISTER_ACTOR(AGoalActor)
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
     SetActorLocation(location);
 
     auto collision = std::make_unique<MRectangleCollisionComponent>();
     collision->SetParentComponent(GetRootComponent());
+	collision->SetCollisionType(ECollisionType::Overlap);
     AddComponent(std::move(collision));
 }
 
