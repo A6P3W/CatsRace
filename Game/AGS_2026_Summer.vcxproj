@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -33,10 +33,11 @@
     <ClCompile Include="Game\Objects\Player.cpp" />
     <ClCompile Include="Game\Objects\SampleA.cpp" />
     <ClCompile Include="Game\Objects\Goal.cpp" />
-    <ClCompile Include="Game\Objects\UserTimer.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp" />
     <ClCompile Include="Game\Objects\TitleScene.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
+    <ClCompile Include="Game\Objects\UI\WCountDown.cpp" />
+    <ClCompile Include="Game\Objects\UI\WMainHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
@@ -44,10 +45,11 @@
     <ClInclude Include="Game\Objects\Player.h" />
     <ClInclude Include="Game\Objects\SampleA.h" />
     <ClInclude Include="Game\Objects\Goal.h" />
-    <ClInclude Include="Game\Objects\UserTimer.h" />
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h" />
     <ClInclude Include="Game\Objects\TitleScene.h" />
     <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
+    <ClInclude Include="Game\Objects\UI\WCountDown.h" />
+    <ClInclude Include="Game\Objects\UI\WMainHUD.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
