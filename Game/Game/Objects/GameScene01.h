@@ -10,6 +10,9 @@ public:
 	AGameScene01();
 	void OnUpdate(float DeltaTime) override;
 	void BeginPlay() override;
+	float GetRaceTime() const { return RaceTime; }
+
+	void RaceFinish();
 private:
 	void RaceCountDown();
 	void RaceStart();
@@ -20,6 +23,7 @@ private:
 
 	void ClearCountDownSprite();
 
-
+	float RaceTime = 0.0f;
+	bool RaceRunning = false;
 };
 

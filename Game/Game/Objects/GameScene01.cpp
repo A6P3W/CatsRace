@@ -46,6 +46,9 @@ AGameScene01::AGameScene01() {
 
 void AGameScene01::OnUpdate(float DeltaTime)
 {
+	if (RaceRunning) {
+		RaceTime += DeltaTime;
+	}
 }
 
 void AGameScene01::BeginPlay()
@@ -64,6 +67,11 @@ void AGameScene01::BeginPlay()
 
 	SpawnActor<SpeedUpItem>(FVector2D{ 0,400 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 0);
+}
+
+void AGameScene01::RaceFinish()
+{
+	RaceRunning = false;
 }
 
 void AGameScene01::RaceCountDown()
@@ -87,6 +95,8 @@ void AGameScene01::RaceCountDown()
 void AGameScene01::RaceStart()
 {
 	M_LOG("start", 0);
+	RaceRunning = true;
+
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 	SpawnActor<UserTimer>(FVector2D{ 0,0 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDownSprite, 1.0f, false, 2.0f);
