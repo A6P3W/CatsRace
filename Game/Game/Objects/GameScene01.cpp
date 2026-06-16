@@ -51,13 +51,13 @@ void AGameScene01::OnUpdate(float DeltaTime)
 void AGameScene01::BeginPlay()
 {
 	LevelSerializer::Load(GetWorld(), "tt.json");
-	SpawnActor<AMap>(FVector2D::ZeroVector, 0.0f);
+	SpawnActor<AMap>();
 
 	SpawnPlayer<APlayer, APlayerController>(FVector2D{ -2800, -1700 }, 0);
 
 	SpawnActor<ASlowFloor>(FVector2D{ 500.0f, -8000.0f });
 	
-	SpawnActor<ASampleA>({ 0,0 }, { 0 });
+	SpawnActor<ASampleA>();
 	M_LOG("Default scene initialized", 0);
 
 	SpawnActor<AGoalActor>(FVector2D{ 1000.0f, -21150.0f });
