@@ -1,4 +1,4 @@
-#include "UserTimer.h"
+﻿#include "UserTimer.h"
 #include <RenderSystem.h>
 #include <ResourceManager.h>
 void UserTimer::OnUpdate(float DeltaTime)

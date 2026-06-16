@@ -93,8 +93,8 @@ void APlayer::OnUpdate(float DeltaTime)
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     float steerAngle = MaxSteer * m_slider * steerAbility;
-    AddActorRotation(steerAngle);
-    m_movement->AddVelocityRotation(steerAngle);
+    AddActorRotation(FRotator(steerAngle));
+    m_movement->AddVelocityRotation(FRotator(steerAngle));
 
     m_accelInput = 0.0f;
     m_slider = 0.0f;

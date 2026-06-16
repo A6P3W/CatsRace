@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Actor.h"
 #include "SoundComponent.h"
 class SpeedUpItem:public AActor

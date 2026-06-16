@@ -25,7 +25,7 @@ AGameScene01::AGameScene01() {
 	int imgHandle = ResourceManager::GetInstance().LoadResourceGraph("images/stage1.png");
 	auto imgSprite = std::make_unique<MSpriteComponent>(-5000, RenderSpace::World);
 	imgSprite->SubmitGraph( imgHandle);
-	imgSprite->SetWorldScale(50.0);
+	imgSprite->SetWorldScale(FScale(50.0f));
 	imgSprite->SetRelativeLocation({ 500.0f, 300.0f });
 	AddComponent(std::move(imgSprite));
 
@@ -60,7 +60,7 @@ void AGameScene01::BeginPlay()
 	SpawnActor<ASampleA>({ 0,0 }, { 0 });
 	M_LOG("Default scene initialized", 0);
 
-	SpawnActor<AGoalActor>(FVector2D{ 1000.0f, -21150.0f }, 0.0f);
+	SpawnActor<AGoalActor>(FVector2D{ 1000.0f, -21150.0f });
 
 	SpawnActor<SpeedUpItem>(FVector2D{ 0,400 }, FRotator{ 0 });
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 0);
