@@ -95,10 +95,10 @@ void AGameScene01::RaceStart()
 	GetPlayerController()->SetInputMode(EInputMode::GameOnly);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);
 
-	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ShowMainHUD, 1.0f, false, 1.0f);
+	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::ClearCountDown, 1.0f, false, 1.0f);
 }
 
-void AGameScene01::ShowMainHUD()
+void AGameScene01::ClearCountDown()
 {
 	UIManager::GetInstance()->PopWidget();
 	m_CountDownWidget = nullptr;

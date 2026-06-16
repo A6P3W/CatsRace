@@ -18,7 +18,7 @@ public:
 private:
 	void RaceCountDown();
 	void RaceStart();
-	void ShowMainHUD();
+	void ClearCountDown();
 
 	int m_CountDown = 3;
 	FTimerHandle CountHandle;
