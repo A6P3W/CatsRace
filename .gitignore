@@ -368,3 +368,4 @@ Log.txt
 .codex/
 /.antigravitycli
 /Game/imgui.ini
+/Game/vcpkg_installed/
