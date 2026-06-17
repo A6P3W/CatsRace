@@ -23,7 +23,7 @@
 #include <UIManager.h>
 #include "Objects/UI/WCountDown.h"
 #include "Objects/UI/WMainHUD.h"
-
+#include "GI_main.h"
 AGameScene01::AGameScene01()
 {
 }
@@ -49,12 +49,12 @@ void AGameScene01::BeginPlay()
 
 
 	m_MainHUD = SpawnActor<WMainHUD>();
-	UIManager::GetInstance()->PushWidget(m_MainHUD);
+	UIManager::GetInstance()->AddWidget(m_MainHUD);
 
 
 	m_CountDownWidget = SpawnActor<WCountDown>();
 	m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
-	UIManager::GetInstance()->PushWidget(m_CountDownWidget);
+	UIManager::GetInstance()->AddWidget(m_CountDownWidget);
 
 	GetPlayerController()->SetInputMode(EInputMode::UIOnly);
 
@@ -64,9 +64,9 @@ void AGameScene01::BeginPlay()
 void AGameScene01::RaceFinish()
 {
 	RaceRunning = false;
-	while (UIManager::GetInstance()->GetPeekWidget()) {
-		UIManager::GetInstance()->PopWidget();
-	}
+	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+	gi->ClearTime = RaceTime;
+
 	SceneManager::GetInstance().OpenScene<AClearScene>();
 }
 
@@ -100,6 +100,6 @@ void AGameScene01::RaceStart()
 
 void AGameScene01::ClearCountDown()
 {
-	UIManager::GetInstance()->PopWidget();
+	UIManager::GetInstance()->RemoveWidget(m_CountDownWidget);
 	m_CountDownWidget = nullptr;
 }

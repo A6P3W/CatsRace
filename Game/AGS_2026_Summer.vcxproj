@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -42,6 +42,8 @@
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
     <ClInclude Include="Game\Objects\GameScene01.h" />
+    <ClInclude Include="Game\Objects\GI_main.h" />
+    <ClInclude Include="Game\Objects\MyGameInstance.h" />
     <ClInclude Include="Game\Objects\Player.h" />
     <ClInclude Include="Game\Objects\SampleA.h" />
     <ClInclude Include="Game\Objects\Goal.h" />

@@ -5,11 +5,15 @@
 #include "Objects/GameScene01.h"
 #include <KeyboardDevice.h>
 #include <DxLib.h>
+#include "GI_main.h"
+
 AClearScene::AClearScene()
 {
+	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+    
     // 画面中央にテキストを表示
     auto textComp = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
-    textComp->SubmitText("GAME CLEAR!", 0xFFFF00, -1, 255);
+    textComp->SubmitText(std::to_string(gi->ClearTime), 0xFFFF00, -1, 255);
     // スクリーン座標(RenderSpace::Screen)なので、解像度に合わせて調整
     textComp->SetRelativeLocation({ 800.0f, 500.0f });
     AddComponent(std::move(textComp));
