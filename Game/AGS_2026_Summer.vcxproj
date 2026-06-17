@@ -38,6 +38,7 @@
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
     <ClCompile Include="Game\Objects\UI\WCountDown.cpp" />
     <ClCompile Include="Game\Objects\UI\WMainHUD.cpp" />
+    <ClCompile Include="Game\Objects\LeaderBoardManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
@@ -52,6 +53,7 @@
     <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
     <ClInclude Include="Game\Objects\UI\WCountDown.h" />
     <ClInclude Include="Game\Objects\UI\WMainHUD.h" />
+    <ClInclude Include="Game\Objects\LeaderBoardManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />

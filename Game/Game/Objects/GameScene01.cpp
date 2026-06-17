@@ -24,6 +24,7 @@
 #include "Objects/UI/WCountDown.h"
 #include "Objects/UI/WMainHUD.h"
 #include "GI_main.h"
+#include "LeaderBoardManager.h"
 AGameScene01::AGameScene01()
 {
 }
@@ -40,6 +41,12 @@ void AGameScene01::OnUpdate(float DeltaTime)
 
 void AGameScene01::BeginPlay()
 {
+	//auto* LBM = GetWorld()->SpawnActor<LeaderBoardManager>();
+	//LBM->FetchLeaderBoard("b", [](const std::vector<FLeaderBoardEntry>& entries){
+	//	for (const auto& entry : entries) {
+	//		M_LOG("User: {}, Score: {}", entry.user_id, entry.score);
+	//	}
+	//	});
 	LevelSerializer::Load(GetWorld(), "tt.json");
 
 	SpawnPlayer<APlayer, APlayerController>(FVector2D{ -2800, -1700 }, 0);
