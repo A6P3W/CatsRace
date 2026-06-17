@@ -1,5 +1,10 @@
 ﻿#include "SceneManager.h"
 #include "Objects/TitleScene.h"
+#include "Objects/GI_main.h"
+
+
 void SetupGame() {
-	SceneManager::GetInstance().OpenScene<ATitleScene>();
+	auto &SM = SceneManager::GetInstance();
+	SM.OpenScene<ATitleScene>();
+	SM.SetGameInstance<GI_main>();
 }

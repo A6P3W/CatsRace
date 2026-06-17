@@ -23,7 +23,7 @@
 #include <UIManager.h>
 #include "Objects/UI/WCountDown.h"
 #include "Objects/UI/WMainHUD.h"
-
+#include "GI_main.h"
 AGameScene01::AGameScene01()
 {
 }
@@ -67,6 +67,9 @@ void AGameScene01::RaceFinish()
 	while (UIManager::GetInstance()->GetPeekWidget()) {
 		UIManager::GetInstance()->PopWidget();
 	}
+	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+	gi->ClearTime = RaceTime;
+
 	SceneManager::GetInstance().OpenScene<AClearScene>();
 }
 
