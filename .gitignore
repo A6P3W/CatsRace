@@ -369,3 +369,4 @@ Log.txt
 /.antigravitycli
 /Game/imgui.ini
 /Game/vcpkg_installed/
+*..repoignore
