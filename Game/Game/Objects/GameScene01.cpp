@@ -73,7 +73,7 @@ void AGameScene01::RaceFinish()
 	RaceRunning = false;
 	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
 	gi->ClearTime = RaceTime;
-
+	gi->map_id = "GameScene01";
 	SceneManager::GetInstance().OpenScene<AClearScene>();
 }
 

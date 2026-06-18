@@ -5,20 +5,20 @@
 #include <functional>
 
 struct FLeaderBoardEntry {
-    std::string user_id;
-    float score;
+	std::string user_id = "";
+	float score = 1000;
 };
 
-using FetchLeaderBoardCallBack = std::function<void(const std::vector<FLeaderBoardEntry>&)>;
+using FetchLeaderBoardCallBack = std::function<void(bool bSuccess,const std::vector<FLeaderBoardEntry>&)>;
 class LeaderBoardManager : public AActor
 {
 public:
-    DEFINE_ACTOR_CLASS(LeaderBoardManager);
+	DEFINE_ACTOR_CLASS(LeaderBoardManager);
 
-    void FetchLeaderBoard(const std::string map_id,FetchLeaderBoardCallBack callback);
-    void PostScore(const std::string);
+	void FetchLeaderBoard(const std::string map_id, FetchLeaderBoardCallBack callback);
+	void PostScore(const std::string map_id, std::function<void(bool)> callback = nullptr);
 
 private:
-    std::string FetchLeaderBoardUrl = "https://get-race-leaderboards-bcpidymjjq-uw.a.run.app";
-    std::string PostScoreUrl = "https://post-race-time-bcpidymjjq-uw.a.run.app";
+	std::string FetchLeaderBoardUrl = "https://get-race-leaderboards-bcpidymjjq-uw.a.run.app";
+	std::string PostScoreUrl = "https://post-race-time-bcpidymjjq-uw.a.run.app";
 };
