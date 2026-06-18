@@ -16,7 +16,7 @@ public:
 	DEFINE_ACTOR_CLASS(LeaderBoardManager);
 
 	void FetchLeaderBoard(const std::string map_id, FetchLeaderBoardCallBack callback);
-	void PostScore(const std::string map_id, std::function<void(bool)> callback = nullptr);
+	void PostScore(const std::string map_id, const std::string user_id, std::function<void(bool)> callback = nullptr);
 
 private:
 	std::string FetchLeaderBoardUrl = "https://get-race-leaderboards-bcpidymjjq-uw.a.run.app";

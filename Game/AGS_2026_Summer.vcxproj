@@ -40,6 +40,9 @@
     <ClCompile Include="Game\Objects\UI\WMainHUD.cpp" />
     <ClCompile Include="Game\Objects\LeaderBoardManager.cpp" />
     <ClCompile Include="Game\Objects\UI\WClearHUD.cpp" />
+    <ClCompile Include="Game\Objects\UI\WNameInputDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WNameSelectDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WOverwriteConfirmDialog.cpp" />
     <ClCompile Include="Game\Objects\UI\WRankEntryComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +60,9 @@
     <ClInclude Include="Game\Objects\UI\WMainHUD.h" />
     <ClInclude Include="Game\Objects\LeaderBoardManager.h" />
     <ClInclude Include="Game\Objects\UI\WClearHUD.h" />
+    <ClInclude Include="Game\Objects\UI\WNameInputDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WNameSelectDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WOverwriteConfirmDialog.h" />
     <ClInclude Include="Game\Objects\UI\WRankEntryComponent.h" />
   </ItemGroup>
   <ItemGroup>

@@ -36,14 +36,14 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
 		});
 }
 
-void LeaderBoardManager::PostScore(const std::string map_id, std::function<void(bool)> callback)
+void LeaderBoardManager::PostScore(const std::string map_id, const std::string user_id, std::function<void(bool)> callback)
 {
 	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
 	float score = gi ? gi->ClearTime : 0.0f;
 
 	nlohmann::json j;
 	j["map_id"] = map_id;
-	j["user_id"] = "Player";
+	j["user_id"] = user_id;
 	j["score"] = score;
 
 	HttpManager::GetInstance().PostJson(this, PostScoreUrl, j.dump(), [this, callback](const HttpResponse& res) {
