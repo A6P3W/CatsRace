@@ -43,6 +43,7 @@
     <ClCompile Include="Game\Objects\UI\WNameInputDialog.cpp" />
     <ClCompile Include="Game\Objects\UI\WNameSelectDialog.cpp" />
     <ClCompile Include="Game\Objects\UI\WOverwriteConfirmDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WPostGameDialog.cpp" />
     <ClCompile Include="Game\Objects\UI\WRankEntryComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +64,7 @@
     <ClInclude Include="Game\Objects\UI\WNameInputDialog.h" />
     <ClInclude Include="Game\Objects\UI\WNameSelectDialog.h" />
     <ClInclude Include="Game\Objects\UI\WOverwriteConfirmDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WPostGameDialog.h" />
     <ClInclude Include="Game\Objects\UI\WRankEntryComponent.h" />
   </ItemGroup>
   <ItemGroup>

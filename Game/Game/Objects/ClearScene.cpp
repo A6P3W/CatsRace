@@ -1,7 +1,8 @@
-﻿#include "ClearScene.h"
+#include "ClearScene.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Objects/GameScene01.h"
+#include "Objects/TitleScene.h"
 #include <KeyboardDevice.h>
 #include <DxLib.h>
 #include "GI_main.h"
@@ -9,6 +10,7 @@
 #include "UI/WNameSelectDialog.h"
 #include "UI/WNameInputDialog.h"
 #include "UI/WOverwriteConfirmDialog.h"
+#include "UI/WPostGameDialog.h"
 #include "LeaderBoardManager.h"
 #include "UIManager.h"
 #include "World.h"
@@ -17,10 +19,6 @@
 #include <Pawn.h>
 AClearScene::AClearScene()
 {
-	auto subText = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
-	subText->SubmitText("Press R to Return", 0xFFFFFF, -1, 255);
-	subText->SetRelativeLocation({ 820.0f, 800.0f });
-	AddComponent(std::move(subText));
 }
 
 void AClearScene::BeginPlay()
@@ -63,7 +61,7 @@ void AClearScene::ShowNameFlow()
 			} else if (result == ENameSelectResult::EnterNew) {
 				ShowNameInputDialog();
 			} else if (result == ENameSelectResult::Skip) {
-				// Proceed without registration
+				ShowPostGameDialog();
 			}
 		});
 		UIManager::GetInstance()->AddWidget(m_NameSelectDialog);
@@ -83,6 +81,13 @@ void AClearScene::ShowNameInputDialog()
 			m_NameInputDialog = nullptr;
 		}
 		CheckDuplicateAndPost(name);
+	});
+	m_NameInputDialog->SetOnCancelled([this]() {
+		if (m_NameInputDialog) {
+			m_NameInputDialog->Destroy();
+			m_NameInputDialog = nullptr;
+		}
+		ShowPostGameDialog();
 	});
 	UIManager::GetInstance()->AddWidget(m_NameInputDialog);
 	UIManager::GetInstance()->SetFocusedWidget(m_NameInputDialog);
@@ -139,6 +144,7 @@ void AClearScene::ExecutePostScore(const std::string& name)
 			}
 		}
 		FetchAndDisplay();
+		ShowPostGameDialog();
 	});
 }
 
@@ -166,16 +172,25 @@ void AClearScene::FetchAndDisplay()
 	});
 }
 
+void AClearScene::ShowPostGameDialog()
+{
+	m_PostGameDialog = GetWorld()->SpawnActor<WPostGameDialog>();
+	m_PostGameDialog->SetZOrderOffset(10);
+	m_PostGameDialog->SetOnResult([this](EPostGameResult result) {
+		if (m_PostGameDialog) {
+			m_PostGameDialog->Destroy();
+			m_PostGameDialog = nullptr;
+		}
+		if (result == EPostGameResult::PlayAgain) {
+			SceneManager::GetInstance().OpenScene<AGameScene01>();
+		} else if (result == EPostGameResult::BackToTitle) {
+			SceneManager::GetInstance().OpenScene<ATitleScene>();
+		}
+	});
+	UIManager::GetInstance()->AddWidget(m_PostGameDialog);
+	UIManager::GetInstance()->SetFocusedWidget(m_PostGameDialog);
+}
+
 void AClearScene::OnUpdate(float DeltaTime)
 {
-	// Block R key scene transition if any dialog is active
-	bool bIsDialogActive = (m_NameSelectDialog != nullptr || m_NameInputDialog != nullptr || m_OverwriteDialog != nullptr);
-	if (bIsDialogActive) {
-		return;
-	}
-
-	auto* kb = InputManager::GetInstance().GetDevice<KeyboardDevice>();
-	if (kb && kb->GetPressStart(KEY_INPUT_R)) {
-		SceneManager::GetInstance().OpenScene<AGameScene01>();
-	}
 }

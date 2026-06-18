@@ -59,10 +59,9 @@ WNameInputDialog::WNameInputDialog()
 	m_BtnSubmit = btnSubmit.get();
 	m_BtnSubmit->SetAnchor(EUIAnchor::MiddleCenter);
 	m_BtnSubmit->SetPivot({ 0.5f, 0.5f });
-	m_BtnSubmit->SetAnchoredPosition({ 0.0f, 80.0f });
-	m_BtnSubmit->SetParentComponent(nullptr);
+	m_BtnSubmit->SetAnchoredPosition({ -120.0f, 80.0f });
 
-	auto txtSubmit = std::make_unique<UITextComponent>("送信", 0xFFFFFF, 20);
+	auto txtSubmit = std::make_unique<UITextComponent>("送信 (ENTER)", 0xFFFFFF, 18);
 	m_TxtSubmit = txtSubmit.get();
 	m_TxtSubmit->SetParentComponent(m_BtnSubmit);
 	m_TxtSubmit->SetAnchor(EUIAnchor::MiddleCenter);
@@ -71,6 +70,23 @@ WNameInputDialog::WNameInputDialog()
 
 	AddComponent(std::move(txtSubmit));
 	AddComponent(std::move(btnSubmit));
+
+	// Cancel Button (ZOrder: 1)
+	auto btnCancel = std::make_unique<UIBoxButtonComponent>(200.0f, 45.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+	m_BtnCancel = btnCancel.get();
+	m_BtnCancel->SetAnchor(EUIAnchor::MiddleCenter);
+	m_BtnCancel->SetPivot({ 0.5f, 0.5f });
+	m_BtnCancel->SetAnchoredPosition({ 120.0f, 80.0f });
+
+	auto txtCancel = std::make_unique<UITextComponent>("登録しない (ESC)", 0xFFFFFF, 16);
+	m_TxtCancel = txtCancel.get();
+	m_TxtCancel->SetParentComponent(m_BtnCancel);
+	m_TxtCancel->SetAnchor(EUIAnchor::MiddleCenter);
+	m_TxtCancel->SetPivot({ 0.5f, 0.5f });
+	m_TxtCancel->SetAnchoredPosition({ 0.0f, 0.0f });
+
+	AddComponent(std::move(txtCancel));
+	AddComponent(std::move(btnCancel));
 }
 
 WNameInputDialog::~WNameInputDialog()
@@ -87,6 +103,9 @@ void WNameInputDialog::BeginPlay()
 	m_InputHandle = MakeKeyInput(16, TRUE, TRUE, FALSE);
 	SetActiveKeyInput(m_InputHandle);
 
+	m_BtnSubmit->Navigation.Right = m_BtnCancel;
+	m_BtnCancel->Navigation.Left = m_BtnSubmit;
+
 	SetFocusedButton(m_BtnSubmit);
 
 	m_BtnSubmit->OnPressed = [this]() {
@@ -98,6 +117,12 @@ void WNameInputDialog::BeginPlay()
 			if (!cleanName.empty() && m_Callback) {
 				m_Callback(cleanName);
 			}
+		}
+	};
+
+	m_BtnCancel->OnPressed = [this]() {
+		if (m_CancelCallback) {
+			m_CancelCallback();
 		}
 	};
 }
@@ -123,15 +148,22 @@ void WNameInputDialog::OnUpdate(float DeltaTime)
 		m_InputText->SetText(displayText);
 	}
 
-	if (m_InputHandle != -1 && CheckKeyInput(m_InputHandle) == 1) {
-		char buf[256] = {0};
-		GetKeyInputString(buf, m_InputHandle);
-		std::string name(buf);
-		std::string cleanName = KeepAlphanumericOnly(name);
-		if (!cleanName.empty() && m_Callback) {
-			m_Callback(cleanName);
-		} else {
-			SetActiveKeyInput(m_InputHandle);
+	if (m_InputHandle != -1) {
+		int state = CheckKeyInput(m_InputHandle);
+		if (state == 1) {
+			char buf[256] = {0};
+			GetKeyInputString(buf, m_InputHandle);
+			std::string name(buf);
+			std::string cleanName = KeepAlphanumericOnly(name);
+			if (!cleanName.empty() && m_Callback) {
+				m_Callback(cleanName);
+			} else {
+				SetActiveKeyInput(m_InputHandle);
+			}
+		} else if (state == 2) {
+			if (m_CancelCallback) {
+				m_CancelCallback();
+			}
 		}
 	}
 }
@@ -139,4 +171,9 @@ void WNameInputDialog::OnUpdate(float DeltaTime)
 void WNameInputDialog::SetOnNameConfirmed(FOnNameConfirmed callback)
 {
 	m_Callback = callback;
+}
+
+void WNameInputDialog::SetOnCancelled(FOnNameInputCancelled callback)
+{
+	m_CancelCallback = callback;
 }
