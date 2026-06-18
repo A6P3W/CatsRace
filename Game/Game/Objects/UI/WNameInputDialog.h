@@ -26,9 +26,6 @@ private:
 	FOnNameConfirmed m_Callback;
 	int m_InputHandle = -1;
 
-	float m_BlinkTimer = 0.0f;
-	bool m_bShowCursor = true;
-
 	MSpriteComponent* m_BgPanel = nullptr;
 	UITextComponent* m_TitleText = nullptr;
 	MSpriteComponent* m_InputBoxBg = nullptr;

@@ -52,9 +52,9 @@ void WClearHUD::SetLeaderBoard(const std::vector<FLeaderBoardEntry>& entries)
 		auto rankEntry = std::make_unique<WRankEntryComponent>(rank, entryData.user_id, entryData.score);
 		WRankEntryComponent* rankEntryPtr = rankEntry.get();
 
-		rankEntryPtr->SetAnchor(EUIAnchor::TopCenter);
-		rankEntryPtr->SetPivot({ 0.5f, 0.0f });
-		rankEntryPtr->SetAnchoredPosition({ 0.0f, m_EntryStartY + i * m_EntryHeight });
+		rankEntryPtr->SetAnchor(EUIAnchor::TopRight);
+		rankEntryPtr->SetPivot({ 1.0f, 0.0f });
+		rankEntryPtr->SetAnchoredPosition({ -70.0f, m_EntryStartY + i * m_EntryHeight });
 
 		m_RankEntries.push_back(rankEntryPtr);
 		AddComponent(std::move(rankEntry));

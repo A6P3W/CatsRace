@@ -16,6 +16,8 @@ private:
 	std::string m_UserId;
 	float m_Score;
 
-	UITextComponent* m_TextComponent = nullptr;
+	UITextComponent* m_RankTextComponent = nullptr;
+	UITextComponent* m_NameTextComponent = nullptr;
+	UITextComponent* m_ScoreTextComponent = nullptr;
 	MSpriteComponent* m_SpriteComponent = nullptr;
 };

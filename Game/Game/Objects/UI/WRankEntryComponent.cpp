@@ -10,7 +10,7 @@ WRankEntryComponent::WRankEntryComponent(int rank, const std::string& userId, fl
 	, m_UserId(userId)
 	, m_Score(score)
 {
-	SetWidgetSize({ 800.0f, 40.0f });
+	SetWidgetSize({ 540.0f, 40.0f });
 }
 
 void WRankEntryComponent::RegisterComponent()
@@ -18,23 +18,40 @@ void WRankEntryComponent::RegisterComponent()
 	MUIWidgetComponent::RegisterComponent();
 
 	if (auto* owner = GetOwner()) {
+		// 1. 順位テキストの生成
+		std::string rankStr = "#" + std::to_string(m_Rank);
+		auto rankComp = std::make_unique<UITextComponent>(rankStr, 0xFFFFFF, 24);
+		m_RankTextComponent = rankComp.get();
+		m_RankTextComponent->SetParentComponent(this);
+		m_RankTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
+		m_RankTextComponent->SetPivot({ 0.0f, 0.5f });
+		m_RankTextComponent->SetAnchoredPosition({ -245.0f, 0.0f });
+		owner->AddComponent(std::move(rankComp));
+
+		// 2. 名前テキストの生成
+		auto nameComp = std::make_unique<UITextComponent>(m_UserId, 0xFFFFFF, 24);
+		m_NameTextComponent = nameComp.get();
+		m_NameTextComponent->SetParentComponent(this);
+		m_NameTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
+		m_NameTextComponent->SetPivot({ 0.0f, 0.5f });
+		m_NameTextComponent->SetAnchoredPosition({ -120.0f, 0.0f });
+		owner->AddComponent(std::move(nameComp));
+
+		// 3. スコアテキストの生成
 		std::ostringstream oss;
-		oss << "#" << m_Rank << "  " << m_UserId << "  " << std::fixed << std::setprecision(2) << m_Score;
-
-		auto textComp = std::make_unique<UITextComponent>(oss.str(), 0xFFFFFF, 24);
-		m_TextComponent = textComp.get();
-
-		m_TextComponent->SetParentComponent(this);
-		m_TextComponent->SetAnchor(EUIAnchor::MiddleCenter);
-		m_TextComponent->SetPivot({ 0.5f, 0.5f });
-		m_TextComponent->SetAnchoredPosition({ 0.0f, 0.0f });
-
-		owner->AddComponent(std::move(textComp));
+		oss << std::fixed << std::setprecision(2) << m_Score;
+		auto scoreComp = std::make_unique<UITextComponent>(oss.str(), 0xFFFFFF, 24);
+		m_ScoreTextComponent = scoreComp.get();
+		m_ScoreTextComponent->SetParentComponent(this);
+		m_ScoreTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
+		m_ScoreTextComponent->SetPivot({ 1.0f, 0.5f });
+		m_ScoreTextComponent->SetAnchoredPosition({ 245.0f, 0.0f });
+		owner->AddComponent(std::move(scoreComp));
 
 		auto spriteComp = std::make_unique<MSpriteComponent>(GetFinalPriority(), RenderSpace::Screen);
 		m_SpriteComponent = spriteComp.get();
-		m_SpriteComponent->SetRelativeLocation({ -800 * 0.5f, -40 * 0.5f });
-		m_SpriteComponent->SubmitBox(800, 40, GetColor(255,255,255), true,100);
+		m_SpriteComponent->SetRelativeLocation({ -540 * 0.5f, -40 * 0.5f });
+		m_SpriteComponent->SubmitBox(540, 40, GetColor(255,255,255), true,100);
 		m_SpriteComponent->SetParentComponent(this);
 		owner->AddComponent(std::move(spriteComp));
 	}

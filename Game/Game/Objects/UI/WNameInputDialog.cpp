@@ -4,6 +4,21 @@
 #include <SpriteComponent.h>
 #include <DxLib.h>
 
+namespace {
+std::string KeepAlphanumericOnly(const std::string& str)
+{
+	std::string result;
+	result.reserve(str.size());
+	for (char c : str) {
+		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+			result.push_back(c);
+		}
+	}
+	return result;
+}
+}
+
+
 WNameInputDialog::WNameInputDialog()
 {
 	// Background Panel (ZOrder: 0)
@@ -69,21 +84,19 @@ void WNameInputDialog::BeginPlay()
 {
 	AWidgetBase::BeginPlay();
 
-	// Create input handle (Max 16 chars, Kanji disabled, Single-byte input forced)
-	m_InputHandle = MakeKeyInput(16, TRUE, FALSE, FALSE);
+	m_InputHandle = MakeKeyInput(16, TRUE, TRUE, FALSE);
 	SetActiveKeyInput(m_InputHandle);
 
-	// Set initial focus
 	SetFocusedButton(m_BtnSubmit);
 
-	// Button callback setup
 	m_BtnSubmit->OnPressed = [this]() {
 		if (m_InputHandle != -1) {
 			char buf[256] = {0};
 			GetKeyInputString(buf, m_InputHandle);
 			std::string name(buf);
-			if (!name.empty() && m_Callback) {
-				m_Callback(name);
+			std::string cleanName = KeepAlphanumericOnly(name);
+			if (!cleanName.empty() && m_Callback) {
+				m_Callback(cleanName);
 			}
 		}
 	};
@@ -93,34 +106,30 @@ void WNameInputDialog::OnUpdate(float DeltaTime)
 {
 	AWidgetBase::OnUpdate(DeltaTime);
 
-	// Get current typed characters and update display with blink cursor
 	if (m_InputHandle != -1) {
 		char buf[256] = {0};
 		GetKeyInputString(buf, m_InputHandle);
 		std::string name(buf);
 
-		m_BlinkTimer += DeltaTime;
-		if (m_BlinkTimer >= 0.5f) {
-			m_BlinkTimer -= 0.5f;
-			m_bShowCursor = !m_bShowCursor;
+		std::string cleanName = KeepAlphanumericOnly(name);
+		if (cleanName != name) {
+			SetKeyInputString(const_cast<char*>(cleanName.c_str()), m_InputHandle);
+			name = cleanName;
 		}
 
 		std::string displayText = name;
-		if (m_bShowCursor) {
-			displayText += "|";
-		}
-		if (m_InputText) {
-			m_InputText->SetText(displayText);
-		}
+
+		displayText += "|";
+		m_InputText->SetText(displayText);
 	}
 
-	// Check Enter key confirmation
 	if (m_InputHandle != -1 && CheckKeyInput(m_InputHandle) == 1) {
 		char buf[256] = {0};
 		GetKeyInputString(buf, m_InputHandle);
 		std::string name(buf);
-		if (!name.empty() && m_Callback) {
-			m_Callback(name);
+		std::string cleanName = KeepAlphanumericOnly(name);
+		if (!cleanName.empty() && m_Callback) {
+			m_Callback(cleanName);
 		} else {
 			SetActiveKeyInput(m_InputHandle);
 		}
