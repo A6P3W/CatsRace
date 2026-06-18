@@ -1,4 +1,4 @@
-#include "ClearScene.h"
+﻿#include "ClearScene.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Objects/GameScene01.h"

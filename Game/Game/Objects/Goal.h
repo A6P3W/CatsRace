@@ -1,12 +1,12 @@
-#pragma once
+ï»¿#pragma once
 #include "Actor.h"
 
 class AGoalActor : public AActor
 {
 public:
 	DEFINE_ACTOR_CLASS(AGoalActor);
-    AGoalActor(FVector2D location, FRotator rotation);
+	AGoalActor(FVector2D location, FRotator rotation);
 
-    // ‘¼‚ÌƒAƒNƒ^[iƒvƒŒƒCƒ„[j‚ªd‚È‚Á‚½‚ÉŒÄ‚Î‚ê‚é
-    void BeginOverlap(AActor* OtherActor) override;
+	// ä»–ã®ã‚¢ã‚¯ã‚¿ãƒ¼ï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ï¼‰ãŒé‡ãªã£ãŸæ™‚ã«å‘¼ã°ã‚Œã‚‹
+	void BeginOverlap(AActor* OtherActor) override;
 };

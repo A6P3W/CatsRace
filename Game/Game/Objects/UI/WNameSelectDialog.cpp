@@ -1,4 +1,4 @@
-#include "WNameSelectDialog.h"
+﻿#include "WNameSelectDialog.h"
 #include <UITextComponent.h>
 #include <UIBoxButton.h>
 #include <SpriteComponent.h>
@@ -15,7 +15,7 @@ WNameSelectDialog::WNameSelectDialog()
 	AddComponent(std::move(bgPanel));
 
 	// Title Text (ZOrder: 1)
-	auto titleText = std::make_unique<UITextComponent>("Select Registration Name", 0xFFFFFF, 28);
+	auto titleText = std::make_unique<UITextComponent>("ランキングへの登録方法", 0xFFFFFF, 28);
 	m_TitleText = titleText.get();
 	m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
 	m_TitleText->SetPivot({ 0.5f, 0.5f });
@@ -31,7 +31,7 @@ WNameSelectDialog::WNameSelectDialog()
 	m_BtnUseExisting->SetAnchoredPosition({ 0.0f, -20.0f });
 	m_BtnUseExisting->SetParentComponent(nullptr);
 
-	auto txtUseExisting = std::make_unique<UITextComponent>("Use Existing Name", 0xFFFFFF, 20);
+	auto txtUseExisting = std::make_unique<UITextComponent>("前回の名前を使用", 0xFFFFFF, 20);
 	m_TxtUseExisting = txtUseExisting.get();
 	m_TxtUseExisting->SetParentComponent(m_BtnUseExisting);
 	m_TxtUseExisting->SetAnchor(EUIAnchor::MiddleCenter);
@@ -49,7 +49,7 @@ WNameSelectDialog::WNameSelectDialog()
 	m_BtnEnterNew->SetAnchoredPosition({ 0.0f, 40.0f });
 	m_BtnEnterNew->SetParentComponent(nullptr);
 
-	auto txtEnterNew = std::make_unique<UITextComponent>("Enter New Name", 0xFFFFFF, 20);
+	auto txtEnterNew = std::make_unique<UITextComponent>("新しい名前で登録", 0xFFFFFF, 20);
 	m_TxtEnterNew = txtEnterNew.get();
 	m_TxtEnterNew->SetParentComponent(m_BtnEnterNew);
 	m_TxtEnterNew->SetAnchor(EUIAnchor::MiddleCenter);
@@ -67,7 +67,7 @@ WNameSelectDialog::WNameSelectDialog()
 	m_BtnSkip->SetAnchoredPosition({ 0.0f, 100.0f });
 	m_BtnSkip->SetParentComponent(nullptr);
 
-	auto txtSkip = std::make_unique<UITextComponent>("Skip Registration", 0xAAAAAA, 20);
+	auto txtSkip = std::make_unique<UITextComponent>("登録しない", 0xAAAAAA, 20);
 	m_TxtSkip = txtSkip.get();
 	m_TxtSkip->SetParentComponent(m_BtnSkip);
 	m_TxtSkip->SetAnchor(EUIAnchor::MiddleCenter);
@@ -119,7 +119,7 @@ void WNameSelectDialog::SetExistingName(const std::string& name)
 {
 	m_ExistingName = name;
 	if (m_TxtUseExisting) {
-		m_TxtUseExisting->SetText("Register as " + name);
+		m_TxtUseExisting->SetText("登録名：" + name);
 	}
 }
 

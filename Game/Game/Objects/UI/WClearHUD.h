@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <WidgetBase.h>
 #include <vector>
 #include <string>

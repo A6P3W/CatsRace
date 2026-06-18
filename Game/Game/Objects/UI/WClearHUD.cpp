@@ -1,4 +1,4 @@
-#include "WClearHUD.h"
+﻿#include "WClearHUD.h"
 #include "WRankEntryComponent.h"
 #include <UITextComponent.h>
 #include <sstream>
@@ -44,12 +44,12 @@ void WClearHUD::SetLeaderBoard(const std::vector<FLeaderBoardEntry>& entries)
 	}
 	m_RankEntries.clear();
 
-	size_t count = entries.size() > 5 ? 5 : entries.size();
+	size_t count = entries.size() > 15 ? 15 : entries.size();
 	for (size_t i = 0; i < count; ++i) {
 		const auto& entryData = entries[i];
 		int rank = static_cast<int>(i + 1);
 
-		auto rankEntry = std::make_unique<WRankEntryComponent>(rank, entryData.user_id, entryData.score);
+		auto rankEntry = std::make_unique<WRankEntryComponent>(rank, entryData.user_id, entryData.score, entryData.delta_timestamp);
 		WRankEntryComponent* rankEntryPtr = rankEntry.get();
 
 		rankEntryPtr->SetAnchor(EUIAnchor::TopRight);

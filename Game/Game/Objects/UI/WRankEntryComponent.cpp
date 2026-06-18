@@ -1,14 +1,16 @@
-#include "WRankEntryComponent.h"
+﻿#include "WRankEntryComponent.h"
 #include <UITextComponent.h>
 #include <SpriteComponent.h>
 #include <Actor.h>
 #include <sstream>
 #include <iomanip>
 #include <DxLib.h>
-WRankEntryComponent::WRankEntryComponent(int rank, const std::string& userId, float score)
+
+WRankEntryComponent::WRankEntryComponent(int rank, const std::string& userId, float score, const std::string& deltaTimestamp)
 	: m_Rank(rank)
 	, m_UserId(userId)
 	, m_Score(score)
+	, m_DeltaTimestamp(deltaTimestamp)
 {
 	SetWidgetSize({ 540.0f, 40.0f });
 }
@@ -37,15 +39,25 @@ void WRankEntryComponent::RegisterComponent()
 		m_NameTextComponent->SetAnchoredPosition({ -120.0f, 0.0f });
 		owner->AddComponent(std::move(nameComp));
 
-		// 3. スコアテキストの生成
+		// 3. 経過時間テキストの生成
+		std::string timeStr = m_DeltaTimestamp;
+		auto timeComp = std::make_unique<UITextComponent>(timeStr, 0xFFFFFF, 20);
+		m_TimeTextComponent = timeComp.get();
+		m_TimeTextComponent->SetParentComponent(this);
+		m_TimeTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
+		m_TimeTextComponent->SetPivot({ 1.0f, 0.5f });
+		m_TimeTextComponent->SetAnchoredPosition({ 110.0f, 0.0f });
+		owner->AddComponent(std::move(timeComp));
+
+		// 4. スコアテキストの生成
 		std::ostringstream oss;
 		oss << std::fixed << std::setprecision(2) << m_Score;
 		auto scoreComp = std::make_unique<UITextComponent>(oss.str(), 0xFFFFFF, 24);
 		m_ScoreTextComponent = scoreComp.get();
 		m_ScoreTextComponent->SetParentComponent(this);
 		m_ScoreTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
-		m_ScoreTextComponent->SetPivot({ 1.0f, 0.5f });
-		m_ScoreTextComponent->SetAnchoredPosition({ 245.0f, 0.0f });
+		m_ScoreTextComponent->SetPivot({ 0.0f, 0.5f });
+		m_ScoreTextComponent->SetAnchoredPosition({ 215.0f, 0.0f });
 		owner->AddComponent(std::move(scoreComp));
 
 		auto spriteComp = std::make_unique<MSpriteComponent>(GetFinalPriority(), RenderSpace::Screen);

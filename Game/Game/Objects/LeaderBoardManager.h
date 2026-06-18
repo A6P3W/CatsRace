@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Actor.h"
 #include <string>
 #include <vector>
@@ -7,6 +7,7 @@
 struct FLeaderBoardEntry {
 	std::string user_id = "";
 	float score = 1000;
+	std::string delta_timestamp = "";
 };
 
 using FetchLeaderBoardCallBack = std::function<void(bool bSuccess,const std::vector<FLeaderBoardEntry>&)>;

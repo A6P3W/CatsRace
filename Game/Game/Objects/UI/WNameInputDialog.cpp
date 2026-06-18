@@ -1,4 +1,4 @@
-#include "WNameInputDialog.h"
+﻿#include "WNameInputDialog.h"
 #include <UITextComponent.h>
 #include <UIBoxButton.h>
 #include <SpriteComponent.h>
@@ -30,7 +30,7 @@ WNameInputDialog::WNameInputDialog()
 	AddComponent(std::move(bgPanel));
 
 	// Title Text (ZOrder: 1)
-	auto titleText = std::make_unique<UITextComponent>("Enter your name (Max 16 chars)", 0xFFFFFF, 24);
+	auto titleText = std::make_unique<UITextComponent>("登録名を入力してください", 0xFFFFFF, 24);
 	m_TitleText = titleText.get();
 	m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
 	m_TitleText->SetPivot({ 0.5f, 0.5f });
@@ -62,7 +62,7 @@ WNameInputDialog::WNameInputDialog()
 	m_BtnSubmit->SetAnchoredPosition({ 0.0f, 80.0f });
 	m_BtnSubmit->SetParentComponent(nullptr);
 
-	auto txtSubmit = std::make_unique<UITextComponent>("Submit", 0xFFFFFF, 20);
+	auto txtSubmit = std::make_unique<UITextComponent>("送信", 0xFFFFFF, 20);
 	m_TxtSubmit = txtSubmit.get();
 	m_TxtSubmit->SetParentComponent(m_BtnSubmit);
 	m_TxtSubmit->SetAnchor(EUIAnchor::MiddleCenter);

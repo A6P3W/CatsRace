@@ -1,4 +1,4 @@
-#include "WOverwriteConfirmDialog.h"
+﻿#include "WOverwriteConfirmDialog.h"
 #include <UITextComponent.h>
 #include <UIBoxButton.h>
 #include <SpriteComponent.h>
@@ -15,7 +15,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog()
 	AddComponent(std::move(bgPanel));
 
 	// Title Text (Warning style, ZOrder: 1)
-	auto titleText = std::make_unique<UITextComponent>("Warning: Duplicate Name", 0xFF5555, 26);
+	auto titleText = std::make_unique<UITextComponent>("この名前は登録済みです", 0xFF5555, 26);
 	m_TitleText = titleText.get();
 	m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
 	m_TitleText->SetPivot({ 0.5f, 0.5f });
@@ -23,14 +23,6 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog()
 	m_TitleText->SetParentComponent(nullptr);
 	AddComponent(std::move(titleText));
 
-	// Sub Text (ZOrder: 1)
-	auto subText = std::make_unique<UITextComponent>("Overwrite score with this name?", 0xFFFFFF, 18);
-	m_SubText = subText.get();
-	m_SubText->SetAnchor(EUIAnchor::MiddleCenter);
-	m_SubText->SetPivot({ 0.5f, 0.5f });
-	m_SubText->SetAnchoredPosition({ 0.0f, -30.0f });
-	m_SubText->SetParentComponent(nullptr);
-	AddComponent(std::move(subText));
 
 	// 1. Overwrite Button (Left, ZOrder: 1)
 	auto btnOverwrite = std::make_unique<UIBoxButtonComponent>(200.0f, 45.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
@@ -40,7 +32,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog()
 	m_BtnOverwrite->SetAnchoredPosition({ -120.0f, 50.0f });
 	m_BtnOverwrite->SetParentComponent(nullptr);
 
-	auto txtOverwrite = std::make_unique<UITextComponent>("Overwrite", 0xFFFFFF, 18);
+	auto txtOverwrite = std::make_unique<UITextComponent>("上書き", 0xFFFFFF, 18);
 	m_TxtOverwrite = txtOverwrite.get();
 	m_TxtOverwrite->SetParentComponent(m_BtnOverwrite);
 	m_TxtOverwrite->SetAnchor(EUIAnchor::MiddleCenter);
@@ -58,7 +50,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog()
 	m_BtnReEnter->SetAnchoredPosition({ 120.0f, 50.0f });
 	m_BtnReEnter->SetParentComponent(nullptr);
 
-	auto txtReEnter = std::make_unique<UITextComponent>("Re-enter", 0xFFFFFF, 18);
+	auto txtReEnter = std::make_unique<UITextComponent>("再入力", 0xFFFFFF, 18);
 	m_TxtReEnter = txtReEnter.get();
 	m_TxtReEnter->SetParentComponent(m_BtnReEnter);
 	m_TxtReEnter->SetAnchor(EUIAnchor::MiddleCenter);

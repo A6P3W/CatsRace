@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <GameInstance.h>
 #include <string>
 class GI_main : public GameInstance
