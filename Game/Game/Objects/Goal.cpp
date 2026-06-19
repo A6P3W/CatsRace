@@ -1,4 +1,4 @@
-#include "Goal.h"
+﻿#include "Goal.h"
 #include "RectAngleCollisionComponent.h"
 #include "SceneManager.h"
 #include "Objects/Player.h"

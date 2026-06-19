@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -38,6 +38,13 @@
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
     <ClCompile Include="Game\Objects\UI\WCountDown.cpp" />
     <ClCompile Include="Game\Objects\UI\WMainHUD.cpp" />
+    <ClCompile Include="Game\Objects\LeaderBoardManager.cpp" />
+    <ClCompile Include="Game\Objects\UI\WClearHUD.cpp" />
+    <ClCompile Include="Game\Objects\UI\WNameInputDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WNameSelectDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WOverwriteConfirmDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WPostGameDialog.cpp" />
+    <ClCompile Include="Game\Objects\UI\WRankEntryComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Objects\ClearScene.h" />
@@ -52,6 +59,13 @@
     <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
     <ClInclude Include="Game\Objects\UI\WCountDown.h" />
     <ClInclude Include="Game\Objects\UI\WMainHUD.h" />
+    <ClInclude Include="Game\Objects\LeaderBoardManager.h" />
+    <ClInclude Include="Game\Objects\UI\WClearHUD.h" />
+    <ClInclude Include="Game\Objects\UI\WNameInputDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WNameSelectDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WOverwriteConfirmDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WPostGameDialog.h" />
+    <ClInclude Include="Game\Objects\UI\WRankEntryComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />

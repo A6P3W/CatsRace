@@ -1,4 +1,4 @@
-#include "GameScene01.h"
+﻿#include "GameScene01.h"
 #include <string>
 #include "ObjectManager.h"
 #include "Objects/Player.h"
@@ -24,6 +24,7 @@
 #include "Objects/UI/WCountDown.h"
 #include "Objects/UI/WMainHUD.h"
 #include "GI_main.h"
+#include "LeaderBoardManager.h"
 AGameScene01::AGameScene01()
 {
 }
@@ -40,6 +41,12 @@ void AGameScene01::OnUpdate(float DeltaTime)
 
 void AGameScene01::BeginPlay()
 {
+	//auto* LBM = GetWorld()->SpawnActor<LeaderBoardManager>();
+	//LBM->FetchLeaderBoard("b", [](const std::vector<FLeaderBoardEntry>& entries){
+	//	for (const auto& entry : entries) {
+	//		M_LOG("User: {}, Score: {}", entry.user_id, entry.score);
+	//	}
+	//	});
 	LevelSerializer::Load(GetWorld(), "tt.json");
 
 	SpawnPlayer<APlayer, APlayerController>(FVector2D{ -2800, -1700 }, 0);
@@ -66,7 +73,7 @@ void AGameScene01::RaceFinish()
 	RaceRunning = false;
 	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
 	gi->ClearTime = RaceTime;
-
+	gi->map_id = "GameScene01";
 	SceneManager::GetInstance().OpenScene<AClearScene>();
 }
 
