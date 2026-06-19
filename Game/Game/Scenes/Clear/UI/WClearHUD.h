@@ -2,7 +2,7 @@
 #include <WidgetBase.h>
 #include <vector>
 #include <string>
-#include "../LeaderBoardManager.h"
+#include "Services/LeaderBoardManager.h"
 
 class UITextComponent;
 class WRankEntryComponent;

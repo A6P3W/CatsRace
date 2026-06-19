@@ -3,7 +3,7 @@
 #include "SpriteComponent.h"
 #include "MovementComponent.h"
 #include "SoundComponent.h"
-#include "Objects/Player.h"
+#include "Scenes/Game/Player.h"
 #include "Log.h"
 
 REGISTER_ACTOR(ASlowFloor);
