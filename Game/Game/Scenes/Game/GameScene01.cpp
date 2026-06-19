@@ -7,6 +7,7 @@
 #include "UMath.h"
 #include "Log.h"
 #include <PlayerController.h>
+#include "PC_Game.h"
 #include <Pawn.h>
 #include "Goal.h"
 #include <CircleCollisionComponent.h>
@@ -48,7 +49,7 @@ void AGameScene01::BeginPlay()
 	//	});
 	LevelSerializer::Load(GetWorld(), "tt.json");
 
-	SpawnPlayer<APlayer, APlayerController>(FVector2D{ -2800, -1700 }, 0);
+	SpawnPlayer<APlayer, PC_Game>(FVector2D{ -2800, -1700 }, 0);
 
 	SpawnActor<ASampleA>();
 	M_LOG("Default scene initialized", 0);
