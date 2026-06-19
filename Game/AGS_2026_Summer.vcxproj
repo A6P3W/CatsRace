@@ -47,6 +47,7 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WRankEntryComponent.cpp" />
     <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp" />
+    <ClCompile Include="Game\Scenes\Game\PC_Game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WRankEntryComponent.h" />
     <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h" />
+    <ClInclude Include="Game\Scenes\Game\PC_Game.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
