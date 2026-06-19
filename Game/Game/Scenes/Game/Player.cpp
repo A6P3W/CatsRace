@@ -198,7 +198,7 @@ void APlayer::EndOverlap(AActor * OtherActor)
 void APlayer::BeginPlay()
 {
     m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
-    m_engineRunHandle = m_sound->PlaySE("images/cat19.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("images/moving-v2.mp3", true);
 }
 void APlayer::DrawSpeedLines(float speed)
 {

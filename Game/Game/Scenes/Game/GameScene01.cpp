@@ -23,6 +23,9 @@
 #include <UIManager.h>
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
+#include "Scenes/Game/UI/WPauseMenu.h"
+#include "Scenes/Title/TitleScene.h"
+#include <EnhancedInputComponent.h>
 #include "Core/GI_main.h"
 AGameScene01::AGameScene01()
 {
@@ -61,6 +64,12 @@ void AGameScene01::BeginPlay()
 	m_CountDownWidget = SpawnActor<WCountDown>();
 	m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
 	UIManager::GetInstance()->AddWidget(m_CountDownWidget);
+
+	if (auto* pc = GetPlayerController()) {
+		if (auto* inputComp = pc->GetInputComponent()) {
+			inputComp->BindAction(InputAction::Pause, ETriggerEvent::Started, this, &AGameScene01::TogglePause, false);
+		}
+	}
 
 	GetPlayerController()->SetInputMode(EInputMode::UIOnly);
 
@@ -108,4 +117,69 @@ void AGameScene01::ClearCountDown()
 {
 	UIManager::GetInstance()->RemoveWidget(m_CountDownWidget);
 	m_CountDownWidget = nullptr;
+}
+
+void AGameScene01::TogglePause()
+{
+	if (!RaceRunning && !bPaused) {
+		return;
+	}
+
+	if (!bPaused) {
+		bPaused = true;
+		GetWorld()->SetSimulating(false);
+
+		m_PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
+		m_PauseMenu->OnResumePressed = [this]() {
+			TogglePause();
+		};
+		m_PauseMenu->OnRestartPressed = [this]() {
+			RestartGame();
+		};
+		m_PauseMenu->OnTitlePressed = [this]() {
+			ReturnToTitle();
+		};
+
+		UIManager::GetInstance()->AddWidget(m_PauseMenu);
+		UIManager::GetInstance()->SetFocusedWidget(m_PauseMenu);
+
+		GetPlayerController()->SetInputMode(EInputMode::UIOnly);
+	}
+	else {
+		bPaused = false;
+		GetWorld()->SetSimulating(true);
+
+		if (m_PauseMenu) {
+			UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
+			m_PauseMenu = nullptr;
+		}
+
+		GetPlayerController()->SetInputMode(EInputMode::GameOnly);
+	}
+}
+
+void AGameScene01::RestartGame()
+{
+	bPaused = false;
+	GetWorld()->SetSimulating(true);
+
+	if (m_PauseMenu) {
+		UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
+		m_PauseMenu = nullptr;
+	}
+
+	SceneManager::GetInstance().OpenScene<AGameScene01>();
+}
+
+void AGameScene01::ReturnToTitle()
+{
+	bPaused = false;
+	GetWorld()->SetSimulating(true);
+
+	if (m_PauseMenu) {
+		UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
+		m_PauseMenu = nullptr;
+	}
+
+	SceneManager::GetInstance().OpenScene<ATitleScene>();
 }
