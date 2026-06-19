@@ -3494,6 +3494,18 @@
                 "rotation": 0.0,
                 "scale": 1.0
             }
+        },
+        {
+            "class": "AGoalActor",
+            "instance_name": "",
+            "transform": {
+                "location": {
+                    "x": -2911.892822265625,
+                    "y": -1940.1363525390625
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
         }
     ]
 }
