@@ -4670,6 +4670,66 @@
                 "rotation": 0.0,
                 "scale": 1.0
             }
+        },
+        {
+            "class": "ASpriteActor",
+            "instance_name": "",
+            "properties": {
+                "ImagePath": "images/images.png"
+            },
+            "transform": {
+                "location": {
+                    "x": -2959.89794921875,
+                    "y": -820.8035278320313
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ASpriteActor",
+            "instance_name": "",
+            "properties": {
+                "ImagePath": "images/images.png"
+            },
+            "transform": {
+                "location": {
+                    "x": -2758.1376953125,
+                    "y": -817.2946166992188
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ASpriteActor",
+            "instance_name": "",
+            "properties": {
+                "ImagePath": ""
+            },
+            "transform": {
+                "location": {
+                    "x": -2761.646728515625,
+                    "y": -617.2890014648438
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
+        },
+        {
+            "class": "ASpriteActor",
+            "instance_name": "",
+            "properties": {
+                "ImagePath": ""
+            },
+            "transform": {
+                "location": {
+                    "x": -2637.081787109375,
+                    "y": -840.102294921875
+                },
+                "rotation": 0.0,
+                "scale": 1.0
+            }
         }
     ]
 }
