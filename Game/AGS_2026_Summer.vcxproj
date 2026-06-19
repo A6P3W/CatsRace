@@ -45,6 +45,7 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WRankEntryComponent.cpp" />
+    <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
@@ -66,6 +67,7 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WRankEntryComponent.h" />
+    <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />

@@ -6,24 +6,32 @@
 #include "ResourceManager.h"
 #include <KeyboardDevice.h>
 #include <DxLib.h>
+#include "Scenes/Title/UI/WTitleHUD.h"
+#include "UIManager.h"
+#include "Pawn.h"
+#include "PlayerController.h"
+
 ATitleScene::ATitleScene()
 {
     int handle = ResourceManager::GetInstance().LoadResourceGraph("images/CatsRace.png");
     auto imgSprite = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
     imgSprite->SubmitGraph( handle);
-    imgSprite->SetRelativeLocation({ 480.0f, 270.0f }); 
+    imgSprite->SetRelativeLocation({ 960.0f, 540.0f }); 
+	imgSprite->SetWorldScale(FScale(1.5));
     AddComponent(std::move(imgSprite));
-
-    auto textComp = std::make_unique<MSpriteComponent>(100, RenderSpace::Screen);
-    textComp->SubmitText("Press R to Start", 0xFFFF00, -1, 255);
-    textComp->SetRelativeLocation({ 800.0f, 500.0f });
-    AddComponent(std::move(textComp));
 }
 
-void ATitleScene::OnUpdate(float DeltaTime)
+void ATitleScene::BeginPlay()
 {
-    auto* kb = InputManager::GetInstance().GetDevice<KeyboardDevice>();
-    if (kb && kb->GetPressStart(KEY_INPUT_R)) {
-        SceneManager::GetInstance().OpenScene<AGameScene01>();
-    }
+	AGameModeBase::BeginPlay();
+
+	// Setup input and PlayerController for UI interaction
+	SpawnPlayer<APawn, APlayerController>({ 0, 0 }, 0);
+	GetPlayerController()->SetInputMode(EInputMode::UIOnly);
+
+	// Spawn and add Title HUD
+	m_TitleHUD = SpawnActor<WTitleHUD>();
+	UIManager::GetInstance()->AddWidget(m_TitleHUD);
+	UIManager::GetInstance()->SetFocusedWidget(m_TitleHUD);
+
 }
