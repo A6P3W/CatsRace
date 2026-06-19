@@ -38,6 +38,7 @@
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
     <ClCompile Include="Game\Scenes\Game\UI\WCountDown.cpp" />
     <ClCompile Include="Game\Scenes\Game\UI\WMainHUD.cpp" />
+    <ClCompile Include="Game\Scenes\Game\UI\WPauseMenu.cpp" />
     <ClCompile Include="Game\Services\LeaderBoardManager.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WClearHUD.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WNameInputDialog.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
     <ClInclude Include="Game\Scenes\Game\UI\WCountDown.h" />
     <ClInclude Include="Game\Scenes\Game\UI\WMainHUD.h" />
+    <ClInclude Include="Game\Scenes\Game\UI\WPauseMenu.h" />
     <ClInclude Include="Game\Services\LeaderBoardManager.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WClearHUD.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WNameInputDialog.h" />

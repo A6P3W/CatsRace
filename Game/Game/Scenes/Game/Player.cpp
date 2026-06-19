@@ -217,10 +217,8 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 void APlayer::OnMove(const FInputActionValue& Value)
 {
     if (!CanMove) return;
-
-    m_accelInput = Value.Axis2D.Y;
-
-    m_slider = -Value.Axis2D.X;
+    m_accelInput = std::clamp(Value.Axis2D.Y, -1.0f, 1.0f);
+    m_slider = -std::clamp(Value.Axis2D.X, -1.0f, 1.0f);
 }
 
 void APlayer::OnRestartPressed()
@@ -259,7 +257,7 @@ void APlayer::EndOverlap(AActor * OtherActor)
 void APlayer::BeginPlay()
 {
     m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
-    m_engineRunHandle = m_sound->PlaySE("images/cat19.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("images/moving-v2.mp3", true);
 }
 void APlayer::DrawSpeedLines(float speed)
 {
