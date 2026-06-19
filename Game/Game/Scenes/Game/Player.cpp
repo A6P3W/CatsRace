@@ -92,7 +92,9 @@ void APlayer::OnUpdate(float DeltaTime)
     // ---- ステアリング ----
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
-    float steerAngle = MaxSteer * m_slider * steerAbility;
+    UpdateDrift(DeltaTime, speed);
+    float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
+    float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
     m_movement->AddVelocityRotation(FRotator(steerAngle));
 
@@ -118,6 +120,20 @@ void APlayer::OnUpdate(float DeltaTime)
             m_sprite->SubmitGraph( m_walkAnimHandles[m_walkAnimFrame]);
         }
     }
+    // ---- ドリフト時のスプライト傾き ----
+{
+    float targetTilt = 0.0f;
+    if (m_isDrifting)
+    {
+        targetTilt = MaxDriftTiltAngle * m_driftDirection;
+    }
+    // なめらかに補間
+    m_spriteTiltAngle += (targetTilt - m_spriteTiltAngle) * std::clamp(TiltLerpSpeed * DeltaTime, 0.0f, 1.0f);
+    if (m_sprite)
+    {
+        m_sprite->SetWorldRotation(FRotator(GetActorRotation().Rotation + m_spriteTiltAngle));
+    }
+}
     // ---- FOVエフェクト補間 ----
     if (m_fovEffectTimer > 0.0f) {
         m_fovEffectTimer -= DeltaTime;
@@ -145,6 +161,42 @@ void APlayer::OnUpdate(float DeltaTime)
     if (m_isSpeedUp) {
         DrawSpeedLines(speed);
     }
+    // ---- ドリフトゲージ表示 ----
+    if (m_isDrifting)
+    {
+        const float GaugeX = 760.0f;
+        const float GaugeY = 50.0f;
+        const float GaugeWidth = 400.0f;
+        const float GaugeHeight = 24.0f;
+
+        float gaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+
+        // 背景（枠）
+        RenderSystem::GetInstance().SubmitBox(
+            { GaugeX, GaugeY }, { GaugeWidth, GaugeHeight }, FRotator(0.0f),
+            0x444444, 1, RenderSpace::Screen, 250, 200
+        );
+
+        // ゲージ本体（溜まり具合に応じて色を変える）
+        int gaugeColor = (gaugeRatio >= 1.0f) ? 0xFF4444 : 0x44CCFF;
+        RenderSystem::GetInstance().SubmitBox(
+            { GaugeX, GaugeY }, { GaugeWidth * gaugeRatio, GaugeHeight }, FRotator(0.0f),
+            gaugeColor, 1, RenderSpace::Screen, 251, 255
+        );
+
+        // 1/5（20%）の位置にしきい値ラインを表示
+        float thresholdX = GaugeX + GaugeWidth * 0.2f;
+        RenderSystem::GetInstance().SubmitLine(
+            { thresholdX, GaugeY }, { thresholdX, GaugeY + GaugeHeight },
+            0xFFFF00, RenderSpace::Screen, 253, 255
+        );
+
+        // 枠線
+        RenderSystem::GetInstance().SubmitBox(
+            { GaugeX, GaugeY }, { GaugeWidth, GaugeHeight }, FRotator(0.0f),
+            0xFFFFFF, 0, RenderSpace::Screen, 252, 255
+        );
+    }
    
 }
 
@@ -158,16 +210,15 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 {
     PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
     PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Triggered, this, &APlayer::OnMove);
-    //PlayerInputComponent->BindAction(InputActionMouse::Wheel, ETriggerEvent::Triggered, this, &APlayer::OnWheel);
+    PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Started, this, &APlayer::OnDriftPressed);
+    PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Completed, this, &APlayer::OnDriftReleased);
 }
 
 void APlayer::OnMove(const FInputActionValue& Value)
 {
     if (!CanMove) return;
-
-    m_accelInput = Value.Axis2D.Y;
-
-    m_slider = -Value.Axis2D.X;
+    m_accelInput = std::clamp(Value.Axis2D.Y, -1.0f, 1.0f);
+    m_slider = -std::clamp(Value.Axis2D.X, -1.0f, 1.0f);
 }
 
 void APlayer::OnRestartPressed()
@@ -188,7 +239,15 @@ void APlayer::BeginOverlap(AActor* OtherActor)
 	m_accelInput *= 0.5f;
 }
 
+void APlayer::OnDriftPressed()
+{
+    m_driftKeyPressed = true;
+}
 
+void APlayer::OnDriftReleased()
+{
+    m_driftKeyPressed = false;
+}
 void APlayer::EndOverlap(AActor * OtherActor)
 {
 	M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
@@ -198,7 +257,7 @@ void APlayer::EndOverlap(AActor * OtherActor)
 void APlayer::BeginPlay()
 {
     m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
-    m_engineRunHandle = m_sound->PlaySE("images/cat19.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("images/moving-v2.mp3", true);
 }
 void APlayer::DrawSpeedLines(float speed)
 {
@@ -247,15 +306,62 @@ void APlayer::DrawSpeedLines(float speed)
         );
     }
 }
-void APlayer::ApplyFOVEffect(float targetFOV, float duration) {
+void APlayer::UpdateDrift(float DeltaTime, float speed)
+{
+    bool bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed);
+
+    if (bWantsDrift)
+    {
+        if (!m_isDrifting)
+        {
+            // ドリフト開始：最初に入力した方向を固定
+            m_isDrifting = true;
+            m_driftGauge = 0.0f;
+            m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
+            M_LOG("Drift Start", 0);
+        }
+
+        // ドリフト中は固定方向のステア入力のみ受け付ける
+        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        if (currentDir == m_driftDirection)
+        {
+            m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+        }
+        else
+        {
+            // 逆方向の入力は無視する（ステア自体を固定方向にする）
+            m_slider = 0.0f;
+        }
+
+        // ドリフト中は少し速度を落とす
+        float decay = std::pow(DriftSpeedDecay, DeltaTime * 60.0f);
+        m_movement->SetWorldForce(m_movement->GetVelocity() * decay);
+    }
+    else
+    {
+        if (m_isDrifting)
+        {
+            // ドリフト終了 → ブースト
+            float boostRatio = m_driftGauge / MaxDriftGauge;
+            if (boostRatio > 0.2f)
+            {
+                float boostForce = DriftBoostForce * boostRatio;
+                m_movement->AddLocalForce({ 0.0f, -boostForce });
+                M_LOG("Drift Boost! ratio={}", boostRatio);
+            }
+            m_driftGauge = 0.0f;
+        }
+        m_isDrifting = false;
+    }
+}
+void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines) {
     m_fovBase = 1.0f;
     m_fovTarget = targetFOV;
     m_fovEffectTimer = duration;
     m_fovEffectDuration = duration;
     if (m_camera) m_camera->SetFOV(targetFOV);
 
-    // FOVが変化する場合はスピードアップフラグを立てる（SpeedUpのみ、SpeedDownは除く）
-    m_isSpeedUp = (targetFOV != 1.0f) && (targetFOV < 1.0f); // 0.7fなので < 1.0f
+    m_isSpeedUp = showSpeedLines;
 }
 //{
 //	if (Scale > 0) {

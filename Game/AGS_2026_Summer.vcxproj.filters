@@ -48,6 +48,9 @@
     <ClCompile Include="Game\Scenes\Game\UI\WMainHUD.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Scenes\Game\UI\WPauseMenu.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Game\Services\LeaderBoardManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -70,6 +73,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\Game\PC_Game.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,6 +110,9 @@
     <ClInclude Include="Game\Scenes\Game\UI\WMainHUD.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Scenes\Game\UI\WPauseMenu.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="Game\Objects\MyGameInstance.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -132,6 +141,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\Game\PC_Game.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
