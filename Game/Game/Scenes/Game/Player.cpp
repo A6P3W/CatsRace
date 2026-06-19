@@ -217,10 +217,8 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 void APlayer::OnMove(const FInputActionValue& Value)
 {
     if (!CanMove) return;
-
-    m_accelInput = Value.Axis2D.Y;
-
-    m_slider = -Value.Axis2D.X;
+    m_accelInput = std::clamp(Value.Axis2D.Y, -1.0f, 1.0f);
+    m_slider = -std::clamp(Value.Axis2D.X, -1.0f, 1.0f);
 }
 
 void APlayer::OnRestartPressed()

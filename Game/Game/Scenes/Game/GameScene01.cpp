@@ -68,7 +68,7 @@ void AGameScene01::BeginPlay()
 
 	if (auto* pc = GetPlayerController()) {
 		if (auto* inputComp = pc->GetInputComponent()) {
-			inputComp->BindAction(InputAction::Pause, ETriggerEvent::Started, this, &AGameScene01::TogglePause, false);
+			inputComp->BindAction(InputAction::Pause, ETriggerEvent::Started, this, &AGameScene01::TogglePause);
 		}
 	}
 
