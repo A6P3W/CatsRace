@@ -15,117 +15,117 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\GameMain.cpp">
+    <ClCompile Include="Game\Core\GameMain.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\GameScene01.cpp">
+    <ClCompile Include="Game\Scenes\Game\GameScene01.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\Player.cpp">
+    <ClCompile Include="Game\Scenes\Game\Player.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Objects\SampleA.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\Goal.cpp">
+    <ClCompile Include="Game\Scenes\Game\Goal.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\ClearScene.cpp">
+    <ClCompile Include="Game\Scenes\Clear\ClearScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\TitleScene.cpp">
+    <ClCompile Include="Game\Scenes\Title\TitleScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WCountDown.cpp">
+    <ClCompile Include="Game\Scenes\Game\UI\WCountDown.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WMainHUD.cpp">
+    <ClCompile Include="Game\Scenes\Game\UI\WMainHUD.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\LeaderBoardManager.cpp">
+    <ClCompile Include="Game\Services\LeaderBoardManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WClearHUD.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WClearHUD.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WRankEntryComponent.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WRankEntryComponent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WNameInputDialog.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WNameInputDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WNameSelectDialog.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WNameSelectDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WOverwriteConfirmDialog.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Objects\UI\WPostGameDialog.cpp">
+    <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\Objects\GameScene01.h">
+    <ClInclude Include="Game\Scenes\Game\GameScene01.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\Player.h">
+    <ClInclude Include="Game\Scenes\Game\Player.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\SampleA.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\Goal.h">
+    <ClInclude Include="Game\Scenes\Game\Goal.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\ClearScene.h">
+    <ClInclude Include="Game\Scenes\Clear\ClearScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\TitleScene.h">
+    <ClInclude Include="Game\Scenes\Title\TitleScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\Items\SpeedDown.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WCountDown.h">
+    <ClInclude Include="Game\Scenes\Game\UI\WCountDown.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WMainHUD.h">
+    <ClInclude Include="Game\Scenes\Game\UI\WMainHUD.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\MyGameInstance.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\GI_main.h">
+    <ClInclude Include="Game\Core\GI_main.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\LeaderBoardManager.h">
+    <ClInclude Include="Game\Services\LeaderBoardManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WClearHUD.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WClearHUD.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WRankEntryComponent.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WRankEntryComponent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WNameInputDialog.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WNameInputDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WNameSelectDialog.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WNameSelectDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WOverwriteConfirmDialog.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Objects\UI\WPostGameDialog.h">
+    <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -139,5 +139,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
+    <None Include="Game\include.md" />
   </ItemGroup>
 </Project>

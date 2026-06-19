@@ -3,7 +3,7 @@
 #include <HttpManager.h>
 #include <Log.h>
 #include <string>
-#include "GI_main.h"
+#include "Core/GI_main.h"
 #include "SceneManager.h"
 #include <vector>
 #include <DxLib.h>

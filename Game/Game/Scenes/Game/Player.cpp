@@ -6,7 +6,7 @@
 #include "SpriteComponent.h"
 #include "CameraComponent.h"
 #include "SceneManager.h"
-#include "Objects/GameScene01.h"
+#include "Scenes/Game/GameScene01.h"
 #include <DxLib.h>
 #include "ObjectManager.h"
 #include "MovementComponent.h"

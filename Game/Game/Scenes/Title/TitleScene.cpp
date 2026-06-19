@@ -2,7 +2,7 @@
 #include "SpriteComponent.h"
 #include "InputManager.h"
 #include "SceneManager.h"
-#include "Objects/GameScene01.h"
+#include "Scenes/Game/GameScene01.h"
 #include "ResourceManager.h"
 #include <KeyboardDevice.h>
 #include <DxLib.h>

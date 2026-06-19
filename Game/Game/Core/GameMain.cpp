@@ -1,6 +1,6 @@
 ﻿#include "SceneManager.h"
-#include "Objects/TitleScene.h"
-#include "Objects/GI_main.h"
+#include "Scenes/Title/TitleScene.h"
+#include "Core/GI_main.h"
 #include <DxLib.h>
 
 void SetupGame() {

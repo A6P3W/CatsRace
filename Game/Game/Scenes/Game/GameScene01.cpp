@@ -1,7 +1,7 @@
 ﻿#include "GameScene01.h"
 #include <string>
 #include "ObjectManager.h"
-#include "Objects/Player.h"
+#include "Scenes/Game/Player.h"
 #include "Objects/SampleA.h"
 #include "ObjectManager.h"
 #include "UMath.h"
@@ -19,12 +19,11 @@
 #include <SoundManager.h>
 #include <LevelSerializer.h>
 #include <SceneManager.h>
-#include "Objects/ClearScene.h"
+#include "Scenes/Clear/ClearScene.h"
 #include <UIManager.h>
-#include "Objects/UI/WCountDown.h"
-#include "Objects/UI/WMainHUD.h"
-#include "GI_main.h"
-#include "LeaderBoardManager.h"
+#include "Scenes/Game/UI/WCountDown.h"
+#include "Scenes/Game/UI/WMainHUD.h"
+#include "Core/GI_main.h"
 AGameScene01::AGameScene01()
 {
 }

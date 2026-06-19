@@ -1,9 +1,9 @@
 ﻿#include "Goal.h"
 #include "RectAngleCollisionComponent.h"
 #include "SceneManager.h"
-#include "Objects/Player.h"
+#include "Scenes/Game/Player.h"
 #include "Log.h"
-#include "GameScene01.h"
+#include "Scenes/Game/GameScene01.h"
 REGISTER_ACTOR(AGoalActor)
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
