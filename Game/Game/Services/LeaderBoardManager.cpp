@@ -9,26 +9,26 @@
 #include <DxLib.h>
 
 namespace {
-std::string ConvertUtf8ToSjis(const std::string& utf8Str)
-{
-	if (utf8Str.empty()) return "";
+	std::string ConvertUtf8ToSjis(const std::string& utf8Str)
+	{
+		if (utf8Str.empty()) return "";
 
-	size_t bufferSize = utf8Str.size() * 2 + 1;
-	std::vector<char> buffer(bufferSize, 0);
+		size_t bufferSize = utf8Str.size() * 2 + 1;
+		std::vector<char> buffer(bufferSize, 0);
 
-	int result = ConvertStringCharCodeFormat(
-		DX_CHARCODEFORMAT_UTF8,
-		utf8Str.c_str(),
-		DX_CHARCODEFORMAT_SHIFTJIS,
-		buffer.data()
-	);
+		int result = ConvertStringCharCodeFormat(
+			DX_CHARCODEFORMAT_UTF8,
+			utf8Str.c_str(),
+			DX_CHARCODEFORMAT_SHIFTJIS,
+			buffer.data()
+		);
 
-	if (result == -1) {
-		return utf8Str;
+		if (result == -1) {
+			return utf8Str;
+		}
+
+		return std::string(buffer.data());
 	}
-
-	return std::string(buffer.data());
-}
 }
 
 void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCallBack callback)
@@ -56,7 +56,7 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
 				callback(true, LB);
 			}
 			catch (const nlohmann::json::exception& e) {
-				
+
 			}
 		}
 		else {
@@ -74,6 +74,7 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 	j["map_id"] = map_id;
 	j["user_id"] = user_id;
 	j["score"] = score;
+	j["ghost_data"] = gi ? gi->LastGhostData : "";
 
 	HttpManager::GetInstance().PostJson(this, PostScoreUrl, j.dump(), [this, callback](const HttpResponse& res) {
 		if (res.bSuccess) {
@@ -90,4 +91,45 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 		}
 		});
 }
+void LeaderBoardManager::FetchGhostData(const std::string user_id, FetchGhostDataCallBack callback)
+{
+	nlohmann::json j;
+	j["user_id"] = user_id;
 
+	HttpManager::GetInstance().PostJson(this, FetchGhostDataUrl, j.dump(), [this, callback](const HttpResponse& res) {
+		if (!callback) {
+			return;
+		}
+
+		if (!res.bSuccess) {
+			callback(false, "");
+			return;
+		}
+
+		try {
+			auto body = nlohmann::json::parse(res.Body);
+			if (body.contains("ghost_data") && body["ghost_data"].is_string()) {
+				callback(true, body["ghost_data"].get<std::string>());
+				return;
+			}
+
+			if (body.contains("data")) {
+				const auto& data = body["data"];
+				if (data.is_string()) {
+					callback(true, data.get<std::string>());
+					return;
+				}
+
+				if (data.is_object() && data.contains("ghost_data") && data["ghost_data"].is_string()) {
+					callback(true, data["ghost_data"].get<std::string>());
+					return;
+				}
+			}
+		}
+		catch (const nlohmann::json::exception& e) {
+			M_LOG("Failed to parse ghost data response: {}", e.what());
+		}
+
+		callback(false, "");
+		});
+}

@@ -6,6 +6,8 @@
 class WCountDown;
 class WMainHUD;
 class WPauseMenu;
+class MGhostRecorderComponent;
+class AGhostPlayer;
 
 class AGameScene01 : public AGameModeBase
 {
@@ -23,6 +25,7 @@ private:
 	void RaceCountDown();
 	void RaceStart();
 	void ClearCountDown();
+	void LoadTopGhost();
 
 	int m_CountDown = 3;
 	FTimerHandle CountHandle;
@@ -30,6 +33,8 @@ private:
 	WCountDown* m_CountDownWidget = nullptr;
 	WMainHUD* m_MainHUD = nullptr;
 	WPauseMenu* m_PauseMenu = nullptr;
+	MGhostRecorderComponent* m_GhostRecorder = nullptr;
+	AGhostPlayer* m_GhostPlayer = nullptr;
 
 	float RaceTime = 0.0f;
 	bool RaceRunning = false;

@@ -11,6 +11,7 @@ struct FLeaderBoardEntry {
 };
 
 using FetchLeaderBoardCallBack = std::function<void(bool bSuccess,const std::vector<FLeaderBoardEntry>&)>;
+using FetchGhostDataCallBack = std::function<void(bool bSuccess, const std::string& GhostData)>;
 class LeaderBoardManager : public AActor
 {
 public:
@@ -18,8 +19,10 @@ public:
 
 	void FetchLeaderBoard(const std::string map_id, FetchLeaderBoardCallBack callback);
 	void PostScore(const std::string map_id, const std::string user_id, std::function<void(bool)> callback = nullptr);
+	void FetchGhostData(const std::string user_id, FetchGhostDataCallBack callback);
 
 private:
 	std::string FetchLeaderBoardUrl = "https://get-race-leaderboards-bcpidymjjq-uw.a.run.app";
 	std::string PostScoreUrl = "https://post-race-time-bcpidymjjq-uw.a.run.app";
+	std::string FetchGhostDataUrl = "https://get-race-ghost-bcpidymjjq-uw.a.run.app";
 };
