@@ -50,7 +50,7 @@ void AGameScene01::BeginPlay()
 	//		M_LOG("User: {}, Score: {}", entry.user_id, entry.score);
 	//	}
 	//	});
-	LevelSerializer::Load(GetWorld(), "tt.json");
+	LevelSerializer::Load(GetWorld(), "GameScene01.BLevel");
 
 	SpawnPlayer<APlayer, PC_Game>(FVector2D{ -2800, -1700 }, 0);
 
