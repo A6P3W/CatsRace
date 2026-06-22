@@ -6,6 +6,7 @@
 #include "Core/GI_main.h"
 #include "SceneManager.h"
 #include <vector>
+#include <unordered_map>
 #include <DxLib.h>
 
 namespace {
@@ -91,45 +92,41 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 		}
 		});
 }
-void LeaderBoardManager::FetchGhostData(const std::string user_id, FetchGhostDataCallBack callback)
+void LeaderBoardManager::FetchGhostData(const std::string map_id, const std::vector<std::string>& ids, FetchGhostDataCallBack callback)
 {
 	nlohmann::json j;
-	j["user_id"] = user_id;
+	j["map_id"] = map_id;
+	j["ids"] = ids;
 
 	HttpManager::GetInstance().PostJson(this, FetchGhostDataUrl, j.dump(), [this, callback](const HttpResponse& res) {
+		std::unordered_map<std::string, std::string> ghostDataById;
+
 		if (!callback) {
 			return;
 		}
 
 		if (!res.bSuccess) {
-			callback(false, "");
+			callback(false, ghostDataById);
 			return;
 		}
 
 		try {
 			auto body = nlohmann::json::parse(res.Body);
-			if (body.contains("ghost_data") && body["ghost_data"].is_string()) {
-				callback(true, body["ghost_data"].get<std::string>());
+			if (body.value("status", "") == "success" && body.contains("data") && body["data"].is_object()) {
+				for (const auto& ghostData : body["data"].items()) {
+					if (ghostData.value().is_string()) {
+						ghostDataById[ghostData.key()] = ghostData.value().get<std::string>();
+					}
+				}
+
+				callback(true, ghostDataById);
 				return;
-			}
-
-			if (body.contains("data")) {
-				const auto& data = body["data"];
-				if (data.is_string()) {
-					callback(true, data.get<std::string>());
-					return;
-				}
-
-				if (data.is_object() && data.contains("ghost_data") && data["ghost_data"].is_string()) {
-					callback(true, data["ghost_data"].get<std::string>());
-					return;
-				}
 			}
 		}
 		catch (const nlohmann::json::exception& e) {
 			M_LOG("Failed to parse ghost data response: {}", e.what());
 		}
 
-		callback(false, "");
+		callback(false, ghostDataById);
 		});
 }

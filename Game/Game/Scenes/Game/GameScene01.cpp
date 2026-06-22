@@ -1,5 +1,6 @@
 ﻿#include "GameScene01.h"
 #include <string>
+#include <unordered_map>
 #include "ObjectManager.h"
 #include "Scenes/Game/Player.h"
 #include "Objects/SampleA.h"
@@ -100,14 +101,16 @@ void AGameScene01::LoadTopGhost()
 			return;
 		}
 
+		const std::string mapId = "GameScene01";
 		const std::string topUserId = entries.front().user_id;
-		lbm->FetchGhostData(topUserId, [this, topUserId](bool bGhostSuccess, const std::string& ghostData) {
-			if (!bGhostSuccess || ghostData.empty()) {
+		lbm->FetchGhostData(mapId, { topUserId }, [this, topUserId](bool bGhostSuccess, const std::unordered_map<std::string, std::string>& ghostDataById) {
+			auto ghostDataIt = ghostDataById.find(topUserId);
+			if (!bGhostSuccess || ghostDataIt == ghostDataById.end() || ghostDataIt->second.empty()) {
 				M_LOG("Top ghost skipped: ghost data is empty for {}", topUserId);
 				return;
 			}
 
-			auto frames = GhostDataSerializer::Deserialize(ghostData);
+			auto frames = GhostDataSerializer::Deserialize(ghostDataIt->second);
 			if (frames.empty()) {
 				M_LOG("Top ghost skipped: failed to parse ghost data for {}", topUserId);
 				return;
