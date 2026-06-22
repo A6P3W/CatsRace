@@ -119,6 +119,7 @@ void AGameScene01::LoadTopGhost()
 			if (!m_GhostPlayer) {
 				m_GhostPlayer = GetWorld()->SpawnActor<AGhostPlayer>();
 			}
+			m_GhostPlayer->SetUserId(topUserId);
 			m_GhostPlayer->SetGhostData(frames);
 			if (m_GhostPlayer->GetPlaybackComponent()) {
 				m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);

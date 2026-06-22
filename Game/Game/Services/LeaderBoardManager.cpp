@@ -10,6 +10,8 @@
 #include <DxLib.h>
 
 namespace {
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GhostDataCache;
+
 	std::string ConvertUtf8ToSjis(const std::string& utf8Str)
 	{
 		if (utf8Str.empty()) return "";
@@ -94,19 +96,38 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 }
 void LeaderBoardManager::FetchGhostData(const std::string map_id, const std::vector<std::string>& ids, FetchGhostDataCallBack callback)
 {
-	nlohmann::json j;
-	j["map_id"] = map_id;
-	j["ids"] = ids;
+	if (!callback) {
+		return;
+	}
 
-	HttpManager::GetInstance().PostJson(this, FetchGhostDataUrl, j.dump(), [this, callback](const HttpResponse& res) {
-		std::unordered_map<std::string, std::string> ghostDataById;
+	std::unordered_map<std::string, std::string> ghostDataById;
+	std::vector<std::string> missingIds;
 
-		if (!callback) {
-			return;
+	const auto mapCacheIt = GhostDataCache.find(map_id);
+	for (const auto& id : ids) {
+		if (mapCacheIt != GhostDataCache.end()) {
+			const auto ghostDataIt = mapCacheIt->second.find(id);
+			if (ghostDataIt != mapCacheIt->second.end()) {
+				ghostDataById[id] = ghostDataIt->second;
+				continue;
+			}
 		}
 
+		missingIds.push_back(id);
+	}
+
+	if (missingIds.empty()) {
+		callback(true, ghostDataById);
+		return;
+	}
+
+	nlohmann::json j;
+	j["map_id"] = map_id;
+	j["ids"] = missingIds;
+
+	HttpManager::GetInstance().PostJson(this, FetchGhostDataUrl, j.dump(), [this, map_id, callback, ghostDataById](const HttpResponse& res) mutable {
 		if (!res.bSuccess) {
-			callback(false, ghostDataById);
+			callback(!ghostDataById.empty(), ghostDataById);
 			return;
 		}
 
@@ -115,7 +136,10 @@ void LeaderBoardManager::FetchGhostData(const std::string map_id, const std::vec
 			if (body.value("status", "") == "success" && body.contains("data") && body["data"].is_object()) {
 				for (const auto& ghostData : body["data"].items()) {
 					if (ghostData.value().is_string()) {
-						ghostDataById[ghostData.key()] = ghostData.value().get<std::string>();
+						const std::string id = ghostData.key();
+						const std::string data = ghostData.value().get<std::string>();
+						GhostDataCache[map_id][id] = data;
+						ghostDataById[id] = data;
 					}
 				}
 
