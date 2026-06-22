@@ -1,5 +1,6 @@
 ﻿#include "GameScene01.h"
 #include <string>
+#include <unordered_map>
 #include "ObjectManager.h"
 #include "Scenes/Game/Player.h"
 #include "Objects/SampleA.h"
@@ -28,6 +29,11 @@
 #include "Scenes/Title/TitleScene.h"
 #include <EnhancedInputComponent.h>
 #include "Core/GI_main.h"
+#include "Ghost/GhostRecorderComponent.h"
+#include "Ghost/GhostData.h"
+#include "Ghost/GhostPlaybackComponent.h"
+#include "Ghost/GhostPlayer.h"
+#include "Services/LeaderBoardManager.h"
 AGameScene01::AGameScene01()
 {
 }
@@ -38,6 +44,9 @@ void AGameScene01::OnUpdate(float DeltaTime)
 		RaceTime += DeltaTime;
 		if (m_MainHUD) {
 			m_MainHUD->UpdateTimerText(RaceTime);
+		}
+		if (m_GhostPlayer && m_GhostPlayer->GetPlaybackComponent()) {
+			m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
 		}
 	}
 }
@@ -53,8 +62,14 @@ void AGameScene01::BeginPlay()
 	LevelSerializer::Load(GetWorld(), "GameScene01.BLevel");
 
 	SpawnPlayer<APlayer, PC_Game>(FVector2D{ -2800, -1700 }, 0);
+	if (auto* player = dynamic_cast<APlayer*>(GetPlayerPawn())) {
+		auto recorder = std::make_unique<MGhostRecorderComponent>();
+		m_GhostRecorder = recorder.get();
+		player->AddComponent(std::move(recorder));
+	}
 
 	SpawnActor<ASampleA>();
+	LoadTopGhost();
 	M_LOG("Default scene initialized", 0);
 
 
@@ -77,12 +92,54 @@ void AGameScene01::BeginPlay()
 	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameScene01::RaceCountDown, 1.0f, true, 1.0f);
 }
 
+void AGameScene01::LoadTopGhost()
+{
+	auto* lbm = GetWorld()->SpawnActor<LeaderBoardManager>();
+	lbm->FetchLeaderBoard("GameScene01", [this, lbm](bool bSuccess, const std::vector<FLeaderBoardEntry>& entries) {
+		if (!bSuccess || entries.empty()) {
+			M_LOG("Top ghost skipped: leaderboard is empty or unavailable");
+			return;
+		}
+
+		const std::string mapId = "GameScene01";
+		const std::string topUserId = entries.front().user_id;
+		lbm->FetchGhostData(mapId, { topUserId }, [this, topUserId](bool bGhostSuccess, const std::unordered_map<std::string, std::string>& ghostDataById) {
+			auto ghostDataIt = ghostDataById.find(topUserId);
+			if (!bGhostSuccess || ghostDataIt == ghostDataById.end() || ghostDataIt->second.empty()) {
+				M_LOG("Top ghost skipped: ghost data is empty for {}", topUserId);
+				return;
+			}
+
+			auto frames = GhostDataSerializer::Deserialize(ghostDataIt->second);
+			if (frames.empty()) {
+				M_LOG("Top ghost skipped: failed to parse ghost data for {}", topUserId);
+				return;
+			}
+
+			if (!m_GhostPlayer) {
+				m_GhostPlayer = GetWorld()->SpawnActor<AGhostPlayer>();
+			}
+			m_GhostPlayer->SetUserId(topUserId);
+			m_GhostPlayer->SetGhostData(frames);
+			if (m_GhostPlayer->GetPlaybackComponent()) {
+				m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
+			}
+			M_LOG("Top ghost loaded: {} frames from {}", frames.size(), topUserId);
+		});
+	});
+}
 void AGameScene01::RaceFinish()
 {
 	RaceRunning = false;
 	auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-	gi->ClearTime = RaceTime;
-	gi->map_id = "GameScene01";
+	if (m_GhostRecorder) {
+		m_GhostRecorder->StopRecording();
+	}
+	if (gi) {
+		gi->ClearTime = RaceTime;
+		gi->map_id = "GameScene01";
+		gi->LastGhostData = m_GhostRecorder ? m_GhostRecorder->GetSerializedData() : "";
+	}
 	SceneManager::GetInstance().OpenScene<AClearScene>();
 }
 
@@ -107,6 +164,9 @@ void AGameScene01::RaceStart()
 	M_LOG("start", 0);
 
 	RaceRunning = true;
+	if (m_GhostRecorder) {
+		m_GhostRecorder->StartRecording();
+	}
 
 	GetPlayerController()->SetInputMode(EInputMode::GameOnly);
 	dynamic_cast<APlayer*>(GetPlayerPawn())->SetCanMove(true);

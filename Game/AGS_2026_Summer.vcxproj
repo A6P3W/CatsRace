@@ -48,6 +48,10 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WRankEntryComponent.cpp" />
     <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp" />
     <ClCompile Include="Game\Scenes\Game\PC_Game.cpp" />
+    <ClCompile Include="Game\Ghost\GhostData.cpp" />
+    <ClCompile Include="Game\Ghost\GhostPlayer.cpp" />
+    <ClCompile Include="Game\Ghost\GhostPlaybackComponent.cpp" />
+    <ClCompile Include="Game\Ghost\GhostRecorderComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
@@ -72,6 +76,10 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WRankEntryComponent.h" />
     <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h" />
     <ClInclude Include="Game\Scenes\Game\PC_Game.h" />
+    <ClInclude Include="Game\Ghost\GhostData.h" />
+    <ClInclude Include="Game\Ghost\GhostPlayer.h" />
+    <ClInclude Include="Game\Ghost\GhostPlaybackComponent.h" />
+    <ClInclude Include="Game\Ghost\GhostRecorderComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />

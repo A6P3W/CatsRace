@@ -6,29 +6,32 @@
 #include "Core/GI_main.h"
 #include "SceneManager.h"
 #include <vector>
+#include <unordered_map>
 #include <DxLib.h>
 
 namespace {
-std::string ConvertUtf8ToSjis(const std::string& utf8Str)
-{
-	if (utf8Str.empty()) return "";
+	std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GhostDataCache;
 
-	size_t bufferSize = utf8Str.size() * 2 + 1;
-	std::vector<char> buffer(bufferSize, 0);
+	std::string ConvertUtf8ToSjis(const std::string& utf8Str)
+	{
+		if (utf8Str.empty()) return "";
 
-	int result = ConvertStringCharCodeFormat(
-		DX_CHARCODEFORMAT_UTF8,
-		utf8Str.c_str(),
-		DX_CHARCODEFORMAT_SHIFTJIS,
-		buffer.data()
-	);
+		size_t bufferSize = utf8Str.size() * 2 + 1;
+		std::vector<char> buffer(bufferSize, 0);
 
-	if (result == -1) {
-		return utf8Str;
+		int result = ConvertStringCharCodeFormat(
+			DX_CHARCODEFORMAT_UTF8,
+			utf8Str.c_str(),
+			DX_CHARCODEFORMAT_SHIFTJIS,
+			buffer.data()
+		);
+
+		if (result == -1) {
+			return utf8Str;
+		}
+
+		return std::string(buffer.data());
 	}
-
-	return std::string(buffer.data());
-}
 }
 
 void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCallBack callback)
@@ -56,7 +59,7 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
 				callback(true, LB);
 			}
 			catch (const nlohmann::json::exception& e) {
-				
+
 			}
 		}
 		else {
@@ -74,6 +77,7 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 	j["map_id"] = map_id;
 	j["user_id"] = user_id;
 	j["score"] = score;
+	j["ghost_data"] = gi ? gi->LastGhostData : "";
 
 	HttpManager::GetInstance().PostJson(this, PostScoreUrl, j.dump(), [this, callback](const HttpResponse& res) {
 		if (res.bSuccess) {
@@ -90,4 +94,63 @@ void LeaderBoardManager::PostScore(const std::string map_id, const std::string u
 		}
 		});
 }
+void LeaderBoardManager::FetchGhostData(const std::string map_id, const std::vector<std::string>& ids, FetchGhostDataCallBack callback)
+{
+	if (!callback) {
+		return;
+	}
 
+	std::unordered_map<std::string, std::string> ghostDataById;
+	std::vector<std::string> missingIds;
+
+	const auto mapCacheIt = GhostDataCache.find(map_id);
+	for (const auto& id : ids) {
+		if (mapCacheIt != GhostDataCache.end()) {
+			const auto ghostDataIt = mapCacheIt->second.find(id);
+			if (ghostDataIt != mapCacheIt->second.end()) {
+				ghostDataById[id] = ghostDataIt->second;
+				continue;
+			}
+		}
+
+		missingIds.push_back(id);
+	}
+
+	if (missingIds.empty()) {
+		callback(true, ghostDataById);
+		return;
+	}
+
+	nlohmann::json j;
+	j["map_id"] = map_id;
+	j["ids"] = missingIds;
+
+	HttpManager::GetInstance().PostJson(this, FetchGhostDataUrl, j.dump(), [this, map_id, callback, ghostDataById](const HttpResponse& res) mutable {
+		if (!res.bSuccess) {
+			callback(!ghostDataById.empty(), ghostDataById);
+			return;
+		}
+
+		try {
+			auto body = nlohmann::json::parse(res.Body);
+			if (body.value("status", "") == "success" && body.contains("data") && body["data"].is_object()) {
+				for (const auto& ghostData : body["data"].items()) {
+					if (ghostData.value().is_string()) {
+						const std::string id = ghostData.key();
+						const std::string data = ghostData.value().get<std::string>();
+						GhostDataCache[map_id][id] = data;
+						ghostDataById[id] = data;
+					}
+				}
+
+				callback(true, ghostDataById);
+				return;
+			}
+		}
+		catch (const nlohmann::json::exception& e) {
+			M_LOG("Failed to parse ghost data response: {}", e.what());
+		}
+
+		callback(false, ghostDataById);
+		});
+}
