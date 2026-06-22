@@ -3,7 +3,7 @@
 #include "SceneManager.h"
 #include "Scenes/Game/Player.h"
 #include "Log.h"
-#include "Scenes/Game/GameScene01.h"
+#include "Scenes/Game/GameSceneBase.h"
 REGISTER_ACTOR(AGoalActor)
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
@@ -19,6 +19,6 @@ void AGoalActor::BeginOverlap(AActor* OtherActor)
 {
     if(dynamic_cast<APlayer*>(OtherActor)) {
         auto world = GetWorld();
-        dynamic_cast<AGameScene01*>(world->GetGameMode())->RaceFinish();
+        dynamic_cast<AGameSceneBase*>(world->GetGameMode())->RaceFinish();
     }
 }

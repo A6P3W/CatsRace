@@ -1,4 +1,4 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "Player.h"
 #include "InputMapper.h"
 #include "InputManager.h"
@@ -6,7 +6,7 @@
 #include "SpriteComponent.h"
 #include "CameraComponent.h"
 #include "SceneManager.h"
-#include "Scenes/Game/GameScene01.h"
+#include "Scenes/Game/GameSceneBase.h"
 #include <DxLib.h>
 #include "ObjectManager.h"
 #include "MovementComponent.h"
@@ -45,7 +45,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     AddComponent(std::move(col));
 
     auto movement = std::make_unique<MMovementComponent>();
-    m_movement = movement.get();
+    Movement = movement.get();
     AddComponent(std::move(movement));
 
 	auto shake = std::make_unique<MEasyShakeComponent>();
@@ -76,18 +76,18 @@ void APlayer::OnUpdate(float DeltaTime)
     const float BrakeForce = 6.0f;
     const float MaxSteer = 2.5f;
 
-    FVector2D v = m_movement->GetVelocity();
+    FVector2D v = Movement->GetVelocity();
     float speed = std::sqrt(v.SizeSquared());
 
     if (m_accelInput > 0.0f) {
         float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
         float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
-        m_movement->AddLocalForce({ 0.0f, -force });
+        Movement->AddLocalForce({ 0.0f, -force });
     }
     else if (m_accelInput < 0.0f) {
         float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
         float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
-        m_movement->AddLocalForce({ 0.0f, force });
+        Movement->AddLocalForce({ 0.0f, force });
     }
     // ---- ステアリング ----
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
@@ -96,7 +96,7 @@ void APlayer::OnUpdate(float DeltaTime)
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
     float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
-    m_movement->AddVelocityRotation(FRotator(steerAngle));
+    Movement->AddVelocityRotation(FRotator(steerAngle));
 
     m_accelInput = 0.0f;
     m_slider = 0.0f;
@@ -223,7 +223,9 @@ void APlayer::OnMove(const FInputActionValue& Value)
 
 void APlayer::OnRestartPressed()
 {
-    SceneManager::GetInstance().OpenScene<AGameScene01>();
+    if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+        gameScene->RestartGame();
+    }
 }
 
 void APlayer::OnWheel(const FInputActionValue& Value)
@@ -335,7 +337,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
 
         // ドリフト中は少し速度を落とす
         float decay = std::pow(DriftSpeedDecay, DeltaTime * 60.0f);
-        m_movement->SetWorldForce(m_movement->GetVelocity() * decay);
+        Movement->SetWorldForce(Movement->GetVelocity() * decay);
     }
     else
     {
@@ -346,7 +348,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
             if (boostRatio > 0.2f)
             {
                 float boostForce = DriftBoostForce * boostRatio;
-                m_movement->AddLocalForce({ 0.0f, -boostForce });
+                Movement->AddLocalForce({ 0.0f, -boostForce });
                 M_LOG("Drift Boost! ratio={}", boostRatio);
             }
             m_driftGauge = 0.0f;
@@ -381,3 +383,4 @@ void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLine
 //		m_slider += 0.1;
 //	}
 //}
+

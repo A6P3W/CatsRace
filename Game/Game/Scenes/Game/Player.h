@@ -27,7 +27,7 @@ public:
 private:
     MCameraComponent* m_camera = nullptr;
 	MEasyShakeComponent* m_shake = nullptr;
-    MMovementComponent* m_movement = nullptr;
+    MMovementComponent* Movement = nullptr;
     MSpriteComponent* m_sprite = nullptr;
     MCircleCollisionComponent* m_collision = nullptr;
     std::array<int, 5> m_walkAnimHandles{};
