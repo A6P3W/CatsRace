@@ -29,6 +29,7 @@
   <ItemGroup>
     <ClCompile Include="Game\Scenes\Clear\ClearScene.cpp" />
     <ClCompile Include="Game\Core\GameMain.cpp" />
+    <ClCompile Include="Game\Scenes\Game\GameSceneBase.cpp" />
     <ClCompile Include="Game\Scenes\Game\GameScene01.cpp" />
     <ClCompile Include="Game\Scenes\Game\Player.cpp" />
     <ClCompile Include="Game\Objects\SampleA.cpp" />
@@ -55,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
+    <ClInclude Include="Game\Scenes\Game\GameSceneBase.h" />
     <ClInclude Include="Game\Scenes\Game\GameScene01.h" />
     <ClInclude Include="Game\Core\GI_main.h" />
     <ClInclude Include="Game\Objects\MyGameInstance.h" />

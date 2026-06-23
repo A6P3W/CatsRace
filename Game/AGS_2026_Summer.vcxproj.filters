@@ -18,6 +18,9 @@
     <ClCompile Include="Game\Core\GameMain.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Scenes\Game\GameSceneBase.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Game\Scenes\Game\GameScene01.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -92,6 +95,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Scenes\Game\GameSceneBase.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="Game\Scenes\Game\GameScene01.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
