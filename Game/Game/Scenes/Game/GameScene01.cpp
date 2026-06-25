@@ -1,4 +1,5 @@
 #include "GameScene01.h"
+#include "Core/GameSceneIds.h"
 #include <SceneManager.h>
 
 AGameScene01::AGameScene01()
@@ -8,5 +9,5 @@ AGameScene01::AGameScene01()
 
 void AGameScene01::OpenCurrentScene()
 {
-	SceneManager::GetInstance().OpenScene<AGameScene01>();
+	SceneManager::GetInstance().OpenSceneById(GameSceneIds::Game01);
 }

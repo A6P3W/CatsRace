@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Actor.h"
 #include <Pawn.h>
 #include "UMath.h"
@@ -16,12 +16,14 @@ class APlayer : public APawn
 public:
 
     APlayer(FVector2D location, FRotator rotation);
+	~APlayer() override;
 
 	void OnUpdate(float DeltaTime) override;
 	void OnPossesed() override;
 	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
     void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
 	void SetCanMove(bool canMove) { CanMove = canMove; }
+	void NotifyGoalReached();
     void ApplyFOVEffect(float targetFOV, float duration);
 
 private:
@@ -59,7 +61,13 @@ private:
     const float DriftMinSpeed = 3.0f;         // ドリフト開始に必要な最低速度
     const float DriftBoostForce = 20.0f;       // ブースト力
     void UpdateDrift(float DeltaTime, float speed);
+	void UpdateLocalDriftVisual(float DeltaTime, float speed);
 	void OnMove(const FInputActionValue& Value);
+	void Server_Move(const FVector2D& MoveInput, bool bDriftHeld);
+	void Server_SetDrift(bool bDriftHeld);
+	void Server_NotifyGoal();
+	void ApplyMoveInput(const FVector2D& MoveInput, bool bDriftHeld);
+	bool IsDriftInputPressed();
 	void OnRestartPressed();
 	void OnWheel(const FInputActionValue& Value);
     void BeginPlay();

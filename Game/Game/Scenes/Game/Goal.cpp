@@ -1,10 +1,11 @@
-﻿#include "Goal.h"
+#include "Goal.h"
 #include "RectAngleCollisionComponent.h"
-#include "SceneManager.h"
 #include "Scenes/Game/Player.h"
 #include "Log.h"
-#include "Scenes/Game/GameSceneBase.h"
+#include "World.h"
+
 REGISTER_ACTOR(AGoalActor)
+
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 {
     SetActorLocation(location);
@@ -17,8 +18,12 @@ AGoalActor::AGoalActor(FVector2D location, FRotator rotation)
 
 void AGoalActor::BeginOverlap(AActor* OtherActor)
 {
-    if(dynamic_cast<APlayer*>(OtherActor)) {
-        auto world = GetWorld();
-        dynamic_cast<AGameSceneBase*>(world->GetGameMode())->RaceFinish();
+    auto* player = dynamic_cast<APlayer*>(OtherActor);
+    if (!player) {
+        return;
+    }
+
+    if (GetWorld()->IsServer() || player->bIsLocallyControlled) {
+        player->NotifyGoalReached();
     }
 }

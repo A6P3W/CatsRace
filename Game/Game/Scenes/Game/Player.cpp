@@ -7,8 +7,10 @@
 #include "CameraComponent.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
+#include "Core/GI_main.h"
 #include <DxLib.h>
 #include "ObjectManager.h"
+#include <PlayerController.h>
 #include "MovementComponent.h"
 #include <algorithm>
 #include "CircleCollisionComponent.h"
@@ -21,8 +23,25 @@
 
 
 
+namespace
+{
+	enum : FNetworkRPCId
+	{
+		RPC_ServerMove = 1,
+		RPC_ServerSetDrift = 2,
+		RPC_ServerNotifyGoal = 3
+	};
+}
+
+REGISTER_ACTOR(APlayer)
+
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
+    bReplicates = true;
+    RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
+    RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
+    RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
+
     SetActorLocation(location);
     SetActorRotation(rotation);
 
@@ -55,7 +74,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     auto camera = std::make_unique<MCameraComponent>();
     m_camera = camera.get();
     AddComponent(std::move(camera));
-    m_camera->SetActiveCamera();
     m_camera->SetFOV(1);
 	m_camera->SetParentComponent(m_shake);
 
@@ -69,6 +87,12 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 }
 
+APlayer::~APlayer()
+{
+    if (m_sound) {
+        m_sound->StopAll();
+    }
+}
 void APlayer::OnUpdate(float DeltaTime)
 {
     const float MaxSpeed = 10.0f;
@@ -79,6 +103,7 @@ void APlayer::OnUpdate(float DeltaTime)
     FVector2D v = Movement->GetVelocity();
     float speed = std::sqrt(v.SizeSquared());
 
+    if (bHasAuthority) {
     if (m_accelInput > 0.0f) {
         float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
         float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
@@ -100,6 +125,10 @@ void APlayer::OnUpdate(float DeltaTime)
 
     m_accelInput = 0.0f;
     m_slider = 0.0f;
+    }
+    else if (bIsLocallyControlled) {
+        UpdateLocalDriftVisual(DeltaTime, speed);
+    }
 
     // ---- アニメーション ----
     if (m_sprite) {
@@ -123,7 +152,7 @@ void APlayer::OnUpdate(float DeltaTime)
     // ---- ドリフト時のスプライト傾き ----
 {
     float targetTilt = 0.0f;
-    if (m_isDrifting)
+    if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)))
     {
         targetTilt = MaxDriftTiltAngle * m_driftDirection;
     }
@@ -162,7 +191,7 @@ void APlayer::OnUpdate(float DeltaTime)
         DrawSpeedLines(speed);
     }
     // ---- ドリフトゲージ表示 ----
-    if (m_isDrifting)
+    if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)))
     {
         const float GaugeX = 760.0f;
         const float GaugeY = 50.0f;
@@ -202,7 +231,9 @@ void APlayer::OnUpdate(float DeltaTime)
 
 void APlayer::OnPossesed()
 {
-    m_camera->SetActiveCamera();
+    if (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)) {
+        m_camera->SetActiveCamera();
+    }
     m_camera->SetFOV(1);
 }
 
@@ -214,15 +245,85 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
     PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Completed, this, &APlayer::OnDriftReleased);
 }
 
+bool APlayer::IsDriftInputPressed()
+{
+    bool bPressed = m_driftKeyPressed;
+    if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+        return bPressed;
+    }
+
+    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+        auto* controller = dynamic_cast<APlayerController*>(actorPtr.get());
+        if (!controller || controller->GetPawn() != this || !controller->GetInputMapper()) {
+            continue;
+        }
+        bPressed = bPressed || controller->GetInputMapper()->GetPressing("DRIFT");
+    }
+    return bPressed;
+}
 void APlayer::OnMove(const FInputActionValue& Value)
 {
-    if (!CanMove) return;
-    m_accelInput = std::clamp(Value.Axis2D.Y, -1.0f, 1.0f);
-    m_slider = -std::clamp(Value.Axis2D.X, -1.0f, 1.0f);
+    if (!CanMove || !bIsLocallyControlled) return;
+    ApplyMoveInput(Value.Axis2D, IsDriftInputPressed());
 }
 
+void APlayer::ApplyMoveInput(const FVector2D& MoveInput, bool bDriftHeld)
+{
+    const FVector2D clampedInput{
+        std::clamp(MoveInput.X, -1.0f, 1.0f),
+        std::clamp(MoveInput.Y, -1.0f, 1.0f)
+    };
+
+    m_accelInput = clampedInput.Y;
+    m_slider = -clampedInput.X;
+    m_driftKeyPressed = bDriftHeld;
+
+    if (bHasAuthority) {
+        return;
+    }
+
+    InvokeRPC(RPC_ServerMove, ENetRPCType::Server, ENetPacketReliability::Unreliable, clampedInput, bDriftHeld);
+}
+
+void APlayer::Server_Move(const FVector2D& MoveInput, bool bDriftHeld)
+{
+    m_accelInput = std::clamp(MoveInput.Y, -1.0f, 1.0f);
+    m_slider = -std::clamp(MoveInput.X, -1.0f, 1.0f);
+    m_driftKeyPressed = bDriftHeld;
+}
+
+void APlayer::Server_SetDrift(bool bDriftHeld)
+{
+    m_driftKeyPressed = bDriftHeld;
+}
+
+void APlayer::Server_NotifyGoal()
+{
+    NotifyGoalReached();
+}
+
+void APlayer::NotifyGoalReached()
+{
+    if (bHasAuthority) {
+        if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+            gameScene->NotifyPlayerFinished(this);
+        }
+        return;
+    }
+
+    if (bIsLocallyControlled) {
+        if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+            if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+                gi->ClearTime = gameScene->GetRaceTime();
+                gi->map_id = gameScene->GetMapId();
+            }
+        }
+        InvokeRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, ENetPacketReliability::Reliable);
+    }
+}
 void APlayer::OnRestartPressed()
 {
+    if (!bIsLocallyControlled) return;
     if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
         gameScene->RestartGame();
     }
@@ -243,12 +344,20 @@ void APlayer::BeginOverlap(AActor* OtherActor)
 
 void APlayer::OnDriftPressed()
 {
+    if (!bIsLocallyControlled) return;
     m_driftKeyPressed = true;
+    if (!bHasAuthority) {
+        InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, true);
+    }
 }
 
 void APlayer::OnDriftReleased()
 {
+    if (!bIsLocallyControlled) return;
     m_driftKeyPressed = false;
+    if (!bHasAuthority) {
+        InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, false);
+    }
 }
 void APlayer::EndOverlap(AActor * OtherActor)
 {
@@ -258,9 +367,13 @@ void APlayer::EndOverlap(AActor * OtherActor)
 
 void APlayer::BeginPlay()
 {
+    if (!dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+        return;
+    }
     m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
     m_engineRunHandle = m_sound->PlaySE("images/moving-v2.mp3", true);
 }
+
 void APlayer::DrawSpeedLines(float speed)
 {
     const float MaxSpeed = 30.0f;
@@ -306,6 +419,26 @@ void APlayer::DrawSpeedLines(float speed)
             { sx, sy }, { ex, ey },
             0xFFFFFF, RenderSpace::Screen, 200, alpha
         );
+    }
+}
+void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed)
+{
+    const bool bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+    if (bWantsDrift) {
+        if (!m_isDrifting) {
+            m_isDrifting = true;
+            m_driftGauge = 0.0f;
+            m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        }
+
+        const float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        if (currentDir == m_driftDirection) {
+            m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+        }
+    }
+    else {
+        m_isDrifting = false;
+        m_driftGauge = 0.0f;
     }
 }
 void APlayer::UpdateDrift(float DeltaTime, float speed)
@@ -357,6 +490,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
     }
 }
 void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines) {
+    if (!bIsLocallyControlled && !(bHasAuthority && OwnerConnectionId == 0)) return;
     m_fovBase = 1.0f;
     m_fovTarget = targetFOV;
     m_fovEffectTimer = duration;

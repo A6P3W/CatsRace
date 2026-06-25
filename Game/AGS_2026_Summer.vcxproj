@@ -28,6 +28,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Scenes\Clear\ClearScene.cpp" />
+    <ClCompile Include="Game\Scenes\Lobby\LobbyPlayerState.cpp" />
+    <ClCompile Include="Game\Scenes\Lobby\LobbyScene.cpp" />
+    <ClCompile Include="Game\Scenes\Menu\MenuScene.cpp" />
+    <ClCompile Include="Game\Scenes\Common\ImGuiHelper.cpp" />
     <ClCompile Include="Game\Core\GameMain.cpp" />
     <ClCompile Include="Game\Scenes\Game\GameSceneBase.cpp" />
     <ClCompile Include="Game\Scenes\Game\GameScene01.cpp" />
@@ -56,6 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
+    <ClInclude Include="Game\Scenes\Lobby\LobbyPlayerState.h" />
+    <ClInclude Include="Game\Scenes\Lobby\LobbyScene.h" />
+    <ClInclude Include="Game\Scenes\Menu\MenuScene.h" />
+    <ClInclude Include="Game\Scenes\Common\ImGuiHelper.h" />
+    <ClInclude Include="Game\Core\GameSceneIds.h" />
     <ClInclude Include="Game\Scenes\Game\GameSceneBase.h" />
     <ClInclude Include="Game\Scenes\Game\GameScene01.h" />
     <ClInclude Include="Game\Core\GI_main.h" />

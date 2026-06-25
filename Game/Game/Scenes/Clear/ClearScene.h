@@ -1,17 +1,20 @@
 #pragma once
 #include "GameModeBase.h"
+#include <vector>
 
 class WClearHUD;
 class WNameSelectDialog;
 class WNameInputDialog;
 class WOverwriteConfirmDialog;
 class WPostGameDialog;
+class ALobbyPlayerState;
 
 class AClearScene : public AGameModeBase
 {
 public:
 	AClearScene();
 	void OnUpdate(float DeltaTime) override;
+	void Draw() override;
 
 protected:
 	void BeginPlay() override;
@@ -23,6 +26,8 @@ private:
 	void ExecutePostScore(const std::string& name);
 	void FetchAndDisplay();
 	void ShowPostGameDialog();
+	void SpawnResultStatesFromGameInstance();
+	std::vector<ALobbyPlayerState*> GetResultStates();
 
 	WClearHUD* m_ClearHUD = nullptr;
 	std::vector<std::string> m_FetchedUserIds;

@@ -6,6 +6,7 @@
 #include <KeyboardDevice.h>
 #include <DxLib.h>
 #include "Core/GI_main.h"
+#include "Core/GameSceneIds.h"
 #include "UI/WClearHUD.h"
 #include "UI/WNameSelectDialog.h"
 #include "UI/WNameInputDialog.h"
@@ -16,7 +17,11 @@
 #include "World.h"
 #include "SpriteComponent.h"
 #include <string>
+#include <algorithm>
+#include <imgui.h>
 #include <Pawn.h>
+#include "Scenes/Lobby/LobbyPlayerState.h"
+#include "Scenes/Game/Player.h"
 AClearScene::AClearScene()
 {
 }
@@ -35,11 +40,17 @@ void AClearScene::BeginPlay()
 		m_ClearHUD->SetClearTime(clearTime);
 	}
 
-	// Fetch and display leaderboard initially
-	FetchAndDisplay();
-	
-	// Start name registration flow
-	ShowNameFlow();
+	if (GetWorld()->IsServer()) {
+		SpawnResultStatesFromGameInstance();
+	}
+
+	if (GetWorld()->IsStandalone()) {
+		// Fetch and display leaderboard initially
+		FetchAndDisplay();
+		
+		// Start name registration flow
+		ShowNameFlow();
+	}
 }
 
 void AClearScene::ShowNameFlow()
@@ -182,15 +193,109 @@ void AClearScene::ShowPostGameDialog()
 			m_PostGameDialog = nullptr;
 		}
 		if (result == EPostGameResult::PlayAgain) {
-			SceneManager::GetInstance().OpenScene<AGameScene01>();
+			GetWorld()->ServerTravel(GameSceneIds::Game01);
 		} else if (result == EPostGameResult::BackToTitle) {
-			SceneManager::GetInstance().OpenScene<ATitleScene>();
+			GetWorld()->ServerTravel(GameSceneIds::Lobby);
 		}
 	});
 	UIManager::GetInstance()->AddWidget(m_PostGameDialog);
 	UIManager::GetInstance()->SetFocusedWidget(m_PostGameDialog);
 }
 
+void AClearScene::SpawnResultStatesFromGameInstance()
+{
+	auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+	if (!gi) {
+		return;
+	}
+
+	if (gi->multiplayer_results.empty()) {
+		GI_main::FMultiplayerResult result;
+		result.ConnectionId = 0;
+		result.PlayerName = gi->player_name.empty() ? gi->user_id : gi->player_name;
+		result.bFinished = true;
+		result.FinishTime = gi->ClearTime;
+		gi->multiplayer_results.push_back(result);
+	}
+
+	for (const auto& result : gi->multiplayer_results) {
+		auto* state = GetWorld()->SpawnActor<ALobbyPlayerState>();
+		state->OwnerConnectionId = result.ConnectionId;
+		state->bReplicates = true;
+		state->bHasAuthority = true;
+		state->bIsLocallyControlled = result.ConnectionId == 0;
+		state->SetPlayerName(result.PlayerName);
+		state->SetFinishResult(result.bFinished, result.FinishTime);
+	}
+}
+
+std::vector<ALobbyPlayerState*> AClearScene::GetResultStates()
+{
+	std::vector<ALobbyPlayerState*> states;
+	if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+		return states;
+	}
+	for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+		if (auto* state = dynamic_cast<ALobbyPlayerState*>(actorPtr.get())) {
+			if (!state->IsPendingDestroy()) {
+				states.push_back(state);
+			}
+		}
+	}
+	std::sort(states.begin(), states.end(), [](const ALobbyPlayerState* a, const ALobbyPlayerState* b) {
+		if (a->IsFinished() != b->IsFinished()) return a->IsFinished() > b->IsFinished();
+		if (a->GetFinishTime() != b->GetFinishTime()) return a->GetFinishTime() < b->GetFinishTime();
+		return a->OwnerConnectionId < b->OwnerConnectionId;
+	});
+	return states;
+}
+
+void AClearScene::Draw()
+{
+	AGameModeBase::Draw();
+	if (GetWorld()->IsStandalone()) {
+		return;
+	}
+
+	const auto states = GetResultStates();
+	ImGui::SetNextWindowSize(ImVec2(620.0f, 460.0f), ImGuiCond_FirstUseEver);
+	ImGui::Begin("Multiplayer Results");
+	ImGui::TextUnformatted("Race Results");
+	ImGui::Separator();
+	int rank = 1;
+	for (const auto* state : states) {
+		if (!state) continue;
+		if (state->IsFinished()) {
+			ImGui::Text("%d. %s  %.2f", rank++, state->GetPlayerName().c_str(), state->GetFinishTime());
+		}
+		else {
+			ImGui::Text("-. %s  DNF", state->GetPlayerName().c_str());
+		}
+	}
+	ImGui::Separator();
+	if (GetWorld()->IsServer()) {
+		if (ImGui::Button("Replay", ImVec2(160.0f, 34.0f))) {
+			GetWorld()->ServerTravel(GameSceneIds::Game01);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Back To Lobby", ImVec2(160.0f, 34.0f))) {
+			GetWorld()->ServerTravel(GameSceneIds::Lobby);
+		}
+	}
+	else {
+		ImGui::TextUnformatted("Waiting for host.");
+	}
+	ImGui::End();
+}
 void AClearScene::OnUpdate(float DeltaTime)
 {
+	(void)DeltaTime;
+	if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+		return;
+	}
+	for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+		if (auto* player = dynamic_cast<APlayer*>(actorPtr.get())) {
+			player->Destroy();
+		}
+	}
 }
