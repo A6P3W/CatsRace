@@ -25,10 +25,6 @@ public:
 	bool IsFinished() const { return bFinished; }
 	float GetFinishTime() const { return FinishTime; }
 
-	void SerializeNetworkState(FNetBuffer& OutBuffer) override;
-	bool DeserializeNetworkState(FNetBuffer& InBuffer) override;
-	void SerializeNetworkSpawn(FNetBuffer& OutBuffer) override;
-	bool DeserializeNetworkSpawn(FNetBuffer& InBuffer) override;
 
 private:
 	void InitializeRPCs();

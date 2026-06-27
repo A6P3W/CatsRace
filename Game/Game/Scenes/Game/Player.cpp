@@ -38,6 +38,8 @@ REGISTER_ACTOR(APlayer)
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
     bReplicates = true;
+    RegisterReplicatedProperty(&m_isDrifting);
+    RegisterReplicatedProperty(&m_driftDirection);
     RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
     RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
     RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
@@ -152,7 +154,7 @@ void APlayer::OnUpdate(float DeltaTime)
     // ---- ドリフト時のスプライト傾き ----
 {
     float targetTilt = 0.0f;
-    if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)))
+    if (m_isDrifting)
     {
         targetTilt = MaxDriftTiltAngle * m_driftDirection;
     }

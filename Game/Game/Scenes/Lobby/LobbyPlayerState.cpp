@@ -1,7 +1,6 @@
 #include "Scenes/Lobby/LobbyPlayerState.h"
 
 #include "Core/GameSceneIds.h"
-#include "NetBuffer.h"
 
 namespace
 {
@@ -20,6 +19,12 @@ ALobbyPlayerState::ALobbyPlayerState()
 {
 	bReplicates = true;
 	SelectedGameSceneId = GameSceneIds::Game01;
+	RegisterReplicatedProperty(&PlayerName);
+	RegisterReplicatedProperty(&bReady);
+	RegisterReplicatedProperty(&SelectedGameSceneId);
+	RegisterReplicatedProperty(&MaxPlayers);
+	RegisterReplicatedProperty(&bFinished);
+	RegisterReplicatedProperty(&FinishTime);
 	InitializeRPCs();
 }
 
@@ -32,12 +37,7 @@ ALobbyPlayerState::ALobbyPlayerState(const FVector2D& Location, FRotator Rotatio
 
 void ALobbyPlayerState::InitializeRPCs()
 {
-	RegisterRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, [this](FNetBuffer& Payload) {
-		std::string name;
-		if (Payload.ReadString(name)) {
-			ApplyPlayerName(name);
-		}
-	});
+	RegisterRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyPlayerName);
 	RegisterRPC(RPC_ServerSetReady, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyReady);
 	RegisterRPC(RPC_ServerSetLobbyOptions, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyLobbyOptions);
 	RegisterRPC(RPC_ServerSetFinishResult, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyFinishResult);
@@ -50,9 +50,7 @@ void ALobbyPlayerState::SetPlayerName(const std::string& Name)
 		return;
 	}
 
-	FNetBuffer payload;
-	payload.WriteString(Name);
-	InvokeRPCWithPayload(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, payload);
+	InvokeRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name);
 }
 
 void ALobbyPlayerState::SetReady(bool bInReady)
@@ -108,38 +106,3 @@ void ALobbyPlayerState::ApplyFinishResult(bool bInFinished, float InFinishTime)
 	MarkReplicatedStateDirty();
 }
 
-void ALobbyPlayerState::SerializeNetworkState(FNetBuffer& OutBuffer)
-{
-	AActor::SerializeNetworkState(OutBuffer);
-	OutBuffer.WriteString(PlayerName);
-	OutBuffer.Write(bReady);
-	OutBuffer.Write(SelectedGameSceneId);
-	OutBuffer.Write(MaxPlayers);
-	OutBuffer.Write(bFinished);
-	OutBuffer.Write(FinishTime);
-}
-
-bool ALobbyPlayerState::DeserializeNetworkState(FNetBuffer& InBuffer)
-{
-	if (!AActor::DeserializeNetworkState(InBuffer)) return false;
-	if (!InBuffer.ReadString(PlayerName)) return false;
-	if (!InBuffer.Read(bReady)) return false;
-	if (!InBuffer.Read(SelectedGameSceneId)) return false;
-	if (!InBuffer.Read(MaxPlayers)) return false;
-	if (!InBuffer.Read(bFinished)) return false;
-	if (!InBuffer.Read(FinishTime)) return false;
-	return true;
-}
-
-void ALobbyPlayerState::SerializeNetworkSpawn(FNetBuffer& OutBuffer)
-{
-	OutBuffer.WriteString(GetActorClassName());
-	SerializeNetworkState(OutBuffer);
-}
-
-bool ALobbyPlayerState::DeserializeNetworkSpawn(FNetBuffer& InBuffer)
-{
-	std::string className;
-	if (!InBuffer.ReadString(className)) return false;
-	return DeserializeNetworkState(InBuffer);
-}
