@@ -11,6 +11,7 @@ public:
 
 	AMenuScene();
 	void BeginPlay() override;
+	void OnUpdate(float DeltaTime) override;
 	void Draw() override;
 
 private:

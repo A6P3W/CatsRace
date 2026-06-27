@@ -6,16 +6,18 @@
 #include "ObjectManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
+#include "Scenes/Lobby/PC_Lobby.h"
 #include "World.h"
 
 #include <algorithm>
-#include <cstring>
-#include <imgui.h>
+
+REGISTER_GAME_MODE(ALobbyScene)
 
 ALobbyScene::ALobbyScene()
 {
 	SetUpdateableAnytime(true);
 	SelectedGameSceneId = GameSceneIds::Game01;
+	DefaultPlayerControllerClass = PC_Lobby::StaticClassName();
 }
 
 void ALobbyScene::BeginPlay()
@@ -24,88 +26,17 @@ void ALobbyScene::BeginPlay()
 	if (GetWorld()->IsServer()) {
 		EnsureHostPlayerState();
 	}
+
+}
+
+void ALobbyScene::OnUpdate(float DeltaTime)
+{
+	(void)DeltaTime;
 }
 
 void ALobbyScene::Draw()
 {
 	AGameModeBase::Draw();
-
-	const auto states = GetPlayerStates();
-	ALobbyPlayerState* localState = FindLocalPlayerState();
-	ALobbyPlayerState* hostState = FindHostPlayerState();
-	if (hostState) {
-		SelectedGameSceneId = hostState->GetSelectedGameSceneId();
-		MaxPlayers = hostState->GetMaxPlayers();
-	}
-
-	ImGui::SetNextWindowSize(ImVec2(620.0f, 460.0f), ImGuiCond_FirstUseEver);
-	ImGui::Begin("Lobby");
-	ImGui::Text("Mode: %s", GetWorld()->IsListenServer() ? "Host" : (GetWorld()->IsClient() ? "Client" : "Standalone"));
-	ImGui::Text("Players: %d / %d", static_cast<int>(states.size()), MaxPlayers);
-	ImGui::Separator();
-
-	if (localState) {
-		if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-			if (!gi->player_name.empty() && localState->GetPlayerName() != gi->player_name) {
-				localState->SetPlayerName(gi->player_name);
-			}
-		}
-		char nameBuffer[64] = {};
-		strncpy_s(nameBuffer, sizeof(nameBuffer), localState->GetPlayerName().c_str(), _TRUNCATE);
-		if (ImGui::InputText("My Name", nameBuffer, sizeof(nameBuffer))) {
-			localState->SetPlayerName(nameBuffer);
-			if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-				gi->player_name = nameBuffer;
-			}
-		}
-		bool ready = localState->IsReady();
-		if (ImGui::Checkbox("Ready", &ready)) {
-			localState->SetReady(ready);
-		}
-	}
-	else {
-		ImGui::TextUnformatted("Waiting for player state...");
-	}
-
-	ImGui::Separator();
-	ImGui::TextUnformatted("Participants");
-	for (const auto* state : states) {
-		if (!state) continue;
-		ImGui::BulletText("[%u] %s  %s  Time: %.2f",
-			state->OwnerConnectionId,
-			state->GetPlayerName().c_str(),
-			state->IsReady() ? "Ready" : "Not Ready",
-			state->GetFinishTime());
-	}
-
-	ImGui::Separator();
-	ImGui::Text("Selected Map: GameScene01");
-
-	if (GetWorld()->IsServer()) {
-		int maxPlayers = MaxPlayers;
-		if (ImGui::SliderInt("Max Players", &maxPlayers, 1, 8)) {
-			MaxPlayers = maxPlayers;
-			if (auto* host = FindHostPlayerState()) {
-				host->SetLobbyOptions(SelectedGameSceneId, MaxPlayers);
-			}
-		}
-
-		const bool enoughPlayers = !states.empty();
-		const bool allReady = std::all_of(states.begin(), states.end(), [](const ALobbyPlayerState* state) {
-			return state && (state->OwnerConnectionId == 0 || state->IsReady());
-		});
-		if (!allReady) {
-			ImGui::TextUnformatted("Waiting for clients to ready up.");
-		}
-		if (ImGui::Button("Start Game", ImVec2(180.0f, 34.0f)) && enoughPlayers && allReady) {
-			StartGame();
-		}
-	}
-	else {
-		ImGui::TextUnformatted("Waiting for host to start the game.");
-	}
-
-	ImGui::End();
 }
 
 APlayerController* ALobbyScene::OnClientConnected(FNetworkConnectionId ConnectionId)

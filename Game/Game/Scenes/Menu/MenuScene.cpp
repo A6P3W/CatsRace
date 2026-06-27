@@ -11,6 +11,8 @@
 #include <cstring>
 #include <imgui.h>
 
+REGISTER_GAME_MODE(AMenuScene)
+
 AMenuScene::AMenuScene()
 {
 	SetUpdateableAnytime(true);
@@ -20,6 +22,11 @@ void AMenuScene::BeginPlay()
 {
 	AGameModeBase::BeginPlay();
 	LoadSettings();
+}
+
+void AMenuScene::OnUpdate(float DeltaTime)
+{
+	(void)DeltaTime;
 }
 
 void AMenuScene::Draw()

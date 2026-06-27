@@ -1,4 +1,4 @@
-﻿#include "TitleScene.h"
+#include "TitleScene.h"
 #include "SpriteComponent.h"
 #include "InputManager.h"
 #include "SceneManager.h"
@@ -10,6 +10,8 @@
 #include "UIManager.h"
 #include "Pawn.h"
 #include "PlayerController.h"
+
+REGISTER_GAME_MODE(ATitleScene)
 
 ATitleScene::ATitleScene()
 {
@@ -26,12 +28,18 @@ void ATitleScene::BeginPlay()
 	AGameModeBase::BeginPlay();
 
 	// Setup input and PlayerController for UI interaction
-	SpawnPlayer<APawn, APlayerController>({ 0, 0 }, 0);
-	GetPlayerController()->SetInputMode(EInputMode::UIOnly);
+	if (auto* controller = SpawnPlayer<APawn, APlayerController>({ 0, 0 }, 0)) {
+		controller->SetInputMode(EInputMode::UIOnly);
+	}
 
 	// Spawn and add Title HUD
 	m_TitleHUD = SpawnActor<WTitleHUD>();
 	UIManager::GetInstance()->AddWidget(m_TitleHUD);
 	UIManager::GetInstance()->SetFocusedWidget(m_TitleHUD);
 
+}
+
+void ATitleScene::OnUpdate(float DeltaTime)
+{
+	(void)DeltaTime;
 }

@@ -15,7 +15,7 @@
 #include <TimerHandle.h>
 #include <TimerManager.h>
 #include <SoundManager.h>
-#include <LevelSerializer.h>
+#include <PlayerStart.h>
 #include <SceneManager.h>
 #include "Scenes/Clear/ClearScene.h"
 #include <UIManager.h>
@@ -38,6 +38,8 @@ AGameSceneBase::AGameSceneBase(std::string mapId, std::string levelFileName, FVe
 	, LevelFileName(std::move(levelFileName))
 	, PlayerStartLocation(playerStartLocation)
 {
+	DefaultPawnClass = APlayer::StaticClassName();
+	DefaultPlayerControllerClass = PC_Game::StaticClassName();
 }
 
 void AGameSceneBase::OnUpdate(float DeltaTime)
@@ -50,9 +52,6 @@ void AGameSceneBase::OnUpdate(float DeltaTime)
 	}
 	if (RaceRunning) {
 		RaceTime += DeltaTime;
-		if (m_MainHUD) {
-			m_MainHUD->UpdateTimerText(RaceTime);
-		}
 		if (m_GhostPlayer && m_GhostPlayer->GetPlaybackComponent()) {
 			m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
 		}
@@ -63,7 +62,6 @@ void AGameSceneBase::BeginPlay()
 {
 	AGameModeBase::BeginPlay();
 
-	LevelSerializer::Load(GetWorld(), LevelFileName);
 
 	if (GetWorld()->IsServer()) {
 		SpawnNetworkPlayer(0);
@@ -73,21 +71,9 @@ void AGameSceneBase::BeginPlay()
 	LoadTopGhost();
 	M_LOG("Game scene initialized: {}", MapId);
 
-	m_MainHUD = SpawnActor<WMainHUD>();
-	UIManager::GetInstance()->AddWidget(m_MainHUD);
-
-	m_CountDownWidget = SpawnActor<WCountDown>();
-	m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
-	UIManager::GetInstance()->AddWidget(m_CountDownWidget);
-
-	if (auto* pc = GetPlayerController()) {
-		if (auto* inputComp = pc->GetInputComponent()) {
-			inputComp->BindAction(InputAction::Pause, ETriggerEvent::Started, this, &AGameSceneBase::TogglePause);
-		}
-		pc->SetInputMode(EInputMode::UIOnly);
+	if (GetWorld()->IsServer()) {
+		GetWorldTimerManager().SetTimer(CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f);
 	}
-
-	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f);
 }
 
 void AGameSceneBase::LoadTopGhost()
@@ -127,10 +113,6 @@ void AGameSceneBase::LoadTopGhost()
 	});
 }
 
-APlayerController* AGameSceneBase::CreateLocalPlayerController()
-{
-	return GetWorld()->SpawnActor<PC_Game>(FVector2D::ZeroVector);
-}
 void AGameSceneBase::RaceFinish()
 {
 	if (auto* player = dynamic_cast<APlayer*>(GetPlayerPawn())) {
@@ -158,27 +140,17 @@ void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId)
 
 APlayerController* AGameSceneBase::SpawnNetworkPlayer(FNetworkConnectionId ConnectionId)
 {
-	const float offset = static_cast<float>(ConnectionId) * 90.0f;
-	const FVector2D spawnLocation{ PlayerStartLocation.X + offset, PlayerStartLocation.Y };
-	APlayerController* controller = nullptr;
-	APlayer* player = nullptr;
-
-	if (ConnectionId == 0) {
-		controller = SpawnPlayer<APlayer, PC_Game>(spawnLocation, 0);
-		player = controller ? dynamic_cast<APlayer*>(controller->GetPawn()) : nullptr;
-	}
-	else {
-		player = GetWorld()->SpawnActor<APlayer>(spawnLocation);
+	if (!FindPlayerStart(ConnectionId)) {
+		const float offset = static_cast<float>(ConnectionId) * 90.0f;
+		SpawnActor<APlayerStart>({ PlayerStartLocation.X + offset, PlayerStartLocation.Y });
 	}
 
+	APlayerController* controller = SpawnDefaultPlayer(ConnectionId);
+	APlayer* player = controller ? dynamic_cast<APlayer*>(controller->GetPawn()) : nullptr;
 	if (!player) {
 		return controller;
 	}
 
-	player->OwnerConnectionId = ConnectionId;
-	player->bReplicates = true;
-	player->bHasAuthority = true;
-	player->bIsLocallyControlled = ConnectionId == 0;
 	player->SetCanMove(RaceRunning);
 
 	if (ConnectionId == 0) {
@@ -201,6 +173,7 @@ APlayerController* AGameSceneBase::SpawnNetworkPlayer(FNetworkConnectionId Conne
 
 	return controller;
 }
+
 void AGameSceneBase::NotifyPlayerFinished(APlayer* Player)
 {
 	if (!Player || !GetWorld()->IsServer() || bResultTravelRequested) {
@@ -275,17 +248,7 @@ void AGameSceneBase::RaceCountDown()
 
 	if (m_CountDown <= 0) {
 		GetWorldTimerManager().ClearTimer(CountHandle);
-		if (m_CountDownWidget) {
-			m_CountDownWidget->SetCountText("Go!");
-		}
 		RaceStart();
-	}
-	else {
-		if (m_CountDownWidget) {
-			m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
-		}
-		M_LOG(std::to_string(m_CountDown), 0);
-		GetWorld()->GetSoundManager()->PlaySE("soundreality-pop-423717.mp3", false);
 	}
 }
 
@@ -298,9 +261,6 @@ void AGameSceneBase::RaceStart()
 		m_GhostRecorder->StartRecording();
 	}
 
-	if (auto* pc = GetPlayerController()) {
-		pc->SetInputMode(EInputMode::GameOnly);
-	}
 	if (GetWorld() && GetWorld()->GetObjectManager()) {
 		for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
 			if (auto* player = dynamic_cast<APlayer*>(actorPtr.get())) {
@@ -308,83 +268,15 @@ void AGameSceneBase::RaceStart()
 			}
 		}
 	}
-
-	GetWorldTimerManager().SetTimer(CountHandle, this, &AGameSceneBase::ClearCountDown, 1.0f, false, 1.0f);
-}
-
-void AGameSceneBase::ClearCountDown()
-{
-	if (m_CountDownWidget) {
-		UIManager::GetInstance()->RemoveWidget(m_CountDownWidget);
-		m_CountDownWidget = nullptr;
-	}
-}
-void AGameSceneBase::TogglePause()
-{
-	if (!RaceRunning && !bPaused) {
-		return;
-	}
-
-	if (!bPaused) {
-		bPaused = true;
-		GetWorld()->SetSimulating(false);
-
-		m_PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
-		m_PauseMenu->OnResumePressed = [this]() {
-			TogglePause();
-		};
-		m_PauseMenu->OnRestartPressed = [this]() {
-			RestartGame();
-		};
-		m_PauseMenu->OnTitlePressed = [this]() {
-			ReturnToTitle();
-		};
-
-		UIManager::GetInstance()->AddWidget(m_PauseMenu);
-		UIManager::GetInstance()->SetFocusedWidget(m_PauseMenu);
-
-		if (auto* pc = GetPlayerController()) {
-			pc->SetInputMode(EInputMode::UIOnly);
-		}
-	}
-	else {
-		bPaused = false;
-		GetWorld()->SetSimulating(true);
-
-		if (m_PauseMenu) {
-			UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-			m_PauseMenu = nullptr;
-		}
-
-		if (auto* pc = GetPlayerController()) {
-			pc->SetInputMode(EInputMode::GameOnly);
-		}
-	}
 }
 
 void AGameSceneBase::RestartGame()
 {
-	bPaused = false;
-	GetWorld()->SetSimulating(true);
-
-	if (m_PauseMenu) {
-		UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-		m_PauseMenu = nullptr;
-	}
-
 	OpenCurrentScene();
 }
 
 void AGameSceneBase::ReturnToTitle()
 {
-	bPaused = false;
-	GetWorld()->SetSimulating(true);
-
-	if (m_PauseMenu) {
-		UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-		m_PauseMenu = nullptr;
-	}
-
 	SceneManager::GetInstance().OpenSceneById(GameSceneIds::Menu);
 }
 

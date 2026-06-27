@@ -40,6 +40,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     bReplicates = true;
     RegisterReplicatedProperty(&m_isDrifting);
     RegisterReplicatedProperty(&m_driftDirection);
+    RegisterReplicatedProperty(&CanMove);
     RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
     RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
     RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);

@@ -14,6 +14,7 @@ class MCircleCollisionComponent;
 class APlayer : public APawn
 {
 public:
+	DEFINE_ACTOR_CLASS(APlayer)
 
     APlayer(FVector2D location, FRotator rotation);
 	~APlayer() override;

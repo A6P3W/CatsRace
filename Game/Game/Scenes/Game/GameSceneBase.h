@@ -26,13 +26,10 @@ public:
 
 	void RaceFinish();
 	void NotifyPlayerFinished(APlayer* Player);
-	virtual void TogglePause();
 	virtual void RestartGame();
 	virtual void ReturnToTitle();
 protected:
 	virtual void OpenCurrentScene() = 0;
-	APlayerController* CreateLocalPlayerController() override;
-
 	void RaceCountDown();
 	void RaceStart();
 	void ClearCountDown();
@@ -45,9 +42,6 @@ protected:
 	int m_CountDown = 3;
 	FTimerHandle CountHandle;
 
-	WCountDown* m_CountDownWidget = nullptr;
-	WMainHUD* m_MainHUD = nullptr;
-	WPauseMenu* m_PauseMenu = nullptr;
 	MGhostRecorderComponent* m_GhostRecorder = nullptr;
 	AGhostPlayer* m_GhostPlayer = nullptr;
 
