@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Actor.h"
 #include <Pawn.h>
 #include "UMath.h"
@@ -20,7 +20,7 @@ public:
 	~APlayer() override;
 
 	void OnUpdate(float DeltaTime) override;
-	void OnPossesed() override;
+	void OnPossessedBy(APlayerController* NewController) override;
 	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
     void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
 	void SetCanMove(bool canMove) { CanMove = canMove; }

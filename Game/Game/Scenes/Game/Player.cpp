@@ -1,4 +1,4 @@
-#define NOMINMAX
+﻿#define NOMINMAX
 #include "Player.h"
 #include "InputMapper.h"
 #include "InputManager.h"
@@ -232,8 +232,9 @@ void APlayer::OnUpdate(float DeltaTime)
    
 }
 
-void APlayer::OnPossesed()
+void APlayer::OnPossessedBy(APlayerController* NewController)
 {
+    APawn::OnPossessedBy(NewController);
     if (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)) {
         m_camera->SetActiveCamera();
     }
