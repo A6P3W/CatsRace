@@ -64,10 +64,9 @@ private:
     void UpdateDrift(float DeltaTime, float speed);
 	void UpdateLocalDriftVisual(float DeltaTime, float speed);
 	void OnMove(const FInputActionValue& Value);
-	void Server_Move(const FVector2D& MoveInput, bool bDriftHeld);
+	void Server_Move(const FVector2D& MoveInput);
 	void Server_SetDrift(bool bDriftHeld);
 	void Server_NotifyGoal();
-	void ApplyMoveInput(const FVector2D& MoveInput, bool bDriftHeld);
 	bool IsDriftInputPressed();
 	void OnRestartPressed();
 	void OnWheel(const FInputActionValue& Value);

@@ -126,8 +126,8 @@ void APlayer::OnUpdate(float DeltaTime)
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
 
-    m_accelInput = 0.0f;
-    m_slider = 0.0f;
+    //m_accelInput = 0.0f;
+    //m_slider = 0.0f;
     }
     else if (bIsLocallyControlled) {
         UpdateLocalDriftVisual(DeltaTime, speed);
@@ -245,6 +245,7 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 {
     PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
     PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Triggered, this, &APlayer::OnMove);
+    PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Completed, this, &APlayer::OnMove);
     PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Started, this, &APlayer::OnDriftPressed);
     PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Completed, this, &APlayer::OnDriftReleased);
 }
@@ -268,32 +269,33 @@ bool APlayer::IsDriftInputPressed()
 void APlayer::OnMove(const FInputActionValue& Value)
 {
     if (!CanMove || !bIsLocallyControlled) return;
-    ApplyMoveInput(Value.Axis2D, IsDriftInputPressed());
-}
-
-void APlayer::ApplyMoveInput(const FVector2D& MoveInput, bool bDriftHeld)
-{
     const FVector2D clampedInput{
-        std::clamp(MoveInput.X, -1.0f, 1.0f),
-        std::clamp(MoveInput.Y, -1.0f, 1.0f)
+        std::clamp(Value.Axis2D.X, -1.0f, 1.0f),
+        std::clamp(Value.Axis2D.Y, -1.0f, 1.0f)
     };
-
+	M_LOG("OnMove: " + std::to_string(clampedInput.X) + ", " + std::to_string(clampedInput.Y));
+    // ★重要: クライアント側でのドリフト判定やアニメーション用にローカル変数に代入
     m_accelInput = clampedInput.Y;
     m_slider = -clampedInput.X;
-    m_driftKeyPressed = bDriftHeld;
 
     if (bHasAuthority) {
-        return;
+        // 自分がサーバー(ホスト)なら直接呼ぶ
+        Server_Move(clampedInput);
     }
+    else {
+        // ★追加: 入力が(0, 0)になった時(キーを離した時)だけ到達保証(Reliable)で確実に送る
+        ENetPacketReliability reliability = (clampedInput.X == 0.0f && clampedInput.Y == 0.0f)
+            ? ENetPacketReliability::Reliable
+            : ENetPacketReliability::Unreliable;
 
-    InvokeRPC(RPC_ServerMove, ENetRPCType::Server, ENetPacketReliability::Unreliable, clampedInput, bDriftHeld);
+        InvokeRPC(RPC_ServerMove, ENetRPCType::Server, reliability, clampedInput);
+    }
 }
 
-void APlayer::Server_Move(const FVector2D& MoveInput, bool bDriftHeld)
+void APlayer::Server_Move(const FVector2D& MoveInput)
 {
     m_accelInput = std::clamp(MoveInput.Y, -1.0f, 1.0f);
     m_slider = -std::clamp(MoveInput.X, -1.0f, 1.0f);
-    m_driftKeyPressed = bDriftHeld;
 }
 
 void APlayer::Server_SetDrift(bool bDriftHeld)
@@ -349,8 +351,13 @@ void APlayer::BeginOverlap(AActor* OtherActor)
 void APlayer::OnDriftPressed()
 {
     if (!bIsLocallyControlled) return;
+
     m_driftKeyPressed = true;
-    if (!bHasAuthority) {
+
+    if (bHasAuthority) {
+        Server_SetDrift(true);
+    }
+    else {
         InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, true);
     }
 }
@@ -358,8 +365,13 @@ void APlayer::OnDriftPressed()
 void APlayer::OnDriftReleased()
 {
     if (!bIsLocallyControlled) return;
+
     m_driftKeyPressed = false;
-    if (!bHasAuthority) {
+
+    if (bHasAuthority) {
+        Server_SetDrift(false);
+    }
+    else {
         InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, false);
     }
 }
@@ -427,17 +439,28 @@ void APlayer::DrawSpeedLines(float speed)
 }
 void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed)
 {
-    const bool bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+    // ドリフト開始条件と継続条件を分離
+    bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+
+    bool bWantsDrift = bCanStartDrift;
+    if (m_isDrifting) {
+        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
+        bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    }
+
     if (bWantsDrift) {
-        if (!m_isDrifting) {
-            m_isDrifting = true;
-            m_driftGauge = 0.0f;
+        if (m_driftGauge <= 0.0f) {
+            m_driftGauge = 0.001f; // 0より少し大きくして開始の目印にする
             m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
         }
+        m_isDrifting = true;
 
-        const float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
-        if (currentDir == m_driftDirection) {
-            m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+        if (std::abs(m_slider) > 0.1f) {
+            const float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+            if (currentDir == m_driftDirection) {
+                m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+            }
         }
     }
     else {
@@ -445,9 +468,18 @@ void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed)
         m_driftGauge = 0.0f;
     }
 }
+
 void APlayer::UpdateDrift(float DeltaTime, float speed)
 {
-    bool bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed);
+    // ドリフト開始条件と継続条件を分離
+    bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+
+    bool bWantsDrift = bCanStartDrift;
+    if (m_isDrifting) {
+        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
+        bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    }
 
     if (bWantsDrift)
     {
@@ -461,15 +493,17 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
         }
 
         // ドリフト中は固定方向のステア入力のみ受け付ける
-        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
-        if (currentDir == m_driftDirection)
+        if (std::abs(m_slider) > 0.1f)
         {
-            m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
-        }
-        else
-        {
-            // 逆方向の入力は無視する（ステア自体を固定方向にする）
-            m_slider = 0.0f;
+            float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+            if (currentDir == m_driftDirection)
+            {
+                m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+            }
+            else
+            {
+                m_slider = 0.0f;
+            }
         }
 
         // ドリフト中は少し速度を落とす
@@ -490,6 +524,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
             }
             m_driftGauge = 0.0f;
         }
+
         m_isDrifting = false;
     }
 }
