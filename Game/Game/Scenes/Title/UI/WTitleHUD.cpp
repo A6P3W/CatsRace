@@ -1,8 +1,8 @@
-﻿#include "WTitleHUD.h"
+#include "WTitleHUD.h"
 #include <UITextComponent.h>
 #include <UIBoxButton.h>
 #include <SceneManager.h>
-#include "Scenes/Game/GameScene01.h"
+#include "Core/GameSceneIds.h"
 #include <Application.h>
 #include <DxLib.h>
 
@@ -16,7 +16,7 @@ WTitleHUD::WTitleHUD()
 	m_BtnStart->SetAnchoredPosition({ -400.0f, 350.0f });
 	m_BtnStart->SetParentComponent(nullptr);
 
-	auto txtStart = std::make_unique<UITextComponent>("ゲーム開始", 0xFFFFFF, 24);
+	auto txtStart = std::make_unique<UITextComponent>("Start", 0xFFFFFF, 24);
 	m_TxtStart = txtStart.get();
 	m_TxtStart->SetParentComponent(m_BtnStart);
 	m_TxtStart->SetAnchor(EUIAnchor::MiddleCenter);
@@ -34,7 +34,7 @@ WTitleHUD::WTitleHUD()
 	m_BtnQuit->SetAnchoredPosition({ 400.0f, 350.0f });
 	m_BtnQuit->SetParentComponent(nullptr);
 
-	auto txtQuit = std::make_unique<UITextComponent>("ゲーム終了", 0xFFFFFF, 24);
+	auto txtQuit = std::make_unique<UITextComponent>("Quit", 0xFFFFFF, 24);
 	m_TxtQuit = txtQuit.get();
 	m_TxtQuit->SetParentComponent(m_BtnQuit);
 	m_TxtQuit->SetAnchor(EUIAnchor::MiddleCenter);
@@ -58,7 +58,7 @@ void WTitleHUD::BeginPlay()
 
 	// Button callbacks
 	m_BtnStart->OnPressed = [this]() {
-		SceneManager::GetInstance().OpenScene<AGameScene01>();
+		SceneManager::GetInstance().OpenSceneById(GameSceneIds::Menu);
 	};
 
 	m_BtnQuit->OnPressed = [this]() {

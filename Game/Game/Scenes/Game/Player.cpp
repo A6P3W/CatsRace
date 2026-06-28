@@ -1,4 +1,4 @@
-#define NOMINMAX
+﻿#define NOMINMAX
 #include "Player.h"
 #include "InputMapper.h"
 #include "InputManager.h"
@@ -7,8 +7,10 @@
 #include "CameraComponent.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
+#include "Core/GI_main.h"
 #include <DxLib.h>
 #include "ObjectManager.h"
+#include <PlayerController.h>
 #include "MovementComponent.h"
 #include <algorithm>
 #include "CircleCollisionComponent.h"
@@ -21,8 +23,28 @@
 
 
 
+namespace
+{
+	enum : FNetworkRPCId
+	{
+		RPC_ServerMove = 1,
+		RPC_ServerSetDrift = 2,
+		RPC_ServerNotifyGoal = 3
+	};
+}
+
+REGISTER_ACTOR(APlayer)
+
 APlayer::APlayer(FVector2D location, FRotator rotation)
 {
+    bReplicates = true;
+    RegisterReplicatedProperty(&m_isDrifting);
+    RegisterReplicatedProperty(&m_driftDirection);
+    RegisterReplicatedProperty(&CanMove);
+    RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
+    RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
+    RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
+
     SetActorLocation(location);
     SetActorRotation(rotation);
 
@@ -55,7 +77,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
     auto camera = std::make_unique<MCameraComponent>();
     m_camera = camera.get();
     AddComponent(std::move(camera));
-    m_camera->SetActiveCamera();
     m_camera->SetFOV(1);
 	m_camera->SetParentComponent(m_shake);
 
@@ -69,6 +90,12 @@ APlayer::APlayer(FVector2D location, FRotator rotation)
 
 }
 
+APlayer::~APlayer()
+{
+    if (m_sound) {
+        m_sound->StopAll();
+    }
+}
 void APlayer::OnUpdate(float DeltaTime)
 {
     const float MaxSpeed = 10.0f;
@@ -79,6 +106,7 @@ void APlayer::OnUpdate(float DeltaTime)
     FVector2D v = Movement->GetVelocity();
     float speed = std::sqrt(v.SizeSquared());
 
+    if (bHasAuthority) {
     if (m_accelInput > 0.0f) {
         float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
         float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
@@ -98,8 +126,12 @@ void APlayer::OnUpdate(float DeltaTime)
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
 
-    m_accelInput = 0.0f;
-    m_slider = 0.0f;
+    //m_accelInput = 0.0f;
+    //m_slider = 0.0f;
+    }
+    else if (bIsLocallyControlled) {
+        UpdateLocalDriftVisual(DeltaTime, speed);
+    }
 
     // ---- アニメーション ----
     if (m_sprite) {
@@ -162,7 +194,7 @@ void APlayer::OnUpdate(float DeltaTime)
         DrawSpeedLines(speed);
     }
     // ---- ドリフトゲージ表示 ----
-    if (m_isDrifting)
+    if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)))
     {
         const float GaugeX = 760.0f;
         const float GaugeY = 50.0f;
@@ -200,9 +232,12 @@ void APlayer::OnUpdate(float DeltaTime)
    
 }
 
-void APlayer::OnPossesed()
+void APlayer::OnPossessedBy(APlayerController* NewController)
 {
-    m_camera->SetActiveCamera();
+    APawn::OnPossessedBy(NewController);
+    if (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)) {
+        m_camera->SetActiveCamera();
+    }
     m_camera->SetFOV(1);
 }
 
@@ -210,19 +245,91 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 {
     PlayerInputComponent->BindAction(InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed);
     PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Triggered, this, &APlayer::OnMove);
+    PlayerInputComponent->BindAction(InputAction::Move, ETriggerEvent::Completed, this, &APlayer::OnMove);
     PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Started, this, &APlayer::OnDriftPressed);
     PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Completed, this, &APlayer::OnDriftReleased);
 }
 
+bool APlayer::IsDriftInputPressed()
+{
+    bool bPressed = m_driftKeyPressed;
+    if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+        return bPressed;
+    }
+
+    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+        auto* controller = dynamic_cast<APlayerController*>(actorPtr.get());
+        if (!controller || controller->GetPawn() != this || !controller->GetInputMapper()) {
+            continue;
+        }
+        bPressed = bPressed || controller->GetInputMapper()->GetPressing("DRIFT");
+    }
+    return bPressed;
+}
 void APlayer::OnMove(const FInputActionValue& Value)
 {
-    if (!CanMove) return;
-    m_accelInput = std::clamp(Value.Axis2D.Y, -1.0f, 1.0f);
-    m_slider = -std::clamp(Value.Axis2D.X, -1.0f, 1.0f);
+    if (!CanMove || !bIsLocallyControlled) return;
+    const FVector2D clampedInput{
+        std::clamp(Value.Axis2D.X, -1.0f, 1.0f),
+        std::clamp(Value.Axis2D.Y, -1.0f, 1.0f)
+    };
+	M_LOG("OnMove: " + std::to_string(clampedInput.X) + ", " + std::to_string(clampedInput.Y));
+    // ★重要: クライアント側でのドリフト判定やアニメーション用にローカル変数に代入
+    m_accelInput = clampedInput.Y;
+    m_slider = -clampedInput.X;
+
+    if (bHasAuthority) {
+        // 自分がサーバー(ホスト)なら直接呼ぶ
+        Server_Move(clampedInput);
+    }
+    else {
+        // ★追加: 入力が(0, 0)になった時(キーを離した時)だけ到達保証(Reliable)で確実に送る
+        ENetPacketReliability reliability = (clampedInput.X == 0.0f && clampedInput.Y == 0.0f)
+            ? ENetPacketReliability::Reliable
+            : ENetPacketReliability::Unreliable;
+
+        InvokeRPC(RPC_ServerMove, ENetRPCType::Server, reliability, clampedInput);
+    }
 }
 
+void APlayer::Server_Move(const FVector2D& MoveInput)
+{
+    m_accelInput = std::clamp(MoveInput.Y, -1.0f, 1.0f);
+    m_slider = -std::clamp(MoveInput.X, -1.0f, 1.0f);
+}
+
+void APlayer::Server_SetDrift(bool bDriftHeld)
+{
+    m_driftKeyPressed = bDriftHeld;
+}
+
+void APlayer::Server_NotifyGoal()
+{
+    NotifyGoalReached();
+}
+
+void APlayer::NotifyGoalReached()
+{
+    if (bHasAuthority) {
+        if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+            gameScene->NotifyPlayerFinished(this);
+        }
+        return;
+    }
+
+    if (bIsLocallyControlled) {
+        if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+            if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+                gi->ClearTime = gameScene->GetRaceTime();
+                gi->map_id = gameScene->GetMapId();
+            }
+        }
+        InvokeRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, ENetPacketReliability::Reliable);
+    }
+}
 void APlayer::OnRestartPressed()
 {
+    if (!bIsLocallyControlled) return;
     if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
         gameScene->RestartGame();
     }
@@ -243,12 +350,30 @@ void APlayer::BeginOverlap(AActor* OtherActor)
 
 void APlayer::OnDriftPressed()
 {
+    if (!bIsLocallyControlled) return;
+
     m_driftKeyPressed = true;
+
+    if (bHasAuthority) {
+        Server_SetDrift(true);
+    }
+    else {
+        InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, true);
+    }
 }
 
 void APlayer::OnDriftReleased()
 {
+    if (!bIsLocallyControlled) return;
+
     m_driftKeyPressed = false;
+
+    if (bHasAuthority) {
+        Server_SetDrift(false);
+    }
+    else {
+        InvokeRPC(RPC_ServerSetDrift, ENetRPCType::Server, ENetPacketReliability::Reliable, false);
+    }
 }
 void APlayer::EndOverlap(AActor * OtherActor)
 {
@@ -258,9 +383,13 @@ void APlayer::EndOverlap(AActor * OtherActor)
 
 void APlayer::BeginPlay()
 {
+    if (!dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+        return;
+    }
     m_engineIdleHandle = m_sound->PlaySE("images/cat5.mp3", true);
     m_engineRunHandle = m_sound->PlaySE("images/moving-v2.mp3", true);
 }
+
 void APlayer::DrawSpeedLines(float speed)
 {
     const float MaxSpeed = 30.0f;
@@ -308,9 +437,49 @@ void APlayer::DrawSpeedLines(float speed)
         );
     }
 }
+void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed)
+{
+    // ドリフト開始条件と継続条件を分離
+    bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+
+    bool bWantsDrift = bCanStartDrift;
+    if (m_isDrifting) {
+        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
+        bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    }
+
+    if (bWantsDrift) {
+        if (m_driftGauge <= 0.0f) {
+            m_driftGauge = 0.001f; // 0より少し大きくして開始の目印にする
+            m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        }
+        m_isDrifting = true;
+
+        if (std::abs(m_slider) > 0.1f) {
+            const float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+            if (currentDir == m_driftDirection) {
+                m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+            }
+        }
+    }
+    else {
+        m_isDrifting = false;
+        m_driftGauge = 0.0f;
+    }
+}
+
 void APlayer::UpdateDrift(float DeltaTime, float speed)
 {
-    bool bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed);
+    // ドリフト開始条件と継続条件を分離
+    bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) && (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+
+    bool bWantsDrift = bCanStartDrift;
+    if (m_isDrifting) {
+        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+        // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
+        bWantsDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    }
 
     if (bWantsDrift)
     {
@@ -324,15 +493,17 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
         }
 
         // ドリフト中は固定方向のステア入力のみ受け付ける
-        float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
-        if (currentDir == m_driftDirection)
+        if (std::abs(m_slider) > 0.1f)
         {
-            m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
-        }
-        else
-        {
-            // 逆方向の入力は無視する（ステア自体を固定方向にする）
-            m_slider = 0.0f;
+            float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
+            if (currentDir == m_driftDirection)
+            {
+                m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+            }
+            else
+            {
+                m_slider = 0.0f;
+            }
         }
 
         // ドリフト中は少し速度を落とす
@@ -353,10 +524,12 @@ void APlayer::UpdateDrift(float DeltaTime, float speed)
             }
             m_driftGauge = 0.0f;
         }
+
         m_isDrifting = false;
     }
 }
 void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines) {
+    if (!bIsLocallyControlled && !(bHasAuthority && OwnerConnectionId == 0)) return;
     m_fovBase = 1.0f;
     m_fovTarget = targetFOV;
     m_fovEffectTimer = duration;
