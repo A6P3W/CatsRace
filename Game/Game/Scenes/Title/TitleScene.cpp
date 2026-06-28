@@ -27,11 +27,8 @@ void ATitleScene::BeginPlay()
 {
 	AGameModeBase::BeginPlay();
 
-	// Setup input and PlayerController for UI interaction
-	if (auto* controller = SpawnPlayer<APawn, APlayerController>({ 0, 0 }, 0)) {
-		controller->SetInputMode(EInputMode::UIOnly);
-	}
-
+	auto* controller = GetWorld()->GetOrCreateLocalPlayerController();
+	controller->SetInputMode(EInputMode::UIOnly);
 	// Spawn and add Title HUD
 	m_TitleHUD = SpawnActor<WTitleHUD>();
 	UIManager::GetInstance()->AddWidget(m_TitleHUD);

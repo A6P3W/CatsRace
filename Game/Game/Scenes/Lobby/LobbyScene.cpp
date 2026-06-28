@@ -42,7 +42,7 @@ void ALobbyScene::Draw()
 APlayerController* ALobbyScene::OnClientConnected(FNetworkConnectionId ConnectionId)
 {
 	SpawnPlayerState(ConnectionId);
-	return nullptr;
+	return AGameModeBase::OnClientConnected(ConnectionId);
 }
 
 void ALobbyScene::OnClientDisconnected(FNetworkConnectionId ConnectionId)

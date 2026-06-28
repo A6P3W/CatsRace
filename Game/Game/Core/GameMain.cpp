@@ -19,9 +19,7 @@ void SetupGame() {
 	SM.RegisterLevelPath(GameSceneIds::Lobby, "LobbyScene.BLevel");
 	SM.RegisterLevelPath(GameSceneIds::Game01, "GameScene01.BLevel");
 	SM.RegisterLevelPath(GameSceneIds::Clear, "ClearScene.BLevel");
-
-	SM.RegisterLocalPlayerControllerClass(GameSceneIds::Title, APlayerController::StaticClassName());
-	SM.RegisterLocalPlayerControllerClass(GameSceneIds::Menu, APlayerController::StaticClassName());
+	
 	SM.RegisterLocalPlayerControllerClass(GameSceneIds::Lobby, PC_Lobby::StaticClassName());
 	SM.RegisterLocalPlayerControllerClass(GameSceneIds::Game01, PC_Game::StaticClassName());
 	SM.RegisterLocalPlayerControllerClass(GameSceneIds::Clear, PC_Clear::StaticClassName());

@@ -19,12 +19,14 @@ PC_Lobby::PC_Lobby()
 void PC_Lobby::BeginPlay()
 {
 	APlayerController::BeginPlay();
-	SetInputMode(EInputMode::UIOnly);
-	SetupInputMappings();
+	if (bIsLocallyControlled) {
+		SetInputMode(EInputMode::UIOnly);
+		SetupInputMappings();
 
-	m_LobbyHUD = GetWorld()->SpawnActor<WLobbyHUD>();
-	m_LobbyHUD->SetLobbyController(this);
-	UIManager::GetInstance()->AddWidget(m_LobbyHUD);
+		m_LobbyHUD = GetWorld()->SpawnActor<WLobbyHUD>();
+		m_LobbyHUD->SetLobbyController(this);
+		UIManager::GetInstance()->AddWidget(m_LobbyHUD);
+	}
 }
 
 std::vector<ALobbyPlayerState*> PC_Lobby::GetPlayerStates()

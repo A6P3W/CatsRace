@@ -135,6 +135,10 @@ void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId)
 		if (player && player->OwnerConnectionId == ConnectionId) {
 			player->Destroy();
 		}
+		auto* pc = dynamic_cast<APlayerController*>(actorPtr.get());
+		if (pc && pc->OwnerConnectionId == ConnectionId) {
+			pc->Destroy();
+		}
 	}
 }
 
