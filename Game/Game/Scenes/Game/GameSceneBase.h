@@ -21,6 +21,10 @@ public:
 	APlayerController* OnClientConnected(FNetworkConnectionId ConnectionId) override;
 	void OnClientDisconnected(FNetworkConnectionId ConnectionId) override;
 	void BeginPlay() override;
+
+	void OnPlayerSpawned(APlayerController* Controller, APawn* Pawn, FNetworkConnectionId ConnectionId) override;
+
+
 	float GetRaceTime() const { return RaceTime; }
 	const std::string& GetMapId() const { return MapId; }
 
@@ -34,7 +38,6 @@ protected:
 	void RaceStart();
 	void ClearCountDown();
 	void LoadTopGhost();
-	APlayerController* SpawnNetworkPlayer(FNetworkConnectionId ConnectionId);
 	void SaveResult(FNetworkConnectionId ConnectionId, float FinishTime);
 	bool AreAllPlayersFinished() const;
 	void TravelToClear();

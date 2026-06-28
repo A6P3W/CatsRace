@@ -62,17 +62,40 @@ void AGameSceneBase::BeginPlay()
 {
 	AGameModeBase::BeginPlay();
 
-
-	if (GetWorld()->IsServer()) {
-		SpawnNetworkPlayer(0);
-	}
-
 	SpawnActor<ASampleA>();
 	LoadTopGhost();
 	M_LOG("Game scene initialized: {}", MapId);
 
 	if (GetWorld()->IsServer()) {
 		GetWorldTimerManager().SetTimer(CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f);
+	}
+}
+
+void AGameSceneBase::OnPlayerSpawned(APlayerController* Controller, APawn* Pawn, FNetworkConnectionId ConnectionId)
+{
+	APlayer* player = dynamic_cast<APlayer*>(Pawn);
+	if (!player) return;
+
+	// ゲーム固有のプレイヤー初期化設定
+	player->SetCanMove(RaceRunning);
+
+	if (ConnectionId == 0) {
+		auto recorder = std::make_unique<MGhostRecorderComponent>();
+		m_GhostRecorder = recorder.get();
+		player->AddComponent(std::move(recorder));
+	}
+
+	// 参加リザルト登録
+	if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+		auto existing = std::find_if(gi->multiplayer_results.begin(), gi->multiplayer_results.end(), [ConnectionId](const GI_main::FMultiplayerResult& result) {
+			return result.ConnectionId == ConnectionId;
+		});
+		if (existing == gi->multiplayer_results.end()) {
+			GI_main::FMultiplayerResult result;
+			result.ConnectionId = ConnectionId;
+			result.PlayerName = ConnectionId == 0 && !gi->player_name.empty() ? gi->player_name : ("Player " + std::to_string(ConnectionId + 1));
+			gi->multiplayer_results.push_back(result);
+		}
 	}
 }
 
@@ -122,7 +145,7 @@ void AGameSceneBase::RaceFinish()
 
 APlayerController* AGameSceneBase::OnClientConnected(FNetworkConnectionId ConnectionId)
 {
-	return SpawnNetworkPlayer(ConnectionId);
+	return AGameModeBase::OnClientConnected(ConnectionId);
 }
 
 void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId)
@@ -142,41 +165,6 @@ void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId)
 	}
 }
 
-APlayerController* AGameSceneBase::SpawnNetworkPlayer(FNetworkConnectionId ConnectionId)
-{
-	if (!FindPlayerStart(ConnectionId)) {
-		const float offset = static_cast<float>(ConnectionId) * 90.0f;
-		SpawnActor<APlayerStart>({ PlayerStartLocation.X + offset, PlayerStartLocation.Y });
-	}
-
-	APlayerController* controller = SpawnDefaultPlayer(ConnectionId);
-	APlayer* player = controller ? dynamic_cast<APlayer*>(controller->GetPawn()) : nullptr;
-	if (!player) {
-		return controller;
-	}
-
-	player->SetCanMove(RaceRunning);
-
-	if (ConnectionId == 0) {
-		auto recorder = std::make_unique<MGhostRecorderComponent>();
-		m_GhostRecorder = recorder.get();
-		player->AddComponent(std::move(recorder));
-	}
-
-	if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-		auto existing = std::find_if(gi->multiplayer_results.begin(), gi->multiplayer_results.end(), [ConnectionId](const GI_main::FMultiplayerResult& result) {
-			return result.ConnectionId == ConnectionId;
-		});
-		if (existing == gi->multiplayer_results.end()) {
-			GI_main::FMultiplayerResult result;
-			result.ConnectionId = ConnectionId;
-			result.PlayerName = ConnectionId == 0 && !gi->player_name.empty() ? gi->player_name : ("Player " + std::to_string(ConnectionId + 1));
-			gi->multiplayer_results.push_back(result);
-		}
-	}
-
-	return controller;
-}
 
 void AGameSceneBase::NotifyPlayerFinished(APlayer* Player)
 {
