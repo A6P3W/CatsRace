@@ -121,6 +121,8 @@ void APlayer::OnUpdate(float DeltaTime)
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     UpdateDrift(DeltaTime, speed);
+    UpdateDriftEffect(DeltaTime);  
+    DrawDriftEffect();             
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
     float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
@@ -537,6 +539,172 @@ void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLine
     if (m_camera) m_camera->SetFOV(targetFOV);
 
     m_isSpeedUp = showSpeedLines;
+}
+void APlayer::UpdateDriftEffect(float DeltaTime)
+{
+    // ----- タイヤ痕の生成 -----
+    if (m_isDrifting) {
+        m_skidTimer += DeltaTime;
+        if (m_skidTimer >= SkidInterval) {
+            m_skidTimer = 0.0f;
+            SpawnSkidMark();
+        }
+    }
+    else {
+        m_skidTimer = 0.0f;
+    }
+
+    // タイヤ痕フェードアウト＆削除
+    for (auto& mark : m_skidMarks) {
+        mark.Alpha -= SkidFadeSpeed * DeltaTime;
+    }
+    m_skidMarks.erase(
+        std::remove_if(m_skidMarks.begin(), m_skidMarks.end(),
+            [](const FSkidMark& m) { return m.Alpha <= 0.0f; }),
+        m_skidMarks.end()
+    );
+
+    // ----- パーティクルの生成 -----
+    if (m_isDrifting) {
+        m_particleTimer += DeltaTime;
+        if (m_particleTimer >= ParticleInterval) {
+            m_particleTimer = 0.0f;
+            SpawnDriftParticles();
+        }
+    }
+    else {
+        m_particleTimer = 0.0f;
+    }
+
+    // パーティクルの移動・寿命・サイズ更新
+    for (auto& p : m_driftParticles) {
+        p.Location = p.Location + p.Velocity * DeltaTime;
+        p.Life -= DeltaTime;
+        if (!p.IsSpark) {
+            p.Radius += 25.0f * DeltaTime; // 煙は膨らむ
+        }
+    }
+    m_driftParticles.erase(
+        std::remove_if(m_driftParticles.begin(), m_driftParticles.end(),
+            [](const FDriftParticle& p) { return p.Life <= 0.0f; }),
+        m_driftParticles.end()
+    );
+}
+
+void APlayer::SpawnSkidMark()
+{
+    // 最大300枚を超えたら古いものから削除
+    if (m_skidMarks.size() >= 300) {
+        m_skidMarks.erase(m_skidMarks.begin());
+    }
+    // 左右タイヤそれぞれ1つずつ生成
+    const float TireOffset = 18.0f;
+    for (int side : {-1, 1}) {
+        FVector2D offset = FVector2D(TireOffset * side, 10.0f)
+            .RotateVector(GetActorRotation());
+        FSkidMark mark;
+        mark.Location = GetActorLocation() + offset;
+        mark.Rotation = GetActorRotation();
+        mark.Alpha = 1.0f;
+        m_skidMarks.push_back(mark);
+    }
+}
+
+void APlayer::SpawnDriftParticles()
+{
+    static std::mt19937 rng{ std::random_device{}() };
+    std::uniform_real_distribution<float> distAngle(0.0f, 360.0f);
+    std::uniform_real_distribution<float> distSmoke(20.0f, 80.0f);
+    std::uniform_real_distribution<float> distSpark(100.0f, 280.0f);
+    std::uniform_real_distribution<float> distLife(0.25f, 0.55f);
+    std::uniform_real_distribution<float> distSparkLife(0.05f, 0.12f);
+    std::uniform_real_distribution<float> distOfs(-15.0f, 15.0f);
+
+    FVector2D base = GetActorLocation();
+
+    // 煙 2つ
+    for (int i = 0; i < 2; ++i) {
+        float a = UMath::DegToRad(distAngle(rng));
+        float s = distSmoke(rng);
+        float life = distLife(rng);
+        FDriftParticle p;
+        p.Location = { base.X + distOfs(rng), base.Y + distOfs(rng) };
+        p.Velocity = { std::cos(a) * s, std::sin(a) * s };
+        p.Life = life;
+        p.MaxLife = life;
+        p.Radius = 6.0f;
+        p.IsSpark = false;
+        m_driftParticles.push_back(p);
+    }
+
+    // 火花 3つ
+    for (int i = 0; i < 3; ++i) {
+        float a = UMath::DegToRad(distAngle(rng));
+        float s = distSpark(rng);
+        float life = distSparkLife(rng);
+        FDriftParticle p;
+        p.Location = { base.X + distOfs(rng), base.Y + distOfs(rng) };
+        p.Velocity = { std::cos(a) * s, std::sin(a) * s };
+        p.Life = life;
+        p.MaxLife = life;
+        p.Radius = 0.0f;
+        p.IsSpark = true;
+        m_driftParticles.push_back(p);
+    }
+}
+
+void APlayer::DrawDriftEffect()
+{
+    auto& rs = RenderSystem::GetInstance();
+
+    // ----- タイヤ痕 -----
+    for (const auto& mark : m_skidMarks) {
+        int alpha = static_cast<int>(mark.Alpha * 160.0f);
+        // 左右タイヤ1本ずつ細長い矩形で描画
+        // SpawnSkidMark で左右別々にLocationを生成しているので
+        // ここでは中心を基準に小さな矩形1つを置くだけでよい
+        FVector2D topLeft = FVector2D(-3.0f, -10.0f).RotateVector(mark.Rotation);
+        rs.SubmitBox(
+            mark.Location + topLeft,
+            { 6.0f, 20.0f },
+            mark.Rotation,
+            0x111111,
+            true,
+            RenderSpace::World,
+            -1,   // プレイヤースプライト(0)より後ろ
+            alpha
+        );
+    }
+
+    // ----- 煙・火花パーティクル -----
+    for (const auto& p : m_driftParticles) {
+        float lifeRatio = p.Life / p.MaxLife;
+        int alpha = static_cast<int>(lifeRatio * 190.0f);
+
+        if (p.IsSpark) {
+            // 火花：速度方向に短いラインを伸ばす
+            FVector2D tip = p.Location + p.Velocity * 0.025f;
+            rs.SubmitLine(
+                p.Location, tip,
+                0xFFCC00,        // 黄色
+                RenderSpace::World,
+                3,
+                alpha
+            );
+        }
+        else {
+            // 煙：薄いグレーの円、時間で膨らみ・薄くなる
+            rs.SubmitCircle(
+                p.Location,
+                p.Radius,
+                0xBBBBBB,        // 薄いグレー
+                true,
+                RenderSpace::World,
+                3,
+                alpha
+            );
+        }
+    }
 }
 //{
 //	if (Scale > 0) {

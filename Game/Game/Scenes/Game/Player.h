@@ -82,4 +82,29 @@ private:
 	FShakeHandle m_crashshake;
 	void BeginOverlap(AActor* OtherActor) override;
     void EndOverlap(AActor* OtherActor) override;
+    struct FSkidMark {
+        FVector2D Location;
+        FRotator  Rotation;
+        float     Alpha;
+    };
+    std::vector<FSkidMark> m_skidMarks;
+    float m_skidTimer = 0.0f;
+    static constexpr float SkidInterval = 0.03f;  // 生成間隔（秒）
+    static constexpr float SkidFadeSpeed = 0.4f;   // 1秒あたりのフェード量
+    struct FDriftParticle {
+        FVector2D Location;
+        FVector2D Velocity;
+        float     Life;
+        float     MaxLife;
+        float     Radius;
+        bool      IsSpark;
+    };
+    std::vector<FDriftParticle> m_driftParticles;
+    float m_particleTimer = 0.0f;
+    static constexpr float ParticleInterval = 0.02f; // 生成間隔（秒）
+
+    void UpdateDriftEffect(float DeltaTime);
+    void DrawDriftEffect();
+    void SpawnSkidMark();
+    void SpawnDriftParticles();
 };
