@@ -3,16 +3,14 @@
 
 class WTitleHUD;
 
-class ATitleScene : public AGameModeBase
-{
-public:
-	DEFINE_ACTOR_CLASS(ATitleScene)
+class ATitleScene : public AGameModeBase {
+ public:
+  DEFINE_ACTOR_CLASS(ATitleScene)
 
-	ATitleScene();
-	void BeginPlay() override;
-	void OnUpdate(float DeltaTime) override;
+  ATitleScene();
+  void BeginPlay() override;
+  void OnUpdate(float DeltaTime) override;
 
-private:
-	WTitleHUD* m_TitleHUD = nullptr;
+ private:
+  WTitleHUD* m_TitleHUD = nullptr;
 };
-

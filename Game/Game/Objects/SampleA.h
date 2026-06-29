@@ -4,14 +4,13 @@
 
 class MTransformComponent;
 
-class ASampleA : public AActor
-{
-public:
-    DEFINE_ACTOR_CLASS(ASampleA);
-    ASampleA(FVector2D location, FRotator rotation);
-    ~ASampleA() override;
+class ASampleA : public AActor {
+ public:
+  DEFINE_ACTOR_CLASS(ASampleA);
+  ASampleA(FVector2D location, FRotator rotation);
+  ~ASampleA() override;
 
-    void OnUpdate(float DeltaTime) override;
+  void OnUpdate(float DeltaTime) override;
 
-private:
+ private:
 };

@@ -1,42 +1,38 @@
 #include "TitleScene.h"
-#include "SpriteComponent.h"
-#include "InputManager.h"
-#include "SceneManager.h"
-#include "Scenes/Game/GameSceneBase.h"
-#include "ResourceManager.h"
-#include <KeyboardDevice.h>
+
 #include <DxLib.h>
-#include "Scenes/Title/UI/WTitleHUD.h"
-#include "UIManager.h"
+#include <KeyboardDevice.h>
+
+#include "InputManager.h"
 #include "Pawn.h"
 #include "PlayerController.h"
+#include "ResourceManager.h"
+#include "SceneManager.h"
+#include "Scenes/Game/GameSceneBase.h"
+#include "Scenes/Title/UI/WTitleHUD.h"
+#include "SpriteComponent.h"
+#include "UIManager.h"
 
 REGISTER_GAME_MODE(ATitleScene)
 
-ATitleScene::ATitleScene()
-{
-    int handle = ResourceManager::GetInstance().LoadResourceGraph("images/CatsRace.png");
-    auto imgSprite = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
-    imgSprite->SubmitGraph( handle);
-    imgSprite->SetRelativeLocation({ 960.0f, 540.0f }); 
-	imgSprite->SetWorldScale(FScale(1.5));
-    AddComponent(std::move(imgSprite));
+ATitleScene::ATitleScene() {
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("images/CatsRace.png");
+  auto imgSprite = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
+  imgSprite->SubmitGraph(handle);
+  imgSprite->SetRelativeLocation({960.0f, 540.0f});
+  imgSprite->SetWorldScale(FScale(1.5));
+  AddComponent(std::move(imgSprite));
 }
 
-void ATitleScene::BeginPlay()
-{
-	AGameModeBase::BeginPlay();
+void ATitleScene::BeginPlay() {
+  AGameModeBase::BeginPlay();
 
-	auto* controller = GetWorld()->GetOrCreateLocalPlayerController();
-	controller->SetInputMode(EInputMode::UIOnly);
-	// Spawn and add Title HUD
-	m_TitleHUD = SpawnActor<WTitleHUD>();
-	UIManager::GetInstance()->AddWidget(m_TitleHUD);
-	UIManager::GetInstance()->SetFocusedWidget(m_TitleHUD);
-
+  auto* controller = GetWorld()->GetOrCreateLocalPlayerController();
+  controller->SetInputMode(EInputMode::UIOnly);
+  // Spawn and add Title HUD
+  m_TitleHUD = SpawnActor<WTitleHUD>();
+  UIManager::GetInstance()->AddWidget(m_TitleHUD);
+  UIManager::GetInstance()->SetFocusedWidget(m_TitleHUD);
 }
 
-void ATitleScene::OnUpdate(float DeltaTime)
-{
-	(void)DeltaTime;
-}
+void ATitleScene::OnUpdate(float DeltaTime) { (void)DeltaTime; }

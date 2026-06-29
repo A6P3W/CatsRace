@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include <WidgetBase.h>
-#include <string>
+
 #include <functional>
+#include <string>
 
 enum class EOverwriteResult { Overwrite, ReEnter };
 using FOnOverwriteResult = std::function<void(EOverwriteResult)>;
@@ -10,27 +11,26 @@ class UITextComponent;
 class UIBoxButtonComponent;
 class MSpriteComponent;
 
-class WOverwriteConfirmDialog : public AWidgetBase
-{
-public:
-	DEFINE_ACTOR_CLASS(WOverwriteConfirmDialog);
-	WOverwriteConfirmDialog();
+class WOverwriteConfirmDialog : public AWidgetBase {
+ public:
+  DEFINE_ACTOR_CLASS(WOverwriteConfirmDialog);
+  WOverwriteConfirmDialog();
 
-	void SetOnResult(FOnOverwriteResult callback);
+  void SetOnResult(FOnOverwriteResult callback);
 
-protected:
-	void BeginPlay() override;
+ protected:
+  void BeginPlay() override;
 
-private:
-	FOnOverwriteResult m_Callback;
+ private:
+  FOnOverwriteResult m_Callback;
 
-	MSpriteComponent* m_BgPanel = nullptr;
-	UITextComponent* m_TitleText = nullptr;
-	UITextComponent* m_SubText = nullptr;
+  MSpriteComponent* m_BgPanel = nullptr;
+  UITextComponent* m_TitleText = nullptr;
+  UITextComponent* m_SubText = nullptr;
 
-	UIBoxButtonComponent* m_BtnOverwrite = nullptr;
-	UITextComponent* m_TxtOverwrite = nullptr;
+  UIBoxButtonComponent* m_BtnOverwrite = nullptr;
+  UITextComponent* m_TxtOverwrite = nullptr;
 
-	UIBoxButtonComponent* m_BtnReEnter = nullptr;
-	UITextComponent* m_TxtReEnter = nullptr;
+  UIBoxButtonComponent* m_BtnReEnter = nullptr;
+  UITextComponent* m_TxtReEnter = nullptr;
 };

@@ -1,21 +1,20 @@
 #pragma once
-#include "GameModeBase.h"
 #include <vector>
+
+#include "GameModeBase.h"
 
 class ALobbyPlayerState;
 
-class AClearScene : public AGameModeBase
-{
-public:
-	DEFINE_ACTOR_CLASS(AClearScene)
+class AClearScene : public AGameModeBase {
+ public:
+  DEFINE_ACTOR_CLASS(AClearScene)
 
-	AClearScene();
-	void OnUpdate(float DeltaTime) override;
+  AClearScene();
+  void OnUpdate(float DeltaTime) override;
 
-protected:
-	void BeginPlay() override;
+ protected:
+  void BeginPlay() override;
 
-private:
-	void SpawnResultStatesFromGameInstance();
+ private:
+  void SpawnResultStatesFromGameInstance();
 };
-
