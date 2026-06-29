@@ -1,29 +1,28 @@
 #pragma once
 
-#include "ActorComponent.h"
-#include "Ghost/GhostData.h"
-
 #include <string>
 #include <vector>
 
-class MGhostRecorderComponent : public MActorComponent
-{
-public:
-	void StartRecording();
-	void StopRecording();
+#include "ActorComponent.h"
+#include "Ghost/GhostData.h"
 
-	std::string GetSerializedData() const;
-	const std::vector<FGhostFrame>& GetFrames() const { return m_Frames; }
+class MGhostRecorderComponent : public MActorComponent {
+ public:
+  void StartRecording();
+  void StopRecording();
 
-protected:
-	void OnUpdate(float DeltaTime) override;
+  std::string GetSerializedData() const;
+  const std::vector<FGhostFrame>& GetFrames() const { return m_Frames; }
 
-private:
-	void CaptureFrame();
+ protected:
+  void OnUpdate(float DeltaTime) override;
 
-	static constexpr float RecordingInterval = 0.1f;
+ private:
+  void CaptureFrame();
 
-	std::vector<FGhostFrame> m_Frames;
-	float m_AccumulatedTime = 0.0f;
-	bool m_bRecording = false;
+  static constexpr float RecordingInterval = 0.1f;
+
+  std::vector<FGhostFrame> m_Frames;
+  float m_AccumulatedTime = 0.0f;
+  bool m_bRecording = false;
 };

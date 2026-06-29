@@ -1,31 +1,45 @@
 ﻿#pragma once
-#include "Actor.h"
-#include <Pawn.h>
-#include "UMath.h"
-#include <array>
 #include <EasyShakeComponent.h>
+#include <Pawn.h>
+
+#include <array>
+
+#include "Actor.h"
 #include "SoundComponent.h"
+#include "UMath.h"
 class MCameraComponent;
 class MMovementComponent;
 class MSpriteComponent;
 class MEasyShakeComponent;
 class MCircleCollisionComponent;
 
-class APlayer : public APawn
-{
-public:
-	DEFINE_ACTOR_CLASS(APlayer)
+class APlayer : public APawn {
+ public:
+  DEFINE_ACTOR_CLASS(APlayer)
 
-    APlayer(FVector2D location, FRotator rotation);
-	~APlayer() override;
+  APlayer(FVector2D location, FRotator rotation);
+  ~APlayer() override;
 
-	void OnUpdate(float DeltaTime) override;
-	void OnPossessedBy(APlayerController* NewController) override;
-	void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
-    void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
-	void SetCanMove(bool canMove) { CanMove = canMove; }
-	void NotifyGoalReached();
-    void ApplyFOVEffect(float targetFOV, float duration);
+  void OnUpdate(float DeltaTime) override;
+  void OnPossessedBy(APlayerController* NewController) override;
+  void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
+  void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
+  void SetCanMove(bool canMove) { CanMove = canMove; }
+  void NotifyGoalReached();
+  void ApplyFOVEffect(float targetFOV, float duration);
+
+ private:
+  MCameraComponent* m_camera = nullptr;
+  MEasyShakeComponent* m_shake = nullptr;
+  MMovementComponent* Movement = nullptr;
+  MSpriteComponent* m_sprite = nullptr;
+  MCircleCollisionComponent* m_collision = nullptr;
+  std::array<int, 5> m_walkAnimHandles{};
+
+ private:
+  float m_accelInput = 0.0f;
+  float m_slider = 0.0f;
+  bool m_isSpeedUp = false;
 
 private:
     MCameraComponent* m_camera = nullptr;
