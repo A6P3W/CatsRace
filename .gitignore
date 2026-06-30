@@ -370,3 +370,8 @@ Log.txt
 /Game/imgui.ini
 /Game/vcpkg_installed/
 *..repoignore
+
+# CMake & vcpkg
+*build/
+/vcpkg_installed/
+/AGS_2026_Summer.code-workspace
