@@ -7,4 +7,3 @@
     "-DVCPKG_TARGET_TRIPLET=x64-windows-static-md"
   ]
 }
-

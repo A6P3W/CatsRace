@@ -12,26 +12,21 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
       }
-
-
     }
   ],
   "buildPresets": [
     {
       "name": "Debug",
-      "displayName": "Debug",
       "configurePreset": "windows-default",
       "configuration": "Debug"
     },
     {
       "name": "Editor",
-      "displayName": "Editor",
       "configurePreset": "windows-default",
       "configuration": "Editor"
     },
     {
       "name": "Release",
-      "displayName": "Release",
       "configurePreset": "windows-default",
       "configuration": "Release"
     }
