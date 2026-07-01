@@ -15,11 +15,11 @@
 void SetupGame() {
   auto& SM = SceneManager::GetInstance();
   SM.SetGameInstance<GI_main>();
-  SM.RegisterLevelPath(GameSceneIds::Title, "TitleScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Menu, "MenuScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Lobby, "LobbyScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Game01, "GameScene01.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Clear, "ClearScene.BLevel");
+  SM.RegisterLevelPath(GameSceneIds::Title, "Resources/TitleScene.BLevel");
+  SM.RegisterLevelPath(GameSceneIds::Menu, "Resources/MenuScene.BLevel");
+  SM.RegisterLevelPath(GameSceneIds::Lobby, "Resources/LobbyScene.BLevel");
+  SM.RegisterLevelPath(GameSceneIds::Game01, "Resources/GameScene01.BLevel");
+  SM.RegisterLevelPath(GameSceneIds::Clear, "Resources/ClearScene.BLevel");
 
   SM.RegisterLocalPlayerControllerClass(GameSceneIds::Lobby, PC_Lobby::StaticClassName());
   SM.RegisterLocalPlayerControllerClass(GameSceneIds::Game01, PC_Game::StaticClassName());

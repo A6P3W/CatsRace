@@ -49,32 +49,36 @@ endif()
 
 
 
-# ビルド後にアセットファイルを実行ファイル出力先へ自動コピーする設定
-# Resources ディレクトリ直下の特定の拡張子（.BLevel, .json, .mp3）およびGame直下の.jsonを持つアセットを自動検出
-file(GLOB GAME_ASSET_FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.BLevel"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.json"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*.mp3"
-  "${CMAKE_CURRENT_SOURCE_DIR}/*.json"
-)
-
-# ファイルの自動コピー
-foreach(ASSET_PATH ${GAME_ASSET_FILES})
-  get_filename_component(ASSET_NAME "${ASSET_PATH}" NAME)
-  add_custom_command(
-    TARGET Game POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      "${ASSET_PATH}"
-      "$<TARGET_FILE_DIR:Game>/${ASSET_NAME}"
-    COMMENT "Copying ${ASSET_NAME} to output directory"
-  )
-endforeach()
-
-# imagesフォルダ全体の自動コピー
+# ビルド後にアセットディレクトリ全体を実行ファイル出力先へ自動コピーする設定
 add_custom_command(
   TARGET Game POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_CURRENT_SOURCE_DIR}/Resources/images"
-    "$<TARGET_FILE_DIR:Game>/images"
-  COMMENT "Copying images directory to output directory"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+    "$<TARGET_FILE_DIR:Game>/Resources"
+  COMMENT "Copying Resources directory to output directory"
+)
+
+# Game直下にある特定の.jsonファイルを実行ファイル出力先へ自動コピーする設定
+file(GLOB GAME_ROOT_JSON
+  "${CMAKE_CURRENT_SOURCE_DIR}/*.json"
+)
+
+foreach(JSON_PATH ${GAME_ROOT_JSON})
+  get_filename_component(JSON_NAME "${JSON_PATH}" NAME)
+  add_custom_command(
+    TARGET Game POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${JSON_PATH}"
+      "$<TARGET_FILE_DIR:Game>/${JSON_NAME}"
+    COMMENT "Copying ${JSON_NAME} to output directory"
+  )
+endforeach()
+
+# EOS SDK DLLのコピー
+add_custom_command(
+  TARGET Game POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/../BroccoliEngine/Engine/ThirdParty/EOS/SDK/Bin/EOSSDK-Win64-Shipping.dll"
+    "$<TARGET_FILE_DIR:Game>/EOSSDK-Win64-Shipping.dll"
+  COMMENT "Copying EOS SDK DLL to output directory"
 )
