@@ -2,6 +2,8 @@
 
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "EOSCoreManager.h"
+#include "PrivateConfig/EOS_ProductCredentials.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/PC_Clear.h"
@@ -11,8 +13,8 @@
 #include "Scenes/Lobby/PC_Lobby.h"
 #include "Scenes/Menu/MenuScene.h"
 #include "Scenes/Title/TitleScene.h"
-
 void SetupGame() {
+  EOSCoreManager::Get().InitializeOnlineServices<SampleConstants>();
   auto& SM = SceneManager::GetInstance();
   SM.SetGameInstance<GI_main>();
   SM.RegisterLevelPath(GameSceneIds::Title, "Resources/TitleScene.BLevel");
