@@ -16,7 +16,7 @@
 REGISTER_GAME_MODE(ATitleScene)
 
 ATitleScene::ATitleScene() {
-  int handle = ResourceManager::GetInstance().LoadResourceGraph("images/CatsRace.png");
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/CatsRace.png");
   auto imgSprite = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
   imgSprite->SubmitGraph(handle);
   imgSprite->SetRelativeLocation({960.0f, 540.0f});

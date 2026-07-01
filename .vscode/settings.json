@@ -1,0 +1,9 @@
+{
+  "cmake.debugConfig": {
+    "cwd": "${command:cmake.launchTargetDirectory}"
+  },
+  "cmake.generatorPlatform": "x64",
+  "cmake.configureArgs": [
+    "-DVCPKG_TARGET_TRIPLET=x64-windows-static-md"
+  ]
+}

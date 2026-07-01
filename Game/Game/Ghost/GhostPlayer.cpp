@@ -15,7 +15,8 @@ AGhostPlayer::AGhostPlayer(FVector2D location, FRotator rotation) {
   SetActorScale(FScale(0.4f));
   m_UserIdFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
-  const int handle = ResourceManager::GetInstance().LoadResourceGraph("images/cat_walk_1.png");
+  const int handle =
+      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_1.png");
   auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
   m_SpriteComponent = sprite.get();
   if (handle != -1) {

@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-default",
+      "displayName": "Windows x64 (MSVC)",
+      "description": "Windows x64 MSVC Generator with vcpkg toolchain",
+      "generator": "Visual Studio 18 2026",
+      "toolset": "host=x64",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Debug",
+      "configurePreset": "windows-default",
+      "configuration": "Debug"
+    },
+    {
+      "name": "Editor",
+      "configurePreset": "windows-default",
+      "configuration": "Editor"
+    },
+    {
+      "name": "Release",
+      "configurePreset": "windows-default",
+      "configuration": "Release"
+    }
+  ]
+}
