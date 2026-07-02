@@ -3,7 +3,6 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EOSCoreManager.h"
-#include "PrivateConfig/EOS_ProductCredentials.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/PC_Clear.h"
@@ -14,7 +13,7 @@
 #include "Scenes/Menu/MenuScene.h"
 #include "Scenes/Title/TitleScene.h"
 void SetupGame() {
-  EOSCoreManager::Get().InitializeOnlineServices<SampleConstants>();
+  EOSCoreManager::Get().InitializeOnlineServices();
   auto& SM = SceneManager::GetInstance();
   SM.SetGameInstance<GI_main>();
   SM.RegisterLevelPath(GameSceneIds::Title, "Resources/TitleScene.BLevel");
@@ -22,10 +21,6 @@ void SetupGame() {
   SM.RegisterLevelPath(GameSceneIds::Lobby, "Resources/LobbyScene.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Game01, "Resources/GameScene01.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Clear, "Resources/ClearScene.BLevel");
-
-  SM.RegisterLocalPlayerControllerClass(GameSceneIds::Lobby, PC_Lobby::StaticClassName());
-  SM.RegisterLocalPlayerControllerClass(GameSceneIds::Game01, PC_Game::StaticClassName());
-  SM.RegisterLocalPlayerControllerClass(GameSceneIds::Clear, PC_Clear::StaticClassName());
 
   SM.OpenSceneById(GameSceneIds::Title);
   SetMouseDispFlag(1);
