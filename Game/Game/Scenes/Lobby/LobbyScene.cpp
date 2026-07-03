@@ -5,7 +5,7 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "NetworkManager.h"
-#include "ObjectManager.h"
+#include "ActorManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
