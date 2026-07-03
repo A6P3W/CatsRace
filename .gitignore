@@ -375,3 +375,4 @@ Log.txt
 *build/
 /vcpkg_installed/
 /AGS_2026_Summer.code-workspace
+/Game/Game/PrivateConfig
