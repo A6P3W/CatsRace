@@ -143,7 +143,7 @@ void PC_Game::ReturnToTitle() {
     }
   } else {
     NetworkManager::GetInstance().Disconnect();
-    SceneManager::GetInstance().OpenSceneById(GameSceneIds::Title);
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Title);
   }
 }
 

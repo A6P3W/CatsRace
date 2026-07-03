@@ -136,7 +136,7 @@ bool AMenuScene::StartHost() {
   }
 
   GetWorld()->SetNetMode(ENetMode::ListenServer);
-  if (!SceneManager::GetInstance().OpenSceneById(GameSceneIds::Lobby, ENetMode::ListenServer)) {
+  if (!SceneManager::GetInstance().OpenLevelById(GameSceneIds::Lobby, ENetMode::ListenServer)) {
     StatusMessage = "Failed to open lobby scene.";
     return false;
   }

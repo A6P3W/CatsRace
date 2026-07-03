@@ -62,7 +62,7 @@ void WTitleHUD::BeginPlay() {
 
   // Button callbacks
   m_BtnStart->OnPressed = [this]() {
-    SceneManager::GetInstance().OpenSceneById(GameSceneIds::Menu);
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
   };
 
   m_BtnQuit->OnPressed = [this]() { Application::QuitGame(); };

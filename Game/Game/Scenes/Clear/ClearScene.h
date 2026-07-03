@@ -16,5 +16,4 @@ class AClearScene : public AGameModeBase {
   void BeginPlay() override;
 
  private:
-  void SpawnResultStatesFromGameInstance();
 };

@@ -22,6 +22,6 @@ void SetupGame() {
   SM.RegisterLevelPath(GameSceneIds::Game01, "Resources/GameScene01.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Clear, "Resources/ClearScene.BLevel");
 
-  SM.OpenSceneById(GameSceneIds::Title);
+  SM.OpenLevelById(GameSceneIds::Title);
   SetMouseDispFlag(1);
 }

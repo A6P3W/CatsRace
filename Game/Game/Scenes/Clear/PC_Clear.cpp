@@ -5,7 +5,7 @@
 #include <imgui.h>
 
 #include <algorithm>
-
+#include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "InputManager.h"
@@ -37,7 +37,7 @@ void PC_Clear::BeginPlay() {
 
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   float clearTime = gi ? gi->ClearTime : 0.0f;
-
+  SpawnResultStatesFromGameInstance();
   m_ClearHUD = GetWorld()->SpawnActor<WClearHUD>();
   UIManager::GetInstance()->AddWidget(m_ClearHUD);
 
@@ -51,6 +51,32 @@ void PC_Clear::BeginPlay() {
 
     // Start name registration flow
     ShowNameFlow();
+  }
+}
+
+void PC_Clear::SpawnResultStatesFromGameInstance() {
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi) {
+    return;
+  }
+
+  if (gi->multiplayer_results.empty()) {
+    GI_main::FMultiplayerResult result;
+    result.ConnectionId = 0;
+    result.PlayerName = gi->player_name.empty() ? gi->user_id : gi->player_name;
+    result.bFinished = true;
+    result.FinishTime = gi->ClearTime;
+    gi->multiplayer_results.push_back(result);
+  }
+
+  for (const auto& result : gi->multiplayer_results) {
+    auto* state = GetWorld()->SpawnActor<ALobbyPlayerState>();
+    state->OwnerConnectionId = result.ConnectionId;
+    state->bReplicates = true;
+    state->bHasAuthority = true;
+    state->bIsLocallyControlled = result.ConnectionId == 0;
+    state->SetPlayerName(result.PlayerName);
+    state->SetFinishResult(result.bFinished, result.FinishTime);
   }
 }
 

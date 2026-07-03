@@ -23,7 +23,7 @@
 #include "Ghost/GhostPlayer.h"
 #include "Ghost/GhostRecorderComponent.h"
 #include "Log.h"
-#include "ObjectManager.h"
+#include "ActorManager.h"
 #include "Objects/SampleA.h"
 #include "PC_Game.h"
 #include "ResourceManager.h"
@@ -283,5 +283,5 @@ void AGameSceneBase::RaceStart() {
 void AGameSceneBase::RestartGame() { OpenCurrentScene(); }
 
 void AGameSceneBase::ReturnToTitle() {
-  SceneManager::GetInstance().OpenSceneById(GameSceneIds::Menu);
+  SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
 }
