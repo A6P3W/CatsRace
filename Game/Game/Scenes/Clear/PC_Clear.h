@@ -29,6 +29,7 @@ class PC_Clear : public APlayerController {
   void ExecutePostScore(const std::string& name);
   void FetchAndDisplay();
   void ShowPostGameDialog();
+  void SpawnResultStatesFromGameInstance();
 
   std::vector<ALobbyPlayerState*> GetResultStates();
 
