@@ -35,13 +35,8 @@
 #include "Scenes/Title/TitleScene.h"
 #include "Services/LeaderBoardManager.h"
 #include "UMath.h"
-
 AGameSceneBase::AGameSceneBase(
-    std::string mapId, std::string levelFileName, FVector2D playerStartLocation
-)
-    : MapId(std::move(mapId)),
-      LevelFileName(std::move(levelFileName)),
-      PlayerStartLocation(playerStartLocation) {
+) {
   DefaultPawnClass = APlayer::StaticClassName();
   DefaultPlayerControllerClass = PC_Game::StaticClassName();
 }

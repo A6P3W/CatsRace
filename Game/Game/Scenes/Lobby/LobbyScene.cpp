@@ -132,5 +132,5 @@ void ALobbyScene::StartGame() {
   }
   const auto states = GetPlayerStates();
   SaveLobbyResultsToGameInstance(states);
-  GetWorld()->ServerTravel(SelectedGameSceneId == 0 ? GameSceneIds::Game01 : SelectedGameSceneId);
+  GetWorld()->ServerTravel(GameSceneIds::Game02);
 }
