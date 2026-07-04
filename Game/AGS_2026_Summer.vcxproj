@@ -33,6 +33,7 @@
     <ClCompile Include="Game\Scenes\Lobby\PC_Lobby.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\LobbyScene.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\UI\WLobbyHUD.cpp" />
+    <ClCompile Include="Game\Scenes\Lobby\UI\WMapSelectDialog.cpp" />
     <ClCompile Include="Game\Scenes\Menu\MenuScene.cpp" />
     <ClCompile Include="Game\Scenes\Common\ImGuiHelper.cpp" />
     <ClCompile Include="Game\Core\GameMain.cpp" />
@@ -68,9 +69,11 @@
     <ClInclude Include="Game\Scenes\Lobby\PC_Lobby.h" />
     <ClInclude Include="Game\Scenes\Lobby\LobbyScene.h" />
     <ClInclude Include="Game\Scenes\Lobby\UI\WLobbyHUD.h" />
+    <ClInclude Include="Game\Scenes\Lobby\UI\WMapSelectDialog.h" />
     <ClInclude Include="Game\Scenes\Menu\MenuScene.h" />
     <ClInclude Include="Game\Scenes\Common\ImGuiHelper.h" />
     <ClInclude Include="Game\Core\GameSceneIds.h" />
+    <ClInclude Include="Game\Core\MapData.h" />
     <ClInclude Include="Game\Scenes\Game\GameSceneBase.h" />
     <ClInclude Include="Game\Scenes\Game\GameScene01.h" />
     <ClInclude Include="Game\Core\GI_main.h" />

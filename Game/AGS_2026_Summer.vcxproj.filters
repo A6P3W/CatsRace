@@ -108,6 +108,9 @@
     <ClCompile Include="Game\Scenes\Lobby\UI\WLobbyHUD.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Scenes\Lobby\UI\WMapSelectDialog.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Game\Scenes\Lobby\LobbyPlayerState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -203,6 +206,9 @@
     <ClInclude Include="Game\Core\GameSceneIds.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Core\MapData.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="Game\Scenes\Common\ImGuiHelper.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -213,6 +219,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\UI\WLobbyHUD.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\Lobby\UI\WMapSelectDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\LobbyPlayerState.h">
