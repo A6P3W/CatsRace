@@ -3,15 +3,18 @@
 #include <Pawn.h>
 
 #include <array>
+#include <unordered_map>
 
 #include "Actor.h"
 #include "SoundComponent.h"
 #include "UMath.h"
+
 class MCameraComponent;
 class MMovementComponent;
 class MSpriteComponent;
 class MEasyShakeComponent;
 class MCircleCollisionComponent;
+class ASlowFloor2;  // ← 前方宣言をここに移動
 
 class APlayer : public APawn {
  public:
@@ -26,7 +29,8 @@ class APlayer : public APawn {
   void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
   void SetCanMove(bool canMove) { CanMove = canMove; }
   void NotifyGoalReached();
-  void ApplyFOVEffect(float targetFOV, float duration);
+  void AddSlowSource(ASlowFloor2* source, float strength);
+  void RemoveSlowSource(ASlowFloor2* source);
 
  private:
   MCameraComponent* m_camera = nullptr;
@@ -36,7 +40,6 @@ class APlayer : public APawn {
   MCircleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
 
- private:
   float m_accelInput = 0.0f;
   float m_slider = 0.0f;
   bool m_isSpeedUp = false;
@@ -55,35 +58,25 @@ class APlayer : public APawn {
   float m_fovBase = 1.0f;
   bool m_isDrifting = false;
   bool m_driftKeyPressed = false;
-  void OnDriftPressed();
-  void OnDriftReleased();
-  float m_driftGauge = 0.0f;      // ドリフト中に溜まる量
-  float m_driftDirection = 0.0f;  // ドリフト方向(-1 or 1)
+  float m_driftGauge = 0.0f;
+  float m_driftDirection = 0.0f;
   const float MaxDriftGauge = 30.0f;
-  const float DriftSteerMultiplier = 1.0f;  // ドリフト中のステア倍率
-  const float DriftMinSpeed = 3.0f;         // ドリフト開始に必要な最低速度
-  const float DriftBoostForce = 20.0f;      // ブースト力
-  void UpdateDrift(float DeltaTime, float speed);
-  void UpdateLocalDriftVisual(float DeltaTime, float speed);
-  void OnMove(const FInputActionValue& Value);
-  void Server_Move(const FVector2D& MoveInput);
-  void Server_SetDrift(bool bDriftHeld);
-  void Server_NotifyGoal();
-  bool IsDriftInputPressed();
-  void OnRestartPressed();
-  void OnWheel(const FInputActionValue& Value);
-  void BeginPlay();
-  void DrawSpeedLines(float speed);
+  const float DriftSteerMultiplier = 1.0f;
+  const float DriftMinSpeed = 3.0f;
+  const float DriftBoostForce = 20.0f;
+
   MSoundComponent* m_sound = nullptr;
-  int m_engineIdleHandle = -1;  // 停止時
-  int m_engineRunHandle = -1;   // 走行時
+  int m_engineIdleHandle = -1;
+  int m_engineRunHandle = -1;
   float m_spriteTiltAngle = 0.0f;
-  const float MaxDriftTiltAngle = 20.0f;  // ドリフト中の最大傾き角度
-  const float TiltLerpSpeed = 8.0f;       // 傾きの補間速度
+  const float MaxDriftTiltAngle = 20.0f;
+  const float TiltLerpSpeed = 8.0f;
   bool CanMove = false;
   FShakeHandle m_crashshake;
-  void BeginOverlap(AActor* OtherActor) override;
-  void EndOverlap(AActor* OtherActor) override;
+
+  // ---- スピードダウン管理 ----
+  std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
+
   struct FSkidMark {
     FVector2D Location;
     FRotator Rotation;
@@ -91,8 +84,9 @@ class APlayer : public APawn {
   };
   std::vector<FSkidMark> m_skidMarks;
   float m_skidTimer = 0.0f;
-  static constexpr float SkidInterval = 0.03f;  // 生成間隔（秒）
-  static constexpr float SkidFadeSpeed = 0.4f;  // 1秒あたりのフェード量
+  static constexpr float SkidInterval = 0.03f;
+  static constexpr float SkidFadeSpeed = 0.4f;
+
   struct FDriftParticle {
     FVector2D Location;
     FVector2D Velocity;
@@ -103,10 +97,25 @@ class APlayer : public APawn {
   };
   std::vector<FDriftParticle> m_driftParticles;
   float m_particleTimer = 0.0f;
-  static constexpr float ParticleInterval = 0.02f;  // 生成間隔（秒）
+  static constexpr float ParticleInterval = 0.02f;
 
+  void OnDriftPressed();
+  void OnDriftReleased();
+  void UpdateDrift(float DeltaTime, float speed);
+  void UpdateLocalDriftVisual(float DeltaTime, float speed);
+  void OnMove(const FInputActionValue& Value);
+  void Server_Move(const FVector2D& MoveInput);
+  void Server_SetDrift(bool bDriftHeld);
+  void Server_NotifyGoal();
+  bool IsDriftInputPressed();
+  void OnRestartPressed();
+  void OnWheel(const FInputActionValue& Value);
+  void BeginPlay();
+  void DrawSpeedLines(float speed);  
   void UpdateDriftEffect(float DeltaTime);
   void DrawDriftEffect();
   void SpawnSkidMark();
   void SpawnDriftParticles();
+  void BeginOverlap(AActor* OtherActor) override;
+  void EndOverlap(AActor* OtherActor) override;
 };

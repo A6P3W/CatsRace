@@ -23,6 +23,7 @@
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "SpriteComponent.h"
+#include "Objects/Items/SpeedDownstage.h"
 
 namespace {
 enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3 };
@@ -103,14 +104,26 @@ void APlayer::OnUpdate(float DeltaTime) {
   float speed = std::sqrt(v.SizeSquared());
 
   if (bHasAuthority) {
-    if (m_accelInput > 0.0f) {
-      float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
-      float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
-      Movement->AddLocalForce({0.0f, -force});
-    } else if (m_accelInput < 0.0f) {
-      float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
-      float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
-      Movement->AddLocalForce({0.0f, force});
+
+      if (!m_slowSources.empty()) {
+      float strongest = 1.0f;
+      for (auto& [src, strength] : m_slowSources) {
+        if (strength < strongest) {  // 値が小さいほど強い減速
+          strongest = strength;
+        }
+      }
+      float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
+      Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
+      }
+      if (m_accelInput > 0.0f) {
+        float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+        float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
+        Movement->AddLocalForce({0.0f, -force});
+      } else if (m_accelInput < 0.0f) {
+        float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
+        float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
+        Movement->AddLocalForce({0.0f, force});
+  
     }
     // ---- ステアリング ----
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
@@ -348,6 +361,9 @@ void APlayer::OnWheel(const FInputActionValue& Value) {
 
 void APlayer::BeginOverlap(AActor* OtherActor) {
   M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
+  if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
   m_shake->StartShake(m_crashshake, {45, 45}, 2011);
   m_accelInput *= 0.5f;
 }
@@ -377,6 +393,11 @@ void APlayer::OnDriftReleased() {
 }
 void APlayer::EndOverlap(AActor* OtherActor) {
   M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
+
+  if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
+
   m_shake->EndShake(m_crashshake, false);
 }
 
@@ -588,7 +609,6 @@ void APlayer::UpdateDriftEffect(float DeltaTime) {
 }
 
 void APlayer::SpawnSkidMark() {
-  // 最大300枚を超えたら古いものから削除
   if (m_skidMarks.size() >= 300) {
     m_skidMarks.erase(m_skidMarks.begin());
   }
@@ -652,9 +672,6 @@ void APlayer::DrawDriftEffect() {
   // ----- タイヤ痕 -----
   for (const auto& mark : m_skidMarks) {
     int alpha = static_cast<int>(mark.Alpha * 160.0f);
-    // 左右タイヤ1本ずつ細長い矩形で描画
-    // SpawnSkidMark で左右別々にLocationを生成しているので
-    // ここでは中心を基準に小さな矩形1つを置くだけでよい
     FVector2D topLeft = FVector2D(-3.0f, -10.0f).RotateVector(mark.Rotation);
     rs.SubmitBox(
         mark.Location + topLeft,
@@ -663,7 +680,7 @@ void APlayer::DrawDriftEffect() {
         0x111111,
         true,
         RenderSpace::World,
-        -1,  // プレイヤースプライト(0)より後ろ
+        -1,
         alpha
     );
   }
@@ -674,30 +691,20 @@ void APlayer::DrawDriftEffect() {
     int alpha = static_cast<int>(lifeRatio * 190.0f);
 
     if (p.IsSpark) {
-      // 火花：速度方向に短いラインを伸ばす
       FVector2D tip = p.Location + p.Velocity * 0.025f;
-      rs.SubmitLine(
-          p.Location,
-          tip,
-          0xFFCC00,  // 黄色
-          RenderSpace::World,
-          3,
-          alpha
-      );
+      rs.SubmitLine(p.Location, tip, 0xFFCC00, RenderSpace::World, 3, alpha);
     } else {
-      // 煙：薄いグレーの円、時間で膨らみ・薄くなる
-      rs.SubmitCircle(
-          p.Location,
-          p.Radius,
-          0xBBBBBB,  // 薄いグレー
-          true,
-          RenderSpace::World,
-          3,
-          alpha
-      );
+      rs.SubmitCircle(p.Location, p.Radius, 0xBBBBBB, true, RenderSpace::World, 3, alpha);
     }
   }
 }
+
+void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
+  m_slowSources[source] = strength;
+}
+
+void APlayer::RemoveSlowSource(ASlowFloor2* source) { m_slowSources.erase(source); }
+
 //{
 //	if (Scale > 0) {
 //		m_movement->AddLocalForce({ 0.0f, -2.0f });
