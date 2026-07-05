@@ -43,7 +43,7 @@
     <ClCompile Include="Game\Objects\SampleA.cpp" />
     <ClCompile Include="Game\Scenes\Game\Goal.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp" />
-    <ClCompile Include="Game\Scenes\Title\TitleScene.cpp" />
+    <ClCompile Include="Game\Scenes\Loading\LoadingScene.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp" />
     <ClCompile Include="Game\Scenes\Game\UI\WCountDown.cpp" />
     <ClCompile Include="Game\Scenes\Game\UI\WMainHUD.cpp" />
@@ -55,7 +55,7 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp" />
     <ClCompile Include="Game\Scenes\Clear\UI\WRankEntryComponent.cpp" />
-    <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp" />
+    <ClCompile Include="Game\Scenes\Menu\UI\MenuWidgets.cpp" />
     <ClCompile Include="Game\Scenes\Game\PC_Game.cpp" />
     <ClCompile Include="Game\Ghost\GhostData.cpp" />
     <ClCompile Include="Game\Ghost\GhostPlayer.cpp" />
@@ -82,7 +82,7 @@
     <ClInclude Include="Game\Objects\SampleA.h" />
     <ClInclude Include="Game\Scenes\Game\Goal.h" />
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h" />
-    <ClInclude Include="Game\Scenes\Title\TitleScene.h" />
+    <ClInclude Include="Game\Scenes\Loading\LoadingScene.h" />
     <ClInclude Include="Game\Objects\Items\SpeedDown.h" />
     <ClInclude Include="Game\Scenes\Game\UI\WCountDown.h" />
     <ClInclude Include="Game\Scenes\Game\UI\WMainHUD.h" />
@@ -94,7 +94,7 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WOverwriteConfirmDialog.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h" />
     <ClInclude Include="Game\Scenes\Clear\UI\WRankEntryComponent.h" />
-    <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h" />
+    <ClInclude Include="Game\Scenes\Menu\UI\MenuWidgets.h" />
     <ClInclude Include="Game\Scenes\Game\PC_Game.h" />
     <ClInclude Include="Game\Ghost\GhostData.h" />
     <ClInclude Include="Game\Ghost\GhostPlayer.h" />

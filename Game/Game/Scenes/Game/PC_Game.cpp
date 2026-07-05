@@ -1,4 +1,4 @@
-#include "PC_Game.h"
+﻿#include "PC_Game.h"
 
 #include <DxLib.h>
 
@@ -143,7 +143,7 @@ void PC_Game::ReturnToTitle() {
     }
   } else {
     NetworkManager::GetInstance().Disconnect();
-    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Title);
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
   }
 }
 
