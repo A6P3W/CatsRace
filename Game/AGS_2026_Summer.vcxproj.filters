@@ -42,7 +42,7 @@
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Scenes\Title\TitleScene.cpp">
+    <ClCompile Include="Game\Scenes\Loading\LoadingScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp">
@@ -78,7 +78,7 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp">
+    <ClCompile Include="Game\Scenes\Menu\UI\MenuWidgets.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\Game\PC_Game.cpp">
@@ -143,7 +143,7 @@
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Scenes\Title\TitleScene.h">
+    <ClInclude Include="Game\Scenes\Loading\LoadingScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\Items\SpeedDown.h">
@@ -185,7 +185,7 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h">
+    <ClInclude Include="Game\Scenes\Menu\UI\MenuWidgets.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Game\PC_Game.h">

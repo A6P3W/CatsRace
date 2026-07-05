@@ -6,6 +6,11 @@
 #include "EOSTypes.h"
 #include "GameModeBase.h"
 
+class AWidgetBase;
+class WCreateLobbyWidget;
+class WMainMenuWidget;
+class WSearchLobbyWidget;
+
 class AMenuScene : public AGameModeBase {
  public:
   DEFINE_ACTOR_CLASS(AMenuScene)
@@ -13,12 +18,18 @@ class AMenuScene : public AGameModeBase {
   AMenuScene();
   void BeginPlay() override;
   void OnUpdate(float DeltaTime) override;
-  void Draw() override;
 
  private:
+  enum class EMenuState { MainMenu, CreateLobby, SearchLobby };
+
+  void ShowMenuState(EMenuState NewState);
+  void CloseActiveWidget();
+  void UpdateActiveWidget();
+  void UpdateActiveStatus();
+  std::string BuildStatusText() const;
+
   bool StartHost();
   bool ConnectToHost();
-  void LoginWithDeviceId();
   void CreateOnlineLobby();
   void SearchOnlineLobbies();
   void JoinSelectedOnlineLobby();
@@ -28,11 +39,18 @@ class AMenuScene : public AGameModeBase {
 
   char PlayerName[64] = "Player";
   char ServerAddress[64] = "127.0.0.1";
+  std::string LobbyName = "Player Lobby";
   int Port = 7777;
   int OnlineLobbyMaxMembers = 4;
   int OnlineSearchMaxResults = 10;
   int SelectedOnlineLobbyIndex = -1;
   std::vector<FLobbyInfo> OnlineSearchResults;
   std::string StatusMessage = "Create or join a multiplayer session.";
-  std::string OnlineStatusMessage = "Login to use EOS LAN lobbies.";
+  std::string OnlineStatusMessage = "Online services are ready.";
+
+  EMenuState CurrentState = EMenuState::MainMenu;
+  AWidgetBase* ActiveWidget = nullptr;
+  WMainMenuWidget* MainMenuWidget = nullptr;
+  WCreateLobbyWidget* CreateLobbyWidget = nullptr;
+  WSearchLobbyWidget* SearchLobbyWidget = nullptr;
 };

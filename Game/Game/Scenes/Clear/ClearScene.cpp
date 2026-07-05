@@ -1,4 +1,4 @@
-#include "ClearScene.h"
+﻿#include "ClearScene.h"
 
 #include <DxLib.h>
 #include <KeyboardDevice.h>
@@ -15,7 +15,6 @@
 #include "Scenes/Game/GameScene01.h"
 #include "Scenes/Game/Player.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
-#include "Scenes/Title/TitleScene.h"
 #include "Services/LeaderBoardManager.h"
 #include "SpriteComponent.h"
 #include "UI/WClearHUD.h"
