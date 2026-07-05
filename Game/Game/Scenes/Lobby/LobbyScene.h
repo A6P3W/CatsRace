@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include <string>
 #include <vector>
 
 #include "GameModeBase.h"
@@ -33,6 +34,6 @@ class ALobbyScene : public AGameModeBase {
   void StartGame();
 
   int MaxPlayers = 4;
-  FNetworkSceneId SelectedGameSceneId = 10;
+  std::string SelectedLevelPath;
   PC_Lobby* m_LobbyPlayerController = nullptr;
 };

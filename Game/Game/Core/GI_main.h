@@ -1,9 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <GameInstance.h>
 #include <NetworkTypes.h>
 
 #include <string>
 #include <vector>
+
+#include "Core/MapData.h"
 
 class GI_main : public GameInstance {
  public:
@@ -21,6 +23,6 @@ class GI_main : public GameInstance {
 
   std::string player_name = "Player";
   std::string last_server_ip = "127.0.0.1";
-  FNetworkSceneId last_game_scene_id = 10;
+  std::string last_level_path = AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
   std::vector<FMultiplayerResult> multiplayer_results;
 };

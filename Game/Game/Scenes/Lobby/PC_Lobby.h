@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 
+#include <string>
 #include <vector>
 
 #include "NetworkTypes.h"
@@ -8,6 +9,7 @@
 class ALobbyPlayerState;
 class ALobbyScene;
 class WLobbyHUD;
+class WMapSelectDialog;
 
 class PC_Lobby : public APlayerController {
  public:
@@ -20,16 +22,19 @@ class PC_Lobby : public APlayerController {
   ALobbyPlayerState* FindHostPlayerState();
   ALobbyPlayerState* FindPlayerState(FNetworkConnectionId ConnectionId);
   int GetMaxPlayers() const;
-  FNetworkSceneId GetSelectedGameSceneId() const;
+  std::string GetSelectedLevelPath() const;
   void ApplyHostLobbyOptions();
   void SetMaxPlayers(int InMaxPlayers);
+  void ShowMapSelectDialog();
   void StartGame();
 
  protected:
   void BeginPlay() override;
+  void OnUpdate(float DeltaTime) override;
 
  private:
   ALobbyScene* GetLobbyScene() const;
 
   WLobbyHUD* m_LobbyHUD = nullptr;
+  WMapSelectDialog* m_MapSelectDialog = nullptr;
 };

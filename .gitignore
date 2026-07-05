@@ -376,3 +376,4 @@ Log.txt
 /vcpkg_installed/
 /AGS_2026_Summer.code-workspace
 /Game/Game/PrivateConfig
+/Game/.repomixignore

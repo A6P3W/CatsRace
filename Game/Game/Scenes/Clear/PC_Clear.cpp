@@ -1,4 +1,4 @@
-#include "Scenes/Clear/PC_Clear.h"
+﻿#include "Scenes/Clear/PC_Clear.h"
 
 #include <DxLib.h>
 #include <KeyboardDevice.h>
@@ -8,6 +8,7 @@
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "Core/MapData.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
@@ -21,6 +22,16 @@
 #include "Services/LeaderBoardManager.h"
 #include "UIManager.h"
 #include "World.h"
+
+namespace {
+std::string GetReplayLevelPath() {
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (gi && !gi->last_level_path.empty()) {
+    return gi->last_level_path;
+  }
+  return AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+}
+}  // namespace
 
 REGISTER_ACTOR(PC_Clear)
 
@@ -216,7 +227,7 @@ void PC_Clear::ShowPostGameDialog() {
       m_PostGameDialog = nullptr;
     }
     if (result == EPostGameResult::PlayAgain) {
-      GetWorld()->ServerTravel(GameSceneIds::Game01);
+      GetWorld()->ServerTravel(GetReplayLevelPath());
     } else if (result == EPostGameResult::BackToTitle) {
       GetWorld()->ServerTravel(GameSceneIds::Lobby);
     }
@@ -276,7 +287,7 @@ void PC_Clear::Draw() {
   ImGui::Separator();
   if (GetWorld()->IsServer()) {
     if (ImGui::Button("Replay", ImVec2(160.0f, 34.0f))) {
-      GetWorld()->ServerTravel(GameSceneIds::Game01);
+      GetWorld()->ServerTravel(GetReplayLevelPath());
     }
     ImGui::SameLine();
     if (ImGui::Button("Back To Lobby", ImVec2(160.0f, 34.0f))) {
@@ -287,3 +298,4 @@ void PC_Clear::Draw() {
   }
   ImGui::End();
 }
+
