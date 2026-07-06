@@ -9,7 +9,7 @@
 #include <TimerHandle.h>
 #include <TimerManager.h>
 #include <UIManager.h>
-
+#include "Objects/Items/HeldSpeedItem.h"
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -59,10 +59,36 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
 void AGameSceneBase::BeginPlay() {
   AGameModeBase::BeginPlay();
 
+  if (GetWorld()->IsServer()) {
+    std::vector<FVector2D> savedLocations;
+
+    // 1. 今マップにある（エディタで置かれた）キノコの座標をすべてメモして、古いキノコを消す
+    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+      if (auto* editorItem = dynamic_cast<AHeldSpeedItem*>(actorPtr.get())) {
+        savedLocations.push_back(editorItem->GetActorLocation());
+        editorItem->Destroy();  // エディタ配置の（ネットワークIDが壊れている）古いキノコを破棄
+      }
+    }
+
+    // 2. メモした座標に、サーバー権限で正しいキノコを再生成する
+    // これにより、クライアント側にも正しい NetworkId でアイテムが複製されます
+    for (const auto& loc : savedLocations) {
+      GetWorld()->SpawnActor<AHeldSpeedItem>(loc);
+    }
+  }
+
   SpawnActor<ASampleA>();
   LoadTopGhost();
   M_LOG("Game scene initialized: {}", MapId);
+  if (GetWorld()->IsServer()) {
+    // アイテムの生成はサーバー側だけで行う（bReplicates=true なのでクライアントへ自動同期される）
+    SpawnActor<AHeldSpeedItem>(FVector2D{-2000.0f, -1700.0f});
+    SpawnActor<AHeldSpeedItem>(FVector2D{0.0f, -1700.0f});
 
+    GetWorldTimerManager().SetTimer(
+        CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
+    );
+  }
   if (GetWorld()->IsServer()) {
     GetWorldTimerManager().SetTimer(
         CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f

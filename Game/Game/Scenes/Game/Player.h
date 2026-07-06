@@ -31,7 +31,9 @@ class APlayer : public APawn {
   void NotifyGoalReached();
   void AddSlowSource(ASlowFloor2* source, float strength);
   void RemoveSlowSource(ASlowFloor2* source);
-
+  bool HasHeldItem() const { return m_hasHeldItem; }
+  void GrantHeldItem();
+  void UseHeldItem();
  private:
   MCameraComponent* m_camera = nullptr;
   MEasyShakeComponent* m_shake = nullptr;
@@ -64,7 +66,7 @@ class APlayer : public APawn {
   const float DriftSteerMultiplier = 1.0f;
   const float DriftMinSpeed = 3.0f;
   const float DriftBoostForce = 20.0f;
-
+  FVector2D m_prevLocation = FVector2D::ZeroVector;
   MSoundComponent* m_sound = nullptr;
   int m_engineIdleHandle = -1;
   int m_engineRunHandle = -1;
@@ -72,8 +74,10 @@ class APlayer : public APawn {
   const float MaxDriftTiltAngle = 20.0f;
   const float TiltLerpSpeed = 8.0f;
   bool CanMove = false;
+  bool m_hasHeldItem = false;
+  void Server_UseHeldItem();
+  void ApplyHeldItemEffect();
   FShakeHandle m_crashshake;
-
   // ---- スピードダウン管理 ----
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
 
@@ -111,7 +115,7 @@ class APlayer : public APawn {
   void OnRestartPressed();
   void OnWheel(const FInputActionValue& Value);
   void BeginPlay();
-  void DrawSpeedLines(float speed);  
+  void DrawSpeedLines(float speed);
   void UpdateDriftEffect(float DeltaTime);
   void DrawDriftEffect();
   void SpawnSkidMark();

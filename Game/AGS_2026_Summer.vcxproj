@@ -61,6 +61,7 @@
     <ClCompile Include="Game\Ghost\GhostPlaybackComponent.cpp" />
     <ClCompile Include="Game\Ghost\GhostRecorderComponent.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedDownstage.cpp" />
+    <ClCompile Include="Game\Objects\Items\HeldSpeedItem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
@@ -99,6 +100,7 @@
     <ClInclude Include="Game\Ghost\GhostPlaybackComponent.h" />
     <ClInclude Include="Game\Ghost\GhostRecorderComponent.h" />
     <ClInclude Include="Game\Objects\Items\SpeedDownstage.h" />
+    <ClInclude Include="Game\Objects\Items\HeldSpeedItem.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
