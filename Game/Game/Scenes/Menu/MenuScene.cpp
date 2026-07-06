@@ -68,6 +68,11 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
     case EMenuState::MainMenu:
     default:
       MainMenuWidget = SpawnActor<WMainMenuWidget>();
+      MainMenuWidget->SetInitialUserName(PlayerName);
+      MainMenuWidget->OnUserNameChanged = [this](const std::string& NewName) {
+        strncpy_s(PlayerName, sizeof(PlayerName), NewName.c_str(), _TRUNCATE);
+        SaveSettings();
+      };
       MainMenuWidget->OnCreateLobby = [this]() { ShowMenuState(EMenuState::CreateLobby); };
       MainMenuWidget->OnSearchLobby = [this]() { ShowMenuState(EMenuState::SearchLobby); };
       MainMenuWidget->OnQuitGame = []() { Application::QuitGame(); };

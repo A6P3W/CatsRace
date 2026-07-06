@@ -61,6 +61,25 @@ WMainMenuWidget::WMainMenuWidget() {
 
   CreateLobbyButton = AddButton(this, ButtonList, "Create Lobby");
   SearchLobbyButton = AddButton(this, ButtonList, "Search Lobby");
+
+  auto input = std::make_unique<UIInputTextComponent>(MenuButtonWidth, MenuButtonHeight, "User Name");
+  UserNameInput = input.get();
+  UserNameInput->SetColors(GetColor(32, 38, 48), GetColor(30, 115, 190), GetColor(15, 78, 140));
+  UserNameInput->SetTextColor(0xFFFFFF);
+  UserNameInput->SetHintColor(0xDDDDDD);
+  UserNameInput->SetPivot({0.5f, 0.5f});
+  ButtonList->AddItem(UserNameInput);
+  AddComponent(std::move(input));
+
+  auto hintText = std::make_unique<UITextComponent>("インタラクトして入力", 0x000000, 16);
+  InteractHintText = hintText.get();
+  InteractHintText->SetParentComponent(UserNameInput);
+  InteractHintText->SetAnchor(EUIAnchor::BottomCenter);
+  InteractHintText->SetPivot({0.5f, 0.0f});
+  InteractHintText->SetAnchoredPosition({0.0f, 4.0f});
+  InteractHintText->SetVisibility(false);
+  AddComponent(std::move(hintText));
+
   QuitGameButton = AddButton(this, ButtonList, "Quit Game");
 
   auto statusText = std::make_unique<UITextComponent>("", 0x000000, 20);
@@ -77,6 +96,16 @@ void WMainMenuWidget::BeginPlay() {
   ButtonList->BuildNavigation();
   SetFocusedButton(CreateLobbyButton);
 
+  UserNameInput->OnTextChanged = [this](const std::string& Text) {
+    if (OnUserNameChanged) {
+      OnUserNameChanged(Text);
+    }
+  };
+  UserNameInput->OnTextCommitted = [this](const std::string& Text) {
+    if (OnUserNameChanged) {
+      OnUserNameChanged(Text);
+    }
+  };
   CreateLobbyButton->OnPressed = [this]() {
     if (OnCreateLobby) {
       OnCreateLobby();
@@ -92,6 +121,22 @@ void WMainMenuWidget::BeginPlay() {
       OnQuitGame();
     }
   };
+}
+
+void WMainMenuWidget::OnUpdate(float DeltaTime) {
+  AWidgetBase::OnUpdate(DeltaTime);
+
+  if (InteractHintText && UserNameInput) {
+    const bool bIsFocused = GetFocusedButton() == UserNameInput;
+    const bool bIsEditing = UserNameInput->IsEditing();
+    InteractHintText->SetVisibility(bIsFocused && !bIsEditing);
+  }
+}
+
+void WMainMenuWidget::SetInitialUserName(const std::string& Name) {
+  if (UserNameInput) {
+    UserNameInput->SetText(Name, false);
+  }
 }
 
 void WMainMenuWidget::SetStatusText(const std::string& Text) {
@@ -118,6 +163,9 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   auto input = std::make_unique<UIInputTextComponent>(MenuButtonWidth, 56.0f, "Lobby Name");
   LobbyNameInput = input.get();
   LobbyNameInput->SetMaxLength(32);
+  LobbyNameInput->SetColors(GetColor(32, 38, 48), GetColor(30, 115, 190), GetColor(15, 78, 140));
+  LobbyNameInput->SetTextColor(0xFFFFFF);
+  LobbyNameInput->SetHintColor(0xDDDDDD);
   LobbyNameInput->SetPivot({0.5f, 0.5f});
   ControlList->AddItem(LobbyNameInput);
   AddComponent(std::move(input));
