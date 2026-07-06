@@ -27,7 +27,6 @@ class WMainMenuWidget : public AWidgetBase {
 
  protected:
   void BeginPlay() override;
-  void OnUpdate(float DeltaTime) override;
 
  private:
   MUIVerticalBoxComponent* ButtonList = nullptr;
@@ -35,7 +34,6 @@ class WMainMenuWidget : public AWidgetBase {
   UIBoxButtonComponent* SearchLobbyButton = nullptr;
   UIInputTextComponent* UserNameInput = nullptr;
   UIBoxButtonComponent* QuitGameButton = nullptr;
-  UITextComponent* InteractHintText = nullptr;
   UITextComponent* StatusText = nullptr;
 };
 

@@ -13,6 +13,17 @@
 namespace {
 constexpr float MenuButtonWidth = 360.0f;
 constexpr float MenuButtonHeight = 64.0f;
+constexpr float InputBoxWidth = 420.0f;
+constexpr float PlayerNameInputHeight = 96.0f;
+constexpr float LobbyNameInputHeight = 92.0f;
+constexpr int InputNormalColor = 0x666666;
+constexpr int InputHoveredColor = 0x888888;
+constexpr int InputEditingColor = 0x4A6F9F;
+constexpr int InputLabelColor = 0xFFFFFF;
+constexpr int InputLabelFontSize = 20;
+constexpr float InputLabelOffsetY = -28.0f;
+constexpr float InputTextOffsetY = 7.0f;
+constexpr float InputActionHintOffsetY = -18.0f;
 
 UIBoxButtonComponent* AddButton(
     AWidgetBase* Owner,
@@ -41,6 +52,15 @@ UIBoxButtonComponent* AddButton(
   return buttonPtr;
 }
 
+void AddInputLabel(AWidgetBase* Owner, UIInputTextComponent* Input, const std::string& Label) {
+  auto labelText = std::make_unique<UITextComponent>(Label, InputLabelColor, InputLabelFontSize);
+  labelText->SetParentComponent(Input);
+  labelText->SetAnchor(EUIAnchor::MiddleCenter);
+  labelText->SetPivot({0.5f, 0.5f});
+  labelText->SetAnchoredPosition({0.0f, InputLabelOffsetY});
+  Owner->AddComponent(std::move(labelText));
+}
+
 std::string GetLobbyDisplayName(const FLobbyInfo& LobbyInfo) {
   std::string name = LobbyInfo.GetStringAttribute("LOBBYNAME", "");
   if (name.empty()) {
@@ -62,23 +82,17 @@ WMainMenuWidget::WMainMenuWidget() {
   CreateLobbyButton = AddButton(this, ButtonList, "Create Lobby");
   SearchLobbyButton = AddButton(this, ButtonList, "Search Lobby");
 
-  auto input = std::make_unique<UIInputTextComponent>(MenuButtonWidth, MenuButtonHeight, "User Name");
+  auto input = std::make_unique<UIInputTextComponent>(InputBoxWidth, PlayerNameInputHeight, "");
   UserNameInput = input.get();
-  UserNameInput->SetColors(GetColor(32, 38, 48), GetColor(30, 115, 190), GetColor(15, 78, 140));
+  UserNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
   UserNameInput->SetTextColor(0xFFFFFF);
   UserNameInput->SetHintColor(0xDDDDDD);
+  UserNameInput->SetTextOffsetY(InputTextOffsetY);
+  UserNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   UserNameInput->SetPivot({0.5f, 0.5f});
   ButtonList->AddItem(UserNameInput);
   AddComponent(std::move(input));
-
-  auto hintText = std::make_unique<UITextComponent>("インタラクトして入力", 0x000000, 16);
-  InteractHintText = hintText.get();
-  InteractHintText->SetParentComponent(UserNameInput);
-  InteractHintText->SetAnchor(EUIAnchor::BottomCenter);
-  InteractHintText->SetPivot({0.5f, 0.0f});
-  InteractHintText->SetAnchoredPosition({0.0f, 4.0f});
-  InteractHintText->SetVisibility(false);
-  AddComponent(std::move(hintText));
+  AddInputLabel(this, UserNameInput, "プレイヤー名：");
 
   QuitGameButton = AddButton(this, ButtonList, "Quit Game");
 
@@ -123,16 +137,6 @@ void WMainMenuWidget::BeginPlay() {
   };
 }
 
-void WMainMenuWidget::OnUpdate(float DeltaTime) {
-  AWidgetBase::OnUpdate(DeltaTime);
-
-  if (InteractHintText && UserNameInput) {
-    const bool bIsFocused = GetFocusedButton() == UserNameInput;
-    const bool bIsEditing = UserNameInput->IsEditing();
-    InteractHintText->SetVisibility(bIsFocused && !bIsEditing);
-  }
-}
-
 void WMainMenuWidget::SetInitialUserName(const std::string& Name) {
   if (UserNameInput) {
     UserNameInput->SetText(Name, false);
@@ -160,15 +164,18 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   ControlList->SetSpacing(18.0f);
   AddComponent(std::move(controlList));
 
-  auto input = std::make_unique<UIInputTextComponent>(MenuButtonWidth, 56.0f, "Lobby Name");
+  auto input = std::make_unique<UIInputTextComponent>(InputBoxWidth, LobbyNameInputHeight, "");
   LobbyNameInput = input.get();
   LobbyNameInput->SetMaxLength(32);
-  LobbyNameInput->SetColors(GetColor(32, 38, 48), GetColor(30, 115, 190), GetColor(15, 78, 140));
+  LobbyNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
   LobbyNameInput->SetTextColor(0xFFFFFF);
   LobbyNameInput->SetHintColor(0xDDDDDD);
+  LobbyNameInput->SetTextOffsetY(InputTextOffsetY);
+  LobbyNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   LobbyNameInput->SetPivot({0.5f, 0.5f});
   ControlList->AddItem(LobbyNameInput);
   AddComponent(std::move(input));
+  AddInputLabel(this, LobbyNameInput, "ロビー名：");
 
   CreateButton = AddButton(this, ControlList, "Create");
   BackButton = AddButton(this, ControlList, "Back");
