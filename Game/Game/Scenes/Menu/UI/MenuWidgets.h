@@ -18,10 +18,12 @@ class WMainMenuWidget : public AWidgetBase {
 
   WMainMenuWidget();
   void SetStatusText(const std::string& Text);
+  void SetInitialUserName(const std::string& Name);
 
   std::function<void()> OnCreateLobby;
   std::function<void()> OnSearchLobby;
   std::function<void()> OnQuitGame;
+  std::function<void(const std::string&)> OnUserNameChanged;
 
  protected:
   void BeginPlay() override;
@@ -30,6 +32,7 @@ class WMainMenuWidget : public AWidgetBase {
   MUIVerticalBoxComponent* ButtonList = nullptr;
   UIBoxButtonComponent* CreateLobbyButton = nullptr;
   UIBoxButtonComponent* SearchLobbyButton = nullptr;
+  UIInputTextComponent* UserNameInput = nullptr;
   UIBoxButtonComponent* QuitGameButton = nullptr;
   UITextComponent* StatusText = nullptr;
 };
