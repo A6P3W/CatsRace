@@ -106,44 +106,44 @@ void APlayer::OnUpdate(float DeltaTime) {
   FVector2D v = Movement->GetVelocity();
   float speed = std::sqrt(v.SizeSquared());
 
-  if (bHasAuthority) {
+  // クライアント側は位置変化量からspeedを推定
+  if (!bHasAuthority) {
+    FVector2D currentPos = GetActorLocation();
+    speed = (currentPos - m_prevLocation).Size();
+    m_prevLocation = currentPos;
+  }
 
-      if (!m_slowSources.empty()) {
+  if (bHasAuthority) {
+    if (!m_slowSources.empty()) {
       float strongest = 1.0f;
       for (auto& [src, strength] : m_slowSources) {
-        if (strength < strongest) {  // 値が小さいほど強い減速
+        if (strength < strongest) {
           strongest = strength;
         }
       }
       float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
       Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
-      }
-      if (m_accelInput > 0.0f) {
-        float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
-        float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
-        Movement->AddLocalForce({0.0f, -force});
-      } else if (m_accelInput < 0.0f) {
-        float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
-        float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
-        Movement->AddLocalForce({0.0f, force});
-  
     }
-    // ---- ステアリング ----
+    if (m_accelInput > 0.0f) {
+      float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+      float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
+      Movement->AddLocalForce({0.0f, -force});
+    } else if (m_accelInput < 0.0f) {
+      float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
+      float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
+      Movement->AddLocalForce({0.0f, force});
+    }
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
-    float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     UpdateDrift(DeltaTime, speed);
-    UpdateDriftEffect(DeltaTime);
-    DrawDriftEffect();
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
     float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
-
-  } 
-  else if (bIsLocallyControlled) {
+  } else if (bIsLocallyControlled) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
 
+  // 全員実行
   UpdateDriftEffect(DeltaTime);
   DrawDriftEffect();
   // ---- アニメーション ----
