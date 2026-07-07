@@ -39,9 +39,9 @@ constexpr int LeavePressedColor = 0x6E2D2D;
 constexpr int ReadyOnColor = 0x1D8752;
 constexpr int ReadyOnHoveredColor = 0x28A968;
 constexpr int ReadyOnPressedColor = 0x176A41;
-constexpr int ReadyOffColor = 0x555A62;
+constexpr int ReadyOffColor = 0x373C45;
 constexpr int ReadyOffHoveredColor = 0x6B7280;
-constexpr int ReadyOffPressedColor = 0x474C55;
+constexpr int ReadyOffPressedColor = 0x2A2E35;
 constexpr int ReadyTextColor = 0x5BE388;
 constexpr int NotReadyTextColor = 0xFF8A80;
 
@@ -273,13 +273,16 @@ void WLobbyHUD::BeginPlay() {
   if (m_StartGameButton) {
     m_StartGameButton->SetVisibility(bIsHost);
   }
+  if (m_ReadyToggle) {
+    m_ReadyToggle->SetVisibility(!bIsHost);
+  }
 
   UpdatePlayerList();
   UpdateMapInfo();
   UpdateLocalReadyState();
   UpdateStartGameState();
   RebuildNavigation();
-  SetFocusedButton(m_ReadyToggle);
+  UpdateFocusForHostMode(bIsHost);
 }
 
 void WLobbyHUD::OnUpdate(float DeltaTime) {
@@ -302,7 +305,11 @@ void WLobbyHUD::OnUpdate(float DeltaTime) {
     if (m_StartGameButton) {
       m_StartGameButton->SetVisibility(bIsHost);
     }
+    if (m_ReadyToggle) {
+      m_ReadyToggle->SetVisibility(!bIsHost);
+    }
     RebuildNavigation();
+    UpdateFocusForHostMode(bIsHost);
   }
 
   UpdatePlayerList();
@@ -337,7 +344,7 @@ void WLobbyHUD::UpdatePlayerList() {
         "Not Ready",
         NotReadyTextColor,
         20,
-        {112.0f, PlayerRowHeight},
+        {132.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
         {0.0f, 0.5f},
         {0.0f, 0.0f}
@@ -349,10 +356,10 @@ void WLobbyHUD::UpdatePlayerList() {
         "Player",
         0xFFFFFF,
         20,
-        {240.0f, PlayerRowHeight},
+        {216.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
         {0.0f, 0.5f},
-        {124.0f, 0.0f}
+        {144.0f, 0.0f}
     );
 
     m_PlayerRows.push_back({rowRootPtr, statusText, nameText});
@@ -370,14 +377,15 @@ void WLobbyHUD::UpdatePlayerList() {
   for (int index = 0; index < playerCount; ++index) {
     ALobbyPlayerState* state = states[index];
     FPlayerRow& row = m_PlayerRows[index];
+    const bool bIsHost = state && state->OwnerConnectionId == 0;
     const bool bReady = state && state->IsReady();
     const std::string playerName = state && !state->GetPlayerName().empty()
                                        ? state->GetPlayerName()
                                        : "Player " + std::to_string(index + 1);
 
     if (row.StatusText) {
-      row.StatusText->SetText(bReady ? "Ready" : "Not Ready");
-      row.StatusText->SetColor(bReady ? ReadyTextColor : NotReadyTextColor);
+      row.StatusText->SetText(bIsHost ? "Host (Ready)" : (bReady ? "Ready" : "Not Ready"));
+      row.StatusText->SetColor((bIsHost || bReady) ? ReadyTextColor : NotReadyTextColor);
     }
     if (row.NameText) {
       row.NameText->SetText(playerName);
@@ -451,15 +459,22 @@ void WLobbyHUD::RebuildNavigation() {
   if (m_StartGameButton) {
     m_StartGameButton->Navigation.Left = m_LeaveButton;
     m_StartGameButton->Navigation.Right = m_bLastHostMode ? m_MapSelectButton : nullptr;
-    m_StartGameButton->Navigation.Up = m_ReadyToggle;
+    m_StartGameButton->Navigation.Up = nullptr;
   }
+  MUIButtonComponent* primaryActionButton =
+      m_bLastHostMode ? static_cast<MUIButtonComponent*>(m_StartGameButton) : static_cast<MUIButtonComponent*>(m_ReadyToggle);
   if (m_LeaveButton) {
-    m_LeaveButton->Navigation.Right = m_ReadyToggle;
+    m_LeaveButton->Navigation.Right = primaryActionButton;
   }
   if (m_MapSelectButton) {
-    m_MapSelectButton->Navigation.Left = m_ReadyToggle;
-    m_MapSelectButton->Navigation.Down = m_ReadyToggle;
+    m_MapSelectButton->Navigation.Left = primaryActionButton;
+    m_MapSelectButton->Navigation.Down = primaryActionButton;
   }
+}
+
+void WLobbyHUD::UpdateFocusForHostMode(bool bIsHost) {
+  SetFocusedButton(bIsHost ? static_cast<MUIButtonComponent*>(m_StartGameButton)
+                           : static_cast<MUIButtonComponent*>(m_ReadyToggle));
 }
 
 bool WLobbyHUD::CanStartGame() const {

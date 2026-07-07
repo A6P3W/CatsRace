@@ -35,6 +35,7 @@ class WLobbyHUD : public AWidgetBase {
   void UpdateLocalReadyState();
   void UpdateStartGameState();
   void RebuildNavigation();
+  void UpdateFocusForHostMode(bool bIsHost);
   bool CanStartGame() const;
 
   PC_Lobby* LobbyController = nullptr;
