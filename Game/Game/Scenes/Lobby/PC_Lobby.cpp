@@ -1,11 +1,13 @@
-#include "Scenes/Lobby/PC_Lobby.h"
+﻿#include "Scenes/Lobby/PC_Lobby.h"
 
 #include <algorithm>
 
-#include "Core/GameSceneIds.h"
+#include "Core/MapData.h"
+#include "NetworkManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "Scenes/Lobby/UI/WLobbyHUD.h"
+#include "Scenes/Lobby/UI/WMapSelectDialog.h"
 #include "UIManager.h"
 #include "World.h"
 
@@ -23,6 +25,10 @@ void PC_Lobby::BeginPlay() {
     m_LobbyHUD->SetLobbyController(this);
     UIManager::GetInstance()->AddWidget(m_LobbyHUD);
   }
+}
+
+void PC_Lobby::OnUpdate(float DeltaTime) {
+  APlayerController::OnUpdate(DeltaTime);
 }
 
 std::vector<ALobbyPlayerState*> PC_Lobby::GetPlayerStates() {
@@ -82,14 +88,14 @@ int PC_Lobby::GetMaxPlayers() const {
   return 0;
 }
 
-FNetworkSceneId PC_Lobby::GetSelectedGameSceneId() const {
+std::string PC_Lobby::GetSelectedLevelPath() const {
   if (auto* lobbyScene = GetLobbyScene()) {
-    return lobbyScene->SelectedGameSceneId;
+    return lobbyScene->SelectedLevelPath;
   }
   if (auto* hostState = const_cast<PC_Lobby*>(this)->FindHostPlayerState()) {
-    return hostState->GetSelectedGameSceneId();
+    return hostState->GetSelectedLevelPath();
   }
-  return GameSceneIds::Game01;
+  return AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
 }
 
 void PC_Lobby::ApplyHostLobbyOptions() {
@@ -99,7 +105,7 @@ void PC_Lobby::ApplyHostLobbyOptions() {
     return;
   }
 
-  lobbyScene->SelectedGameSceneId = hostState->GetSelectedGameSceneId();
+  lobbyScene->SelectedLevelPath = hostState->GetSelectedLevelPath();
   lobbyScene->MaxPlayers = hostState->GetMaxPlayers();
 }
 
@@ -111,8 +117,40 @@ void PC_Lobby::SetMaxPlayers(int InMaxPlayers) {
 
   lobbyScene->MaxPlayers = InMaxPlayers;
   if (auto* host = lobbyScene->FindHostPlayerState()) {
-    host->SetLobbyOptions(lobbyScene->SelectedGameSceneId, lobbyScene->MaxPlayers);
+    host->SetLobbyOptions(lobbyScene->SelectedLevelPath, lobbyScene->MaxPlayers);
   }
+}
+
+void PC_Lobby::ShowMapSelectDialog() {
+  if (!bIsLocallyControlled || !GetWorld() || !GetWorld()->IsServer() || m_MapSelectDialog) {
+    return;
+  }
+
+  m_MapSelectDialog = GetWorld()->SpawnActor<WMapSelectDialog>();
+  m_MapSelectDialog->SetZOrderOffset(10);
+  m_MapSelectDialog->OnMapSelected = [this](const std::string& LevelPath) {
+    auto* dialog = m_MapSelectDialog;
+    m_MapSelectDialog = nullptr;
+    if (dialog) {
+      dialog->Destroy();
+    }
+
+    if (!LevelPath.empty()) {
+      if (auto* lobbyScene = GetLobbyScene()) {
+        lobbyScene->SelectedLevelPath = LevelPath;
+        if (auto* host = lobbyScene->FindHostPlayerState()) {
+          host->SetLobbyOptions(lobbyScene->SelectedLevelPath, lobbyScene->MaxPlayers);
+        }
+      }
+    }
+
+    if (m_LobbyHUD) {
+      UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+    }
+  };
+
+  UIManager::GetInstance()->AddWidget(m_MapSelectDialog);
+  UIManager::GetInstance()->SetFocusedWidget(m_MapSelectDialog);
 }
 
 void PC_Lobby::StartGame() {
@@ -128,3 +166,4 @@ ALobbyScene* PC_Lobby::GetLobbyScene() const {
   }
   return dynamic_cast<ALobbyScene*>(self->GetWorld()->GetGameMode());
 }
+

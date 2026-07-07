@@ -16,7 +16,7 @@
 #include "InputMapper.h"
 #include "Log.h"
 #include "MovementComponent.h"
-#include "ObjectManager.h"
+#include "ActorManager.h"
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"

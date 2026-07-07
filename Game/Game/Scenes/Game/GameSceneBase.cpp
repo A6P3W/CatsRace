@@ -1,4 +1,4 @@
-#include "GameSceneBase.h"
+﻿#include "GameSceneBase.h"
 
 #include <EnhancedInputComponent.h>
 #include <NetworkManager.h>
@@ -23,7 +23,7 @@
 #include "Ghost/GhostPlayer.h"
 #include "Ghost/GhostRecorderComponent.h"
 #include "Log.h"
-#include "ObjectManager.h"
+#include "ActorManager.h"
 #include "Objects/SampleA.h"
 #include "PC_Game.h"
 #include "ResourceManager.h"
@@ -32,7 +32,6 @@
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
-#include "Scenes/Title/TitleScene.h"
 #include "Services/LeaderBoardManager.h"
 #include "UMath.h"
 AGameSceneBase::AGameSceneBase(
@@ -82,8 +81,7 @@ void AGameSceneBase::BeginPlay() {
   M_LOG("Game scene initialized: {}", MapId);
   if (GetWorld()->IsServer()) {
     // アイテムの生成はサーバー側だけで行う（bReplicates=true なのでクライアントへ自動同期される）
-    SpawnActor<AHeldSpeedItem>(FVector2D{-2000.0f, -1700.0f});
-    SpawnActor<AHeldSpeedItem>(FVector2D{0.0f, -1700.0f});
+
 
     GetWorldTimerManager().SetTimer(
         CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
@@ -304,5 +302,5 @@ void AGameSceneBase::RaceStart() {
 void AGameSceneBase::RestartGame() { OpenCurrentScene(); }
 
 void AGameSceneBase::ReturnToTitle() {
-  SceneManager::GetInstance().OpenSceneById(GameSceneIds::Menu);
+  SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
 }

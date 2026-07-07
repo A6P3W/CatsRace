@@ -42,7 +42,7 @@
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Scenes\Title\TitleScene.cpp">
+    <ClCompile Include="Game\Scenes\Loading\LoadingScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Objects\Items\SpeedDown.cpp">
@@ -78,7 +78,7 @@
     <ClCompile Include="Game\Scenes\Clear\UI\WPostGameDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Scenes\Title\UI\WTitleHUD.cpp">
+    <ClCompile Include="Game\Scenes\Menu\UI\MenuWidgets.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\Game\PC_Game.cpp">
@@ -106,6 +106,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\Lobby\UI\WLobbyHUD.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Scenes\Lobby\UI\WMapSelectDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Game\Scenes\Lobby\LobbyPlayerState.cpp">
@@ -146,7 +149,7 @@
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Scenes\Title\TitleScene.h">
+    <ClInclude Include="Game\Scenes\Loading\LoadingScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Objects\Items\SpeedDown.h">
@@ -188,7 +191,7 @@
     <ClInclude Include="Game\Scenes\Clear\UI\WPostGameDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Scenes\Title\UI\WTitleHUD.h">
+    <ClInclude Include="Game\Scenes\Menu\UI\MenuWidgets.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Game\PC_Game.h">
@@ -209,6 +212,9 @@
     <ClInclude Include="Game\Core\GameSceneIds.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Core\MapData.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="Game\Scenes\Common\ImGuiHelper.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -219,6 +225,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\UI\WLobbyHUD.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\Lobby\UI\WMapSelectDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\LobbyPlayerState.h">
@@ -245,5 +254,6 @@
   <ItemGroup>
     <None Include="vcpkg.json" />
     <None Include="Game\include.md" />
+    <None Include="..\AGENTS.md" />
   </ItemGroup>
 </Project>

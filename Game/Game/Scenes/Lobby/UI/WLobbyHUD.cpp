@@ -1,15 +1,26 @@
-#include "Scenes/Lobby/UI/WLobbyHUD.h"
+﻿#include "Scenes/Lobby/UI/WLobbyHUD.h"
 
 #include <imgui.h>
 
 #include <algorithm>
 #include <cstring>
+#include <string>
 
 #include "Core/GI_main.h"
+#include "Core/MapData.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
 #include "World.h"
+
+namespace {
+std::string FindMapDisplayName(const std::string& LevelPath) {
+  const auto it = std::find_if(AvailableMaps.begin(), AvailableMaps.end(), [&LevelPath](const FMapInfo& Map) {
+    return Map.LevelPath == LevelPath;
+  });
+  return it == AvailableMaps.end() ? LevelPath : it->DisplayName;
+}
+}
 
 void WLobbyHUD::SetLobbyController(PC_Lobby* InLobbyController) {
   LobbyController = InLobbyController;
@@ -81,9 +92,15 @@ void WLobbyHUD::Draw() {
   }
 
   ImGui::Separator();
-  ImGui::Text("Selected Map: GameScene01");
+  const std::string selectedLevelPath = LobbyController->GetSelectedLevelPath();
+  const std::string selectedMapName = FindMapDisplayName(selectedLevelPath);
+  ImGui::Text("Selected Map: %s", selectedMapName.c_str());
 
   if (world->IsServer()) {
+    if (ImGui::Button("Change Map", ImVec2(180.0f, 34.0f))) {
+      LobbyController->ShowMapSelectDialog();
+    }
+
     int maxPlayers = LobbyController->GetMaxPlayers();
     if (ImGui::SliderInt("Max Players", &maxPlayers, 1, 8)) {
       LobbyController->SetMaxPlayers(maxPlayers);

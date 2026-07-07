@@ -1,11 +1,11 @@
-#include "Scenes/Lobby/LobbyScene.h"
+﻿#include "Scenes/Lobby/LobbyScene.h"
 
 #include <algorithm>
 
 #include "Core/GI_main.h"
-#include "Core/GameSceneIds.h"
+#include "Core/MapData.h"
 #include "NetworkManager.h"
-#include "ObjectManager.h"
+#include "ActorManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
@@ -15,7 +15,7 @@ REGISTER_GAME_MODE(ALobbyScene)
 
 ALobbyScene::ALobbyScene() {
   SetUpdateableAnytime(true);
-  SelectedGameSceneId = GameSceneIds::Game01;
+  SelectedLevelPath = AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
   DefaultPlayerControllerClass = PC_Lobby::StaticClassName();
 }
 
@@ -101,10 +101,18 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
       if (!gi->player_name.empty()) {
         defaultName = gi->player_name;
       }
+      const bool bSavedLevelPathAvailable = std::any_of(
+          AvailableMaps.begin(),
+          AvailableMaps.end(),
+          [gi](const FMapInfo& Map) { return Map.LevelPath == gi->last_level_path; }
+      );
+      if (bSavedLevelPathAvailable) {
+        SelectedLevelPath = gi->last_level_path;
+      }
     }
   }
   state->SetPlayerName(defaultName);
-  state->SetLobbyOptions(SelectedGameSceneId, MaxPlayers);
+  state->SetLobbyOptions(SelectedLevelPath, MaxPlayers);
   return state;
 }
 
@@ -112,7 +120,7 @@ void ALobbyScene::EnsureHostPlayerState() { SpawnPlayerState(0); }
 
 void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States) {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->last_game_scene_id = SelectedGameSceneId;
+    gi->last_level_path = SelectedLevelPath;
     gi->multiplayer_results.clear();
     for (const auto* state : States) {
       if (!state) continue;
@@ -132,5 +140,6 @@ void ALobbyScene::StartGame() {
   }
   const auto states = GetPlayerStates();
   SaveLobbyResultsToGameInstance(states);
-  GetWorld()->ServerTravel(GameSceneIds::Game02);
+  GetWorld()->ServerTravel(SelectedLevelPath);
 }
+

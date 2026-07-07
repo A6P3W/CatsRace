@@ -1,13 +1,14 @@
-#include "Scenes/Clear/PC_Clear.h"
+﻿#include "Scenes/Clear/PC_Clear.h"
 
 #include <DxLib.h>
 #include <KeyboardDevice.h>
 #include <imgui.h>
 
 #include <algorithm>
-
+#include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "Core/MapData.h"
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
@@ -17,10 +18,19 @@
 #include "Scenes/Clear/UI/WPostGameDialog.h"
 #include "Scenes/Game/GameScene01.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
-#include "Scenes/Title/TitleScene.h"
 #include "Services/LeaderBoardManager.h"
 #include "UIManager.h"
 #include "World.h"
+
+namespace {
+std::string GetReplayLevelPath() {
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (gi && !gi->last_level_path.empty()) {
+    return gi->last_level_path;
+  }
+  return AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+}
+}  // namespace
 
 REGISTER_ACTOR(PC_Clear)
 
@@ -37,7 +47,7 @@ void PC_Clear::BeginPlay() {
 
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   float clearTime = gi ? gi->ClearTime : 0.0f;
-
+  SpawnResultStatesFromGameInstance();
   m_ClearHUD = GetWorld()->SpawnActor<WClearHUD>();
   UIManager::GetInstance()->AddWidget(m_ClearHUD);
 
@@ -51,6 +61,32 @@ void PC_Clear::BeginPlay() {
 
     // Start name registration flow
     ShowNameFlow();
+  }
+}
+
+void PC_Clear::SpawnResultStatesFromGameInstance() {
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi) {
+    return;
+  }
+
+  if (gi->multiplayer_results.empty()) {
+    GI_main::FMultiplayerResult result;
+    result.ConnectionId = 0;
+    result.PlayerName = gi->player_name.empty() ? gi->user_id : gi->player_name;
+    result.bFinished = true;
+    result.FinishTime = gi->ClearTime;
+    gi->multiplayer_results.push_back(result);
+  }
+
+  for (const auto& result : gi->multiplayer_results) {
+    auto* state = GetWorld()->SpawnActor<ALobbyPlayerState>();
+    state->OwnerConnectionId = result.ConnectionId;
+    state->bReplicates = true;
+    state->bHasAuthority = true;
+    state->bIsLocallyControlled = result.ConnectionId == 0;
+    state->SetPlayerName(result.PlayerName);
+    state->SetFinishResult(result.bFinished, result.FinishTime);
   }
 }
 
@@ -190,7 +226,7 @@ void PC_Clear::ShowPostGameDialog() {
       m_PostGameDialog = nullptr;
     }
     if (result == EPostGameResult::PlayAgain) {
-      GetWorld()->ServerTravel(GameSceneIds::Game01);
+      GetWorld()->ServerTravel(GetReplayLevelPath());
     } else if (result == EPostGameResult::BackToTitle) {
       GetWorld()->ServerTravel(GameSceneIds::Lobby);
     }
@@ -250,7 +286,7 @@ void PC_Clear::Draw() {
   ImGui::Separator();
   if (GetWorld()->IsServer()) {
     if (ImGui::Button("Replay", ImVec2(160.0f, 34.0f))) {
-      GetWorld()->ServerTravel(GameSceneIds::Game01);
+      GetWorld()->ServerTravel(GetReplayLevelPath());
     }
     ImGui::SameLine();
     if (ImGui::Button("Back To Lobby", ImVec2(160.0f, 34.0f))) {
@@ -261,3 +297,4 @@ void PC_Clear::Draw() {
   }
   ImGui::End();
 }
+

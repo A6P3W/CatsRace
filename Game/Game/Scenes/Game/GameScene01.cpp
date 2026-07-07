@@ -9,5 +9,5 @@ REGISTER_GAME_MODE(AGameScene01)
 AGameScene01::AGameScene01() {}
 
 void AGameScene01::OpenCurrentScene() {
-  SceneManager::GetInstance().OpenSceneById(GameSceneIds::Game01);
+  SceneManager::GetInstance().OpenLevelById(GameSceneIds::Game01);
 }

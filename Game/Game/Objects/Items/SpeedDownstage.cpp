@@ -1,4 +1,4 @@
-#include "SpeedDownstage.h"
+﻿#include "SpeedDownstage.h"
 
 #include "Log.h"
 #include "MovementComponent.h"
@@ -23,7 +23,7 @@ ASlowFloor2::ASlowFloor2(float width, float height, float slowStrength)
   sprite->SetParentComponent(GetRootComponent());
   AddComponent(std::move(sprite));
 
-  // サウンドコンポーネントはコンストラクタで初期化する
+
   auto sound = std::make_unique<MSoundComponent>();
   m_sound = sound.get();
   AddComponent(std::move(sound));
@@ -35,8 +35,6 @@ void ASlowFloor2::SetSize(float width, float height) {
   m_width = width;
   m_height = height;
 }
-
-// BeginOverlapは1つだけ
 void ASlowFloor2::BeginOverlap(AActor* OtherActor) {
   if (!OtherActor) return;
   if (auto* player = dynamic_cast<APlayer*>(OtherActor)) {

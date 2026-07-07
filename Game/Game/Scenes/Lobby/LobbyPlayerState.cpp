@@ -1,6 +1,9 @@
-#include "Scenes/Lobby/LobbyPlayerState.h"
+﻿#include "Scenes/Lobby/LobbyPlayerState.h"
 
-#include "Core/GameSceneIds.h"
+#include <algorithm>
+#include <utility>
+
+#include "Core/MapData.h"
 
 namespace {
 enum : FNetworkRPCId {
@@ -9,16 +12,26 @@ enum : FNetworkRPCId {
   RPC_ServerSetLobbyOptions = 3,
   RPC_ServerSetFinishResult = 4
 };
+
+std::string GetDefaultLevelPath() {
+  return AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
 }
+
+bool IsAvailableLevelPath(const std::string& LevelPath) {
+  return std::any_of(AvailableMaps.begin(), AvailableMaps.end(), [&LevelPath](const FMapInfo& Map) {
+    return Map.LevelPath == LevelPath;
+  });
+}
+}  // namespace
 
 REGISTER_ACTOR(ALobbyPlayerState)
 
 ALobbyPlayerState::ALobbyPlayerState() {
   bReplicates = true;
-  SelectedGameSceneId = GameSceneIds::Game01;
+  SelectedLevelPath = GetDefaultLevelPath();
   RegisterReplicatedProperty(&PlayerName);
   RegisterReplicatedProperty(&bReady);
-  RegisterReplicatedProperty(&SelectedGameSceneId);
+  RegisterReplicatedProperty(&SelectedLevelPath);
   RegisterReplicatedProperty(&MaxPlayers);
   RegisterReplicatedProperty(&bFinished);
   RegisterReplicatedProperty(&FinishTime);
@@ -61,16 +74,18 @@ void ALobbyPlayerState::SetReady(bool bInReady) {
   InvokeRPC(RPC_ServerSetReady, ENetRPCType::Server, ENetPacketReliability::Reliable, bInReady);
 }
 
-void ALobbyPlayerState::SetLobbyOptions(FNetworkSceneId InSelectedGameSceneId, int InMaxPlayers) {
+void ALobbyPlayerState::SetLobbyOptions(
+    const std::string& InSelectedLevelPath, int InMaxPlayers
+) {
   if (bHasAuthority) {
-    ApplyLobbyOptions(InSelectedGameSceneId, InMaxPlayers);
+    ApplyLobbyOptions(InSelectedLevelPath, InMaxPlayers);
     return;
   }
   InvokeRPC(
       RPC_ServerSetLobbyOptions,
       ENetRPCType::Server,
       ENetPacketReliability::Reliable,
-      InSelectedGameSceneId,
+      InSelectedLevelPath,
       InMaxPlayers
   );
 }
@@ -99,8 +114,9 @@ void ALobbyPlayerState::ApplyReady(bool bInReady) {
   MarkReplicatedStateDirty();
 }
 
-void ALobbyPlayerState::ApplyLobbyOptions(FNetworkSceneId InSelectedGameSceneId, int InMaxPlayers) {
-  SelectedGameSceneId = InSelectedGameSceneId == 0 ? GameSceneIds::Game01 : InSelectedGameSceneId;
+void ALobbyPlayerState::ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers) {
+  SelectedLevelPath =
+      IsAvailableLevelPath(InSelectedLevelPath) ? std::move(InSelectedLevelPath) : GetDefaultLevelPath();
   MaxPlayers = InMaxPlayers < 1 ? 1 : InMaxPlayers;
   MarkReplicatedStateDirty();
 }
@@ -110,3 +126,4 @@ void ALobbyPlayerState::ApplyFinishResult(bool bInFinished, float InFinishTime) 
   FinishTime = InFinishTime;
   MarkReplicatedStateDirty();
 }
+
