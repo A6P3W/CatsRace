@@ -27,6 +27,7 @@ class PC_Lobby : public APlayerController {
   void SetMaxPlayers(int InMaxPlayers);
   void ShowMapSelectDialog();
   void StartGame();
+  void LeaveLobby();
 
  protected:
   void BeginPlay() override;
