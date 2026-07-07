@@ -23,9 +23,11 @@
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "SpriteComponent.h"
+#include "Objects/Items/SpeedDownstage.h"
+#include "Objects/Items/HeldSpeedItem.h"
 
 namespace {
-enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3 };
+enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3, RPC_ServerUseHeldItem = 4 };
 }
 
 REGISTER_ACTOR(APlayer)
@@ -35,9 +37,11 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_isDrifting);
   RegisterReplicatedProperty(&m_driftDirection);
   RegisterReplicatedProperty(&CanMove);
+  RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
+  RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
 
   SetActorLocation(location);
   SetActorRotation(rotation);
@@ -103,14 +107,26 @@ void APlayer::OnUpdate(float DeltaTime) {
   float speed = std::sqrt(v.SizeSquared());
 
   if (bHasAuthority) {
-    if (m_accelInput > 0.0f) {
-      float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
-      float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
-      Movement->AddLocalForce({0.0f, -force});
-    } else if (m_accelInput < 0.0f) {
-      float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
-      float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
-      Movement->AddLocalForce({0.0f, force});
+
+      if (!m_slowSources.empty()) {
+      float strongest = 1.0f;
+      for (auto& [src, strength] : m_slowSources) {
+        if (strength < strongest) {  // 値が小さいほど強い減速
+          strongest = strength;
+        }
+      }
+      float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
+      Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
+      }
+      if (m_accelInput > 0.0f) {
+        float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+        float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
+        Movement->AddLocalForce({0.0f, -force});
+      } else if (m_accelInput < 0.0f) {
+        float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
+        float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
+        Movement->AddLocalForce({0.0f, force});
+  
     }
     // ---- ステアリング ----
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
@@ -123,12 +139,13 @@ void APlayer::OnUpdate(float DeltaTime) {
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
 
-    // m_accelInput = 0.0f;
-    // m_slider = 0.0f;
-  } else if (bIsLocallyControlled) {
+  } 
+  else if (bIsLocallyControlled) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
 
+  UpdateDriftEffect(DeltaTime);
+  DrawDriftEffect();
   // ---- アニメーション ----
   if (m_sprite) {
     const float MoveAnimSpeedMin = 0.1f;
@@ -263,10 +280,12 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
   PlayerInputComponent->BindAction(
       InputAction::Move, ETriggerEvent::Completed, this, &APlayer::OnMove
   );
+  PlayerInputComponent->BindAction("USE_ITEM", ETriggerEvent::Started, this, &APlayer::UseHeldItem);
   PlayerInputComponent->BindAction("DRIFT", ETriggerEvent::Started, this, &APlayer::OnDriftPressed);
   PlayerInputComponent->BindAction(
       "DRIFT", ETriggerEvent::Completed, this, &APlayer::OnDriftReleased
   );
+  PlayerInputComponent->BindAction("USE_ITEM", ETriggerEvent::Started, this, &APlayer::UseHeldItem);
 }
 
 bool APlayer::IsDriftInputPressed() {
@@ -297,7 +316,6 @@ void APlayer::OnMove(const FInputActionValue& Value) {
     // 自分がサーバー(ホスト)なら直接呼ぶ
     Server_Move(clampedInput);
   } else {
-    // ★追加: 入力が(0, 0)になった時(キーを離した時)だけ到達保証(Reliable)で確実に送る
     ENetPacketReliability reliability = (clampedInput.X == 0.0f && clampedInput.Y == 0.0f)
                                             ? ENetPacketReliability::Reliable
                                             : ENetPacketReliability::Unreliable;
@@ -346,8 +364,29 @@ void APlayer::OnWheel(const FInputActionValue& Value) {
 }
 
 void APlayer::BeginOverlap(AActor* OtherActor) {
+  // 【超重要】クライアント側での衝突によるバグ・クラッシュを完全に防ぐため、
+  // サーバーではない（クライアントである）場合は、Overlap処理を一切行わずに即終了させます。
+  if (!GetWorld() || !GetWorld()->IsServer()) {
+    return;
+  }
+
+  if (!OtherActor || OtherActor->IsPendingDestroy()) {
+    return;
+  }
+
   M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
-  m_shake->StartShake(m_crashshake, {45, 45}, 2011);
+  if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
+
+  if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {
+    return;  // アイテム自体の処理はアイテム側の BeginOverlap で行うため、ここでは何もしない
+  }
+
+  // 壁や障害物に当たった時の処理（サーバーのみ実行されるので安全）
+  if (m_shake) {
+    m_shake->StartShake(m_crashshake, {45, 45}, 2011);
+  }
   m_accelInput *= 0.5f;
 }
 
@@ -375,8 +414,27 @@ void APlayer::OnDriftReleased() {
   }
 }
 void APlayer::EndOverlap(AActor* OtherActor) {
+  // 【超重要】EndOverlap もクライアント側は完全に無視させます。
+  // これにより、アイテムが Destroy された瞬間に発生する不正な EndOverlap で落ちるのを防ぎます。
+  if (!GetWorld() || !GetWorld()->IsServer()) {
+    return;
+  }
+
+  if (!OtherActor || OtherActor->IsPendingDestroy()) {
+    return;
+  }
   M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
-  m_shake->EndShake(m_crashshake, false);
+
+  if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
+  if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {
+    return;
+  }
+
+  if (m_shake) {
+    m_shake->EndShake(m_crashshake, false);
+  }
 }
 
 void APlayer::BeginPlay() {
@@ -587,7 +645,6 @@ void APlayer::UpdateDriftEffect(float DeltaTime) {
 }
 
 void APlayer::SpawnSkidMark() {
-  // 最大300枚を超えたら古いものから削除
   if (m_skidMarks.size() >= 300) {
     m_skidMarks.erase(m_skidMarks.begin());
   }
@@ -651,9 +708,6 @@ void APlayer::DrawDriftEffect() {
   // ----- タイヤ痕 -----
   for (const auto& mark : m_skidMarks) {
     int alpha = static_cast<int>(mark.Alpha * 160.0f);
-    // 左右タイヤ1本ずつ細長い矩形で描画
-    // SpawnSkidMark で左右別々にLocationを生成しているので
-    // ここでは中心を基準に小さな矩形1つを置くだけでよい
     FVector2D topLeft = FVector2D(-3.0f, -10.0f).RotateVector(mark.Rotation);
     rs.SubmitBox(
         mark.Location + topLeft,
@@ -662,7 +716,7 @@ void APlayer::DrawDriftEffect() {
         0x111111,
         true,
         RenderSpace::World,
-        -1,  // プレイヤースプライト(0)より後ろ
+        -1,
         alpha
     );
   }
@@ -673,30 +727,70 @@ void APlayer::DrawDriftEffect() {
     int alpha = static_cast<int>(lifeRatio * 190.0f);
 
     if (p.IsSpark) {
-      // 火花：速度方向に短いラインを伸ばす
       FVector2D tip = p.Location + p.Velocity * 0.025f;
-      rs.SubmitLine(
-          p.Location,
-          tip,
-          0xFFCC00,  // 黄色
-          RenderSpace::World,
-          3,
-          alpha
-      );
+      rs.SubmitLine(p.Location, tip, 0xFFCC00, RenderSpace::World, 3, alpha);
     } else {
-      // 煙：薄いグレーの円、時間で膨らみ・薄くなる
-      rs.SubmitCircle(
-          p.Location,
-          p.Radius,
-          0xBBBBBB,  // 薄いグレー
-          true,
-          RenderSpace::World,
-          3,
-          alpha
-      );
+      rs.SubmitCircle(p.Location, p.Radius, 0xBBBBBB, true, RenderSpace::World, 3, alpha);
     }
   }
 }
+
+
+void APlayer::GrantHeldItem() {
+  if (!bHasAuthority) {
+    return;  
+  }
+  m_hasHeldItem = true;
+  MarkReplicatedStateDirty();
+}
+void APlayer::UseHeldItem() {
+  M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);  
+  if (!bIsLocallyControlled) {
+    return;
+  }
+  if (!m_hasHeldItem) {
+    return;
+  }
+  if (!bIsLocallyControlled) {
+    return;
+  }
+  if (!m_hasHeldItem) {
+    return; 
+  }
+  if (bHasAuthority) {
+    Server_UseHeldItem();
+  } else {
+    m_hasHeldItem = false;
+    InvokeRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, ENetPacketReliability::Reliable);
+  }
+}
+void APlayer::Server_UseHeldItem() {
+  if (!m_hasHeldItem) {
+    return; 
+  }
+  m_hasHeldItem = false;
+  MarkReplicatedStateDirty();
+  ApplyHeldItemEffect();
+}
+void APlayer::ApplyHeldItemEffect() {
+  if (Movement) {
+    Movement->AddLocalForce({0, -25.0f});
+  }
+  ApplyFOVEffect(0.7f, 2.0f, true);
+  if (m_sound) {
+    m_sound->PlaySE("images/somekinoko", false);
+  }
+  M_LOG("Held item used: speed boost applied");
+}
+
+void APlayer::RemoveSlowSource(ASlowFloor2* source) { m_slowSources.erase(source); }
+
+void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
+  if (!source) return;
+  // strength: 値が小さいほど強い減速（Player.cpp の更新ロジックに合わせる）
+  m_slowSources[source] = strength;
+}
+
 //{
 //	if (Scale > 0) {
 //		m_movement->AddLocalForce({ 0.0f, -2.0f });

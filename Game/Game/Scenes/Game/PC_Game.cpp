@@ -167,6 +167,7 @@ void PC_Game::SetupInputMappings() {
     Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_S, "", -1.0f);
     Mapper->AddMapping(InputAction::Interact, kb, KEY_INPUT_F);
     Mapper->AddMapping("DRIFT", kb, KEY_INPUT_SPACE);
+    Mapper->AddMapping("USE_ITEM", kb, KEY_INPUT_E);
   }
   if (pad) {
     // ゲームプレイ中の MoveY には左スティックをバインドせず、トリガーのみで操作させる
@@ -179,5 +180,6 @@ void PC_Game::SetupInputMappings() {
 
     Mapper->AddMapping(InputAction::Interact, pad, PAD_INPUT_4);
     Mapper->AddMapping("DRIFT", pad, PAD_INPUT_1);
+    Mapper->AddMapping("USE_ITEM", pad, PAD_INPUT_3);
   }
 }

@@ -17,7 +17,7 @@ class APlayerController;
 
 class AGameSceneBase : public AGameModeBase {
  public:
-  AGameSceneBase(std::string mapId, std::string levelFileName, FVector2D playerStartLocation);
+  AGameSceneBase();
   void OnUpdate(float DeltaTime) override;
   APlayerController* OnClientConnected(FNetworkConnectionId ConnectionId) override;
   void OnClientDisconnected(FNetworkConnectionId ConnectionId) override;
