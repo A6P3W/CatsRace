@@ -86,6 +86,9 @@ ALobbyPlayerState* ALobbyScene::FindPlayerState(FNetworkConnectionId ConnectionI
 
 ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId ConnectionId) {
   if (auto* existing = FindPlayerState(ConnectionId)) {
+    if (ConnectionId == 0) {
+      existing->SetReady(true);
+    }
     return existing;
   }
 
@@ -113,6 +116,9 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
   }
   state->SetPlayerName(defaultName);
   state->SetLobbyOptions(SelectedLevelPath, MaxPlayers);
+  if (ConnectionId == 0) {
+    state->SetReady(true);
+  }
   return state;
 }
 

@@ -308,7 +308,7 @@ void APlayer::OnMove(const FInputActionValue& Value) {
   const FVector2D clampedInput{
       std::clamp(Value.Axis2D.X, -1.0f, 1.0f), std::clamp(Value.Axis2D.Y, -1.0f, 1.0f)
   };
-  M_LOG("OnMove: " + std::to_string(clampedInput.X) + ", " + std::to_string(clampedInput.Y));
+  // ★重要: クライアント側でのドリフト判定やアニメーション用にローカル変数に代入
   m_accelInput = clampedInput.Y;
   m_slider = -clampedInput.X;
 

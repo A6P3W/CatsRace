@@ -2,8 +2,11 @@
 
 #include <algorithm>
 
+#include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "NetworkManager.h"
+#include "OnlineSessionManager.h"
+#include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "Scenes/Lobby/UI/WLobbyHUD.h"
@@ -24,6 +27,7 @@ void PC_Lobby::BeginPlay() {
     m_LobbyHUD = GetWorld()->SpawnActor<WLobbyHUD>();
     m_LobbyHUD->SetLobbyController(this);
     UIManager::GetInstance()->AddWidget(m_LobbyHUD);
+    UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
   }
 }
 
@@ -159,6 +163,25 @@ void PC_Lobby::StartGame() {
   }
 }
 
+void PC_Lobby::LeaveLobby() {
+  auto returnToMenu = []() {
+    NetworkManager::GetInstance().Disconnect();
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
+  };
+
+  if (!OnlineSessionManager::Get().IsInLobby()) {
+    returnToMenu();
+    return;
+  }
+
+  if (!OnlineSessionManager::Get().LeaveLobby([returnToMenu](bool bSuccess) {
+        (void)bSuccess;
+        returnToMenu();
+      })) {
+    returnToMenu();
+  }
+}
+
 ALobbyScene* PC_Lobby::GetLobbyScene() const {
   auto* self = const_cast<PC_Lobby*>(this);
   if (!self->GetWorld()) {
@@ -166,4 +189,3 @@ ALobbyScene* PC_Lobby::GetLobbyScene() const {
   }
   return dynamic_cast<ALobbyScene*>(self->GetWorld()->GetGameMode());
 }
-
