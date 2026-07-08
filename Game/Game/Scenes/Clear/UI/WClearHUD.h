@@ -19,6 +19,8 @@ class WClearHUD : public AWidgetBase {
 
   void SetErrorText(std::string e);
 
+
+
  private:
   UITextComponent* m_ClearTimeText = nullptr;
   UITextComponent* m_LoadingText = nullptr;
@@ -26,4 +28,6 @@ class WClearHUD : public AWidgetBase {
 
   const float m_EntryStartY = 300.0f;
   const float m_EntryHeight = 45.0f;
+
+
 };

@@ -1,20 +1,46 @@
 ﻿#include "WMainHUD.h"
-
+#include <SpriteComponent.h>
 #include <UITextComponent.h>
 
 #include <iomanip>
 #include <sstream>
-
+ 
 WMainHUD::WMainHUD() {
   auto text = std::make_unique<UITextComponent>("Time: 0.00", 0x00FF88, 24);
   m_TimerText = text.get();
   m_TimerText->SetAnchor(EUIAnchor::TopLeft);
   m_TimerText->SetAnchoredPosition({100.0f, 100.0f});
   AddComponent(std::move(text));
+
+    auto itemIcon = std::make_unique<MSpriteComponent>(10, RenderSpace::Screen);
+  m_ItemIcon = itemIcon.get();
+  m_ItemIcon->SetRelativeLocation({80.0f, 900.0f});
+  m_ItemIcon->SubmitCircle(50.0f, 0xFF4444, true, 200);
+  m_ItemIcon->SetVisibility(false);
+  AddComponent(std::move(itemIcon));
+
+  auto itemText = std::make_unique<UITextComponent>("キノコ", 0xFFFFFF, 22);
+  m_ItemText = itemText.get();
+  m_ItemText->SetAnchor(EUIAnchor::BottomLeft);
+  m_ItemText->SetPivot({0.0f, 1.0f});
+  m_ItemText->SetAnchoredPosition({55.0f, -20.0f});
+  m_ItemText->SetVisibility(false);
+  AddComponent(std::move(itemText));
 }
 
 void WMainHUD::UpdateTimerText(float elapsedTime) {
+
+
+
+
   std::ostringstream oss;
   oss << "Time: " << std::fixed << std::setprecision(2) << elapsedTime;
   m_TimerText->SetText(oss.str());
+}
+
+
+
+void WMainHUD::SetHeldItemVisible(bool bVisible) {
+  if (m_ItemIcon) m_ItemIcon->SetVisibility(bVisible);
+  if (m_ItemText) m_ItemText->SetVisibility(bVisible);
 }

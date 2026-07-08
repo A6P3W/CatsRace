@@ -22,6 +22,8 @@ WClearHUD::WClearHUD() {
   m_LoadingText->SetPivot({0.5f, 0.5f});
   m_LoadingText->SetAnchoredPosition({0.0f, m_EntryStartY});
   AddComponent(std::move(loadingText));
+
+ 
 }
 
 void WClearHUD::SetClearTime(float clearTime) {

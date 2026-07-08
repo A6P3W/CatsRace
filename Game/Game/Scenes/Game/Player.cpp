@@ -157,7 +157,7 @@ void APlayer::OnUpdate(float DeltaTime) {
         m_moveAnimTime -= frameTime;
         m_walkAnimFrame = (m_walkAnimFrame + 1) % static_cast<int>(m_walkAnimHandles.size());
       }
-      m_sprite->SubmitGraph(m_walkAnimHandles[m_walkAnimFrame]);
+       m_sprite->SubmitGraph(m_walkAnimHandles[m_walkAnimFrame]);
     } else {
       m_moveAnimTime = 0.0f;
       m_walkAnimFrame = 0;

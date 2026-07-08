@@ -1,4 +1,4 @@
-#include "Objects/Items/HeldSpeedItem.h"
+﻿#include "Objects/Items/HeldSpeedItem.h"
 
 #include <TimerManager.h>  // タイマーマネージャーのヘッダー
 
@@ -69,22 +69,13 @@ void AHeldSpeedItem::BeginOverlap(AActor* OtherActor) {
 
   M_LOG("HeldSpeedItem: granted to player (conn={})", player->OwnerConnectionId);
 
-  // 2. 全端末に向けて非表示RPCを送信
-  // InvokeRPC(RPC_MulticastHideAndDestroy, ENetRPCType::Multicast,
-  // ENetPacketReliability::Reliable);
   Destroy();
 }
 
 void AHeldSpeedItem::Multicast_HideAndDestroy() {
   M_LOG("HeldSpeedItem: Multicast_HideAndDestroy executed.");
 
-  // ★ 修正ポイント:
-  // ここでコンポーネントを nullptr にしてしまうと、アクターのレプリケーション接続が壊れて
-  // クライアント側で Destroy 命令を受け取れなくなる原因になります。
-  // そのため、親子関係の解除は一切行わず、エンジンのライフサイクル（SetTimer ->
-  // Destroy）にすべて委ねます。
 
-  // 3. PC_Game.cpp と全く同じシグネチャ・引数順で0.1秒後にTriggerDestroyを予約
   if (GetWorld()) {
     GetWorldTimerManager().SetTimer(
         m_destroyTimerHandle, this, &AHeldSpeedItem::TriggerDestroy, 0.1f, false, 0.1f
