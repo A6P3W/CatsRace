@@ -31,8 +31,8 @@ class PC_Game : public APlayerController {
   void RaceCountDown();
   void ClearCountDown();
 
-  WMainHUD* m_MainHUD = nullptr;
-  WCountDown* m_CountDownWidget = nullptr;
+  WMainHUD* MainHUD = nullptr;
+  WCountDown* CountDownWidget = nullptr;
   WPauseMenu* PauseMenu = nullptr;
 
   float RaceTime = 0.0f;

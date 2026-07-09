@@ -27,12 +27,12 @@ void PC_Game::BeginPlay() {
   APlayerController::BeginPlay();
 
   if (bIsLocallyControlled) {
-    m_MainHUD = GetWorld()->SpawnActor<WMainHUD>();
-    UIManager::GetInstance()->AddWidget(m_MainHUD);
+    MainHUD = GetWorld()->SpawnActor<WMainHUD>();
+    UIManager::GetInstance()->AddWidget(MainHUD);
 
-    m_CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
-    m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
-    UIManager::GetInstance()->AddWidget(m_CountDownWidget);
+    CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
+    CountDownWidget->SetCountText(std::to_string(m_CountDown));
+    UIManager::GetInstance()->AddWidget(CountDownWidget);
 
     SetInputMode(EInputMode::UIOnly);
 
@@ -45,8 +45,8 @@ void PC_Game::OnUpdate(float DeltaTime) {
 
   if (bIsLocallyControlled && RaceRunning) {
     RaceTime += DeltaTime;
-    if (m_MainHUD) {
-      m_MainHUD->UpdateTimerText(RaceTime);
+    if (MainHUD) {
+      MainHUD->UpdateTimerText(RaceTime);
     }
   }
 }
@@ -56,24 +56,24 @@ void PC_Game::RaceCountDown() {
 
   if (m_CountDown <= 0) {
     GetWorldTimerManager().ClearTimer(CountHandle);
-    if (m_CountDownWidget) {
-      m_CountDownWidget->SetCountText("Go!");
+    if (CountDownWidget) {
+      CountDownWidget->SetCountText("Go!");
     }
     RaceRunning = true;
     SetInputMode(EInputMode::GameOnly);
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
   } else {
-    if (m_CountDownWidget) {
-      m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
+    if (CountDownWidget) {
+      CountDownWidget->SetCountText(std::to_string(m_CountDown));
     }
     GetWorld()->GetSoundManager()->PlaySE("soundreality-pop-423717.mp3", false);
   }
 }
 
 void PC_Game::ClearCountDown() {
-  if (m_CountDownWidget) {
-    UIManager::GetInstance()->RemoveWidget(m_CountDownWidget);
-    m_CountDownWidget = nullptr;
+  if (CountDownWidget) {
+    UIManager::GetInstance()->RemoveWidget(CountDownWidget);
+    CountDownWidget = nullptr;
   }
 }
 
@@ -117,27 +117,10 @@ void PC_Game::ReturnToLobby() {
 }
 
 void PC_Game::LeaveSession() {
-  auto returnToMenu = [this]() {
-    bPaused = false;
-    if (PauseMenu) {
-      UIManager::GetInstance()->RemoveWidget(PauseMenu);
-    }
-    PauseMenu = nullptr;
+
     NetworkManager::GetInstance().Disconnect();
     SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
-  };
 
-  if (!OnlineSessionManager::Get().IsInLobby()) {
-    returnToMenu();
-    return;
-  }
-
-  if (!OnlineSessionManager::Get().LeaveSession([returnToMenu](bool bSuccess) {
-        (void)bSuccess;
-        returnToMenu();
-      })) {
-    returnToMenu();
-  }
 }
 
 void PC_Game::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) {
