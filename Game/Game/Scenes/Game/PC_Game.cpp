@@ -9,6 +9,7 @@
 #include "InputMapper.h"
 #include "KeyboardDevice.h"
 #include "NetworkManager.h"
+#include "OnlineSessionManager.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "Scenes/Game/UI/WCountDown.h"
@@ -33,11 +34,6 @@ void PC_Game::BeginPlay() {
     m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
     UIManager::GetInstance()->AddWidget(m_CountDownWidget);
 
-    if (auto* inputComp = GetInputComponent()) {
-      inputComp->BindAction(
-          InputAction::Pause, ETriggerEvent::Started, this, &PC_Game::TogglePause
-      );
-    }
     SetInputMode(EInputMode::UIOnly);
 
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::RaceCountDown, 1.0f, true, 1.0f);
@@ -88,24 +84,23 @@ void PC_Game::TogglePause() {
 
   if (!bPaused) {
     bPaused = true;
-    GetWorld()->SetSimulating(false);
 
-    m_PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
-    m_PauseMenu->OnResumePressed = [this]() { TogglePause(); };
-    m_PauseMenu->OnRestartPressed = [this]() { RestartGame(); };
-    m_PauseMenu->OnTitlePressed = [this]() { ReturnToTitle(); };
+    PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
+    PauseMenu->OnResumePressed = [this]() { TogglePause(); };
+    PauseMenu->OnRestartPressed = [this]() { RestartGame(); };
+    PauseMenu->OnTitlePressed = [this]() { ReturnToLobby(); };
+    PauseMenu->OnLeavePressed = [this]() { LeaveSession(); };
 
-    UIManager::GetInstance()->AddWidget(m_PauseMenu);
-    UIManager::GetInstance()->SetFocusedWidget(m_PauseMenu);
+    UIManager::GetInstance()->AddWidget(PauseMenu);
+    UIManager::GetInstance()->SetFocusedWidget(PauseMenu);
 
     SetInputMode(EInputMode::UIOnly);
   } else {
     bPaused = false;
-    GetWorld()->SetSimulating(true);
 
-    if (m_PauseMenu) {
-      UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-      m_PauseMenu = nullptr;
+    if (PauseMenu) {
+      UIManager::GetInstance()->RemoveWidget(PauseMenu);
+      PauseMenu = nullptr;
     }
 
     SetInputMode(EInputMode::GameOnly);
@@ -113,42 +108,43 @@ void PC_Game::TogglePause() {
 }
 
 void PC_Game::RestartGame() {
-  bPaused = false;
-  GetWorld()->SetSimulating(true);
-
-  if (m_PauseMenu) {
-    UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-    m_PauseMenu = nullptr;
-  }
-
-  if (GetWorld()->IsServer()) {
-    if (auto* gameMode = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-      gameMode->RestartGame();
-    }
-  }
+  auto& SM = SceneManager::GetInstance();
+  GetWorld()->ServerTravel(SM.GetCurrentLevelPath());
 }
 
-void PC_Game::ReturnToTitle() {
-  bPaused = false;
-  GetWorld()->SetSimulating(true);
+void PC_Game::ReturnToLobby() {
+  GetWorld()->ServerTravel(GameSceneIds::Lobby);
+}
 
-  if (m_PauseMenu) {
-    UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-    m_PauseMenu = nullptr;
+void PC_Game::LeaveSession() {
+  auto returnToMenu = [this]() {
+    bPaused = false;
+    if (PauseMenu) {
+      UIManager::GetInstance()->RemoveWidget(PauseMenu);
+    }
+    PauseMenu = nullptr;
+    NetworkManager::GetInstance().Disconnect();
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
+  };
+
+  if (!OnlineSessionManager::Get().IsInLobby()) {
+    returnToMenu();
+    return;
   }
 
-  if (GetWorld()->IsServer()) {
-    if (auto* gameMode = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-      gameMode->ReturnToTitle();
-    }
-  } else {
-    NetworkManager::GetInstance().Disconnect();
-    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
+  if (!OnlineSessionManager::Get().LeaveSession([returnToMenu](bool bSuccess) {
+        (void)bSuccess;
+        returnToMenu();
+      })) {
+    returnToMenu();
   }
 }
 
 void PC_Game::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) {
   APlayerController::SetupPlayerInputComponent(PlayerInputComponent);
+  PlayerInputComponent->BindAction(
+      InputAction::Pause, ETriggerEvent::Started, this, &PC_Game::TogglePause
+  );
 }
 
 void PC_Game::SetupInputMappings() {
@@ -166,6 +162,7 @@ void PC_Game::SetupInputMappings() {
     Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_W, "", 1.0f);
     Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_S, "", -1.0f);
     Mapper->AddMapping(InputAction::Interact, kb, KEY_INPUT_F);
+    Mapper->AddMapping(InputAction::Pause, kb, KEY_INPUT_ESCAPE);
     Mapper->AddMapping("DRIFT", kb, KEY_INPUT_SPACE);
     Mapper->AddMapping("USE_ITEM", kb, KEY_INPUT_E);
   }

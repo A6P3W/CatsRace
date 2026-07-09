@@ -301,6 +301,6 @@ void AGameSceneBase::RaceStart() {
 
 void AGameSceneBase::RestartGame() { OpenCurrentScene(); }
 
-void AGameSceneBase::ReturnToTitle() {
+void AGameSceneBase::ReturnToLobby() {
   SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
 }

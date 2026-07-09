@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <TimerHandle.h>
 
 #include "PlayerController.h"
@@ -20,7 +20,8 @@ class PC_Game : public APlayerController {
 
   void TogglePause();
   void RestartGame();
-  void ReturnToTitle();
+  void ReturnToLobby();
+  void LeaveSession();
 
  protected:
   void BeginPlay() override;
@@ -32,7 +33,7 @@ class PC_Game : public APlayerController {
 
   WMainHUD* m_MainHUD = nullptr;
   WCountDown* m_CountDownWidget = nullptr;
-  WPauseMenu* m_PauseMenu = nullptr;
+  WPauseMenu* PauseMenu = nullptr;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;
