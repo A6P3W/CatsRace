@@ -15,7 +15,7 @@
 #include "InputManager.h"
 #include "InputMapper.h"
 #include "Log.h"
-#include "MovementComponent.h"
+#include "NetMovementComponent.h"
 #include "ActorManager.h"
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
@@ -27,7 +27,7 @@
 #include "Objects/Items/HeldSpeedItem.h"
 
 namespace {
-enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3, RPC_ServerUseHeldItem = 4 };
+enum : FNetworkRPCId { RPC_ServerSetDrift = 1, RPC_ServerNotifyGoal = 2, RPC_ServerUseHeldItem = 3, RPC_ServerSyncDriftState = 4 };
 }
 
 REGISTER_ACTOR(APlayer)
@@ -38,10 +38,10 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_driftDirection);
   RegisterReplicatedProperty(&CanMove);
   RegisterReplicatedProperty(&m_hasHeldItem);
-  RegisterRPC(RPC_ServerMove, ENetRPCType::Server, this, &APlayer::Server_Move);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
+  RegisterRPC(RPC_ServerSyncDriftState, ENetRPCType::Server, this, &APlayer::Server_SyncDriftState);
 
   SetActorLocation(location);
   SetActorRotation(rotation);
@@ -69,7 +69,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   col->SetStatic(false);
   AddComponent(std::move(col));
 
-  auto movement = std::make_unique<MMovementComponent>();
+  auto movement = std::make_unique<MNetMovementComponent>();
   Movement = movement.get();
   AddComponent(std::move(movement));
 
@@ -106,7 +106,7 @@ void APlayer::OnUpdate(float DeltaTime) {
   FVector2D v = Movement->GetVelocity();
   float speed = std::sqrt(v.SizeSquared());
 
-  if (bHasAuthority) {
+  if (bIsLocallyControlled) {
 
       if (!m_slowSources.empty()) {
       float strongest = 1.0f;
@@ -132,6 +132,15 @@ void APlayer::OnUpdate(float DeltaTime) {
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     UpdateDrift(DeltaTime, speed);
+    if (!bHasAuthority) {
+      InvokeRPC(
+          RPC_ServerSyncDriftState,
+          ENetRPCType::Server,
+          ENetPacketReliability::Unreliable,
+          m_isDrifting,
+          m_driftDirection
+      );
+    }
     UpdateDriftEffect(DeltaTime);
     DrawDriftEffect();
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
@@ -311,25 +320,14 @@ void APlayer::OnMove(const FInputActionValue& Value) {
   // ★重要: クライアント側でのドリフト判定やアニメーション用にローカル変数に代入
   m_accelInput = clampedInput.Y;
   m_slider = -clampedInput.X;
-
-  if (bHasAuthority) {
-    // 自分がサーバー(ホスト)なら直接呼ぶ
-    Server_Move(clampedInput);
-  } else {
-    ENetPacketReliability reliability = (clampedInput.X == 0.0f && clampedInput.Y == 0.0f)
-                                            ? ENetPacketReliability::Reliable
-                                            : ENetPacketReliability::Unreliable;
-
-    InvokeRPC(RPC_ServerMove, ENetRPCType::Server, reliability, clampedInput);
-  }
-}
-
-void APlayer::Server_Move(const FVector2D& MoveInput) {
-  m_accelInput = std::clamp(MoveInput.Y, -1.0f, 1.0f);
-  m_slider = -std::clamp(MoveInput.X, -1.0f, 1.0f);
 }
 
 void APlayer::Server_SetDrift(bool bDriftHeld) { m_driftKeyPressed = bDriftHeld; }
+
+void APlayer::Server_SyncDriftState(bool bDrifting, float driftDirection) {
+  m_isDrifting = bDrifting;
+  m_driftDirection = driftDirection;
+}
 
 void APlayer::Server_NotifyGoal() { NotifyGoalReached(); }
 
