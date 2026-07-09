@@ -9,6 +9,7 @@
 #include "InputMapper.h"
 #include "KeyboardDevice.h"
 #include "NetworkManager.h"
+#include "OnlineSessionManager.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "Scenes/Game/UI/WCountDown.h"
@@ -26,18 +27,13 @@ void PC_Game::BeginPlay() {
   APlayerController::BeginPlay();
 
   if (bIsLocallyControlled) {
-    m_MainHUD = GetWorld()->SpawnActor<WMainHUD>();
-    UIManager::GetInstance()->AddWidget(m_MainHUD);
+    MainHUD = GetWorld()->SpawnActor<WMainHUD>();
+    UIManager::GetInstance()->AddWidget(MainHUD);
 
-    m_CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
-    m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
-    UIManager::GetInstance()->AddWidget(m_CountDownWidget);
+    CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
+    CountDownWidget->SetCountText(std::to_string(m_CountDown));
+    UIManager::GetInstance()->AddWidget(CountDownWidget);
 
-    if (auto* inputComp = GetInputComponent()) {
-      inputComp->BindAction(
-          InputAction::Pause, ETriggerEvent::Started, this, &PC_Game::TogglePause
-      );
-    }
     SetInputMode(EInputMode::UIOnly);
 
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::RaceCountDown, 1.0f, true, 1.0f);
@@ -49,8 +45,8 @@ void PC_Game::OnUpdate(float DeltaTime) {
 
   if (bIsLocallyControlled && RaceRunning) {
     RaceTime += DeltaTime;
-    if (m_MainHUD) {
-      m_MainHUD->UpdateTimerText(RaceTime);
+    if (MainHUD) {
+      MainHUD->UpdateTimerText(RaceTime);
     }
   }
 }
@@ -60,24 +56,24 @@ void PC_Game::RaceCountDown() {
 
   if (m_CountDown <= 0) {
     GetWorldTimerManager().ClearTimer(CountHandle);
-    if (m_CountDownWidget) {
-      m_CountDownWidget->SetCountText("Go!");
+    if (CountDownWidget) {
+      CountDownWidget->SetCountText("Go!");
     }
     RaceRunning = true;
     SetInputMode(EInputMode::GameOnly);
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
   } else {
-    if (m_CountDownWidget) {
-      m_CountDownWidget->SetCountText(std::to_string(m_CountDown));
+    if (CountDownWidget) {
+      CountDownWidget->SetCountText(std::to_string(m_CountDown));
     }
     GetWorld()->GetSoundManager()->PlaySE("soundreality-pop-423717.mp3", false);
   }
 }
 
 void PC_Game::ClearCountDown() {
-  if (m_CountDownWidget) {
-    UIManager::GetInstance()->RemoveWidget(m_CountDownWidget);
-    m_CountDownWidget = nullptr;
+  if (CountDownWidget) {
+    UIManager::GetInstance()->RemoveWidget(CountDownWidget);
+    CountDownWidget = nullptr;
   }
 }
 
@@ -88,24 +84,23 @@ void PC_Game::TogglePause() {
 
   if (!bPaused) {
     bPaused = true;
-    GetWorld()->SetSimulating(false);
 
-    m_PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
-    m_PauseMenu->OnResumePressed = [this]() { TogglePause(); };
-    m_PauseMenu->OnRestartPressed = [this]() { RestartGame(); };
-    m_PauseMenu->OnTitlePressed = [this]() { ReturnToTitle(); };
+    PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
+    PauseMenu->OnResumePressed = [this]() { TogglePause(); };
+    PauseMenu->OnRestartPressed = [this]() { RestartGame(); };
+    PauseMenu->OnTitlePressed = [this]() { ReturnToLobby(); };
+    PauseMenu->OnLeavePressed = [this]() { LeaveSession(); };
 
-    UIManager::GetInstance()->AddWidget(m_PauseMenu);
-    UIManager::GetInstance()->SetFocusedWidget(m_PauseMenu);
+    UIManager::GetInstance()->AddWidget(PauseMenu);
+    UIManager::GetInstance()->SetFocusedWidget(PauseMenu);
 
     SetInputMode(EInputMode::UIOnly);
   } else {
     bPaused = false;
-    GetWorld()->SetSimulating(true);
 
-    if (m_PauseMenu) {
-      UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-      m_PauseMenu = nullptr;
+    if (PauseMenu) {
+      UIManager::GetInstance()->RemoveWidget(PauseMenu);
+      PauseMenu = nullptr;
     }
 
     SetInputMode(EInputMode::GameOnly);
@@ -113,42 +108,26 @@ void PC_Game::TogglePause() {
 }
 
 void PC_Game::RestartGame() {
-  bPaused = false;
-  GetWorld()->SetSimulating(true);
-
-  if (m_PauseMenu) {
-    UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-    m_PauseMenu = nullptr;
-  }
-
-  if (GetWorld()->IsServer()) {
-    if (auto* gameMode = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-      gameMode->RestartGame();
-    }
-  }
+  auto& SM = SceneManager::GetInstance();
+  GetWorld()->ServerTravel(SM.GetCurrentLevelPath());
 }
 
-void PC_Game::ReturnToTitle() {
-  bPaused = false;
-  GetWorld()->SetSimulating(true);
+void PC_Game::ReturnToLobby() {
+  GetWorld()->ServerTravel(GameSceneIds::Lobby);
+}
 
-  if (m_PauseMenu) {
-    UIManager::GetInstance()->RemoveWidget(m_PauseMenu);
-    m_PauseMenu = nullptr;
-  }
+void PC_Game::LeaveSession() {
 
-  if (GetWorld()->IsServer()) {
-    if (auto* gameMode = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-      gameMode->ReturnToTitle();
-    }
-  } else {
     NetworkManager::GetInstance().Disconnect();
-    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
-  }
+    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
+
 }
 
 void PC_Game::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) {
   APlayerController::SetupPlayerInputComponent(PlayerInputComponent);
+  PlayerInputComponent->BindAction(
+      InputAction::Pause, ETriggerEvent::Started, this, &PC_Game::TogglePause
+  );
 }
 
 void PC_Game::SetupInputMappings() {
@@ -166,6 +145,7 @@ void PC_Game::SetupInputMappings() {
     Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_W, "", 1.0f);
     Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_S, "", -1.0f);
     Mapper->AddMapping(InputAction::Interact, kb, KEY_INPUT_F);
+    Mapper->AddMapping(InputAction::Pause, kb, KEY_INPUT_ESCAPE);
     Mapper->AddMapping("DRIFT", kb, KEY_INPUT_SPACE);
     Mapper->AddMapping("USE_ITEM", kb, KEY_INPUT_E);
   }

@@ -4,6 +4,16 @@
 #include <SpriteComponent.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>
+#include <UIVerticalBoxComponent.h>
+#include <World.h>
+
+namespace {
+constexpr float PauseButtonWidth = 350.0f;
+constexpr float PauseButtonHeight = 70.0f;
+constexpr int ButtonNormalColor = 0x282D37;
+constexpr int ButtonHoveredColor = 0x0078D7;
+constexpr int ButtonPressedColor = 0x005AA0;
+}  // namespace
 
 WPauseMenu::WPauseMenu() {
   // 1. 一時停止中でも更新を許可する
@@ -29,93 +39,69 @@ WPauseMenu::WPauseMenu() {
   m_TxtTitle->SetAnchoredPosition({0.0f, -250.0f});
   AddComponent(std::move(txtTitle));
 
-  // 4. 「再開」ボタン
-  auto btnResume = std::make_unique<UIBoxButtonComponent>(
-      350.0f, 70.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160)
-  );
-  m_BtnResume = btnResume.get();
-  m_BtnResume->SetAnchor(EUIAnchor::MiddleCenter);
-  m_BtnResume->SetPivot({0.5f, 0.5f});
-  m_BtnResume->SetAnchoredPosition({0.0f, -50.0f});
-
-  auto txtResume = std::make_unique<UITextComponent>("再開", 0xFFFFFF, 24);
-  m_TxtResume = txtResume.get();
-  m_TxtResume->SetParentComponent(m_BtnResume);
-  m_TxtResume->SetAnchor(EUIAnchor::MiddleCenter);
-  m_TxtResume->SetPivot({0.5f, 0.5f});
-  m_TxtResume->SetAnchoredPosition({0.0f, 0.0f});
-
-  AddComponent(std::move(btnResume));
-  AddComponent(std::move(txtResume));
-
-  // 5. 「最初から開始」ボタン
-  auto btnRestart = std::make_unique<UIBoxButtonComponent>(
-      350.0f, 70.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160)
-  );
-  m_BtnRestart = btnRestart.get();
-  m_BtnRestart->SetAnchor(EUIAnchor::MiddleCenter);
-  m_BtnRestart->SetPivot({0.5f, 0.5f});
-  m_BtnRestart->SetAnchoredPosition({0.0f, 50.0f});
-
-  auto txtRestart = std::make_unique<UITextComponent>("最初から開始", 0xFFFFFF, 24);
-  m_TxtRestart = txtRestart.get();
-  m_TxtRestart->SetParentComponent(m_BtnRestart);
-  m_TxtRestart->SetAnchor(EUIAnchor::MiddleCenter);
-  m_TxtRestart->SetPivot({0.5f, 0.5f});
-  m_TxtRestart->SetAnchoredPosition({0.0f, 0.0f});
-
-  AddComponent(std::move(btnRestart));
-  AddComponent(std::move(txtRestart));
-
-  // 6. 「タイトルへ戻る」ボタン
-  auto btnTitle = std::make_unique<UIBoxButtonComponent>(
-      350.0f, 70.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160)
-  );
-  m_BtnTitle = btnTitle.get();
-  m_BtnTitle->SetAnchor(EUIAnchor::MiddleCenter);
-  m_BtnTitle->SetPivot({0.5f, 0.5f});
-  m_BtnTitle->SetAnchoredPosition({0.0f, 150.0f});
-
-  auto txtTitleBtn = std::make_unique<UITextComponent>("タイトルへ戻る", 0xFFFFFF, 24);
-  m_TxtTitleBtn = txtTitleBtn.get();
-  m_TxtTitleBtn->SetParentComponent(m_BtnTitle);
-  m_TxtTitleBtn->SetAnchor(EUIAnchor::MiddleCenter);
-  m_TxtTitleBtn->SetPivot({0.5f, 0.5f});
-  m_TxtTitleBtn->SetAnchoredPosition({0.0f, 0.0f});
-
-  AddComponent(std::move(btnTitle));
-  AddComponent(std::move(txtTitleBtn));
+  auto buttonList = std::make_unique<MUIVerticalBoxComponent>();
+  m_ButtonList = buttonList.get();
+  m_ButtonList->SetAnchor(EUIAnchor::MiddleCenter);
+  m_ButtonList->SetPivot({0.5f, 0.5f});
+  m_ButtonList->SetWidgetSize({PauseButtonWidth, 1.0f});
+  m_ButtonList->SetAnchoredPosition({0.0f, -50.0f});
+  m_ButtonList->SetSpacing(30.0f);
+  AddComponent(std::move(buttonList));
 }
 
 void WPauseMenu::BeginPlay() {
   AWidgetBase::BeginPlay();
 
-  // ボタン間のナビゲーション設定 (上下移動)
-  m_BtnResume->Navigation.Down = m_BtnRestart;
-
-  m_BtnRestart->Navigation.Up = m_BtnResume;
-  m_BtnRestart->Navigation.Down = m_BtnTitle;
-
-  m_BtnTitle->Navigation.Up = m_BtnRestart;
-
-  // 初期フォーカス
-  SetFocusedButton(m_BtnResume);
-
-  // ボタンのコールバック
+  m_BtnResume = AddMenuButton("再開");
   m_BtnResume->OnPressed = [this]() {
     if (OnResumePressed) OnResumePressed();
   };
 
-  m_BtnRestart->OnPressed = [this]() {
-    if (OnRestartPressed) OnRestartPressed();
-  };
+  if (GetWorld() && GetWorld()->IsServer()) {
+    m_BtnRestart = AddMenuButton("最初から");
+    m_BtnRestart->OnPressed = [this]() {
+      if (OnRestartPressed) OnRestartPressed();
+    };
 
-  m_BtnTitle->OnPressed = [this]() {
-    if (OnTitlePressed) OnTitlePressed();
-  };
+    m_BtnTitle = AddMenuButton("ロビーに戻る");
+    m_BtnTitle->OnPressed = [this]() {
+      if (OnTitlePressed) OnTitlePressed();
+    };
+  } else if (GetWorld() && GetWorld()->IsClient()) {
+    m_BtnLeave = AddMenuButton("退出");
+    m_BtnLeave->OnPressed = [this]() {
+      if (OnLeavePressed) OnLeavePressed();
+    };
+  }
+
+  if (m_ButtonList) {
+    m_ButtonList->BuildNavigation();
+  }
+  SetFocusedButton(m_BtnResume);
 }
 
 void WPauseMenu::Cancel() {
   // キャンセル（ESCキーなど）で再開する
   if (OnResumePressed) OnResumePressed();
+}
+
+UIBoxButtonComponent* WPauseMenu::AddMenuButton(const std::string& Label) {
+  auto button = std::make_unique<UIBoxButtonComponent>(
+      PauseButtonWidth, PauseButtonHeight, ButtonNormalColor, ButtonHoveredColor, ButtonPressedColor
+  );
+  UIBoxButtonComponent* buttonPtr = button.get();
+  buttonPtr->SetPivot({0.5f, 0.5f});
+  if (m_ButtonList) {
+    m_ButtonList->AddItem(buttonPtr);
+  }
+
+  auto text = std::make_unique<UITextComponent>(Label, 0xFFFFFF, 24);
+  text->SetParentComponent(buttonPtr);
+  text->SetAnchor(EUIAnchor::MiddleCenter);
+  text->SetPivot({0.5f, 0.5f});
+  text->SetAnchoredPosition({0.0f, 0.0f});
+
+  AddComponent(std::move(button));
+  AddComponent(std::move(text));
+  return buttonPtr;
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <TimerHandle.h>
 #include <TimerManager.h>
 
@@ -33,7 +33,7 @@ class AGameSceneBase : public AGameModeBase {
   void RaceFinish();
   void NotifyPlayerFinished(APlayer* Player);
   virtual void RestartGame();
-  virtual void ReturnToTitle();
+  virtual void ReturnToLobby();
 
  protected:
   virtual void OpenCurrentScene() = 0;
