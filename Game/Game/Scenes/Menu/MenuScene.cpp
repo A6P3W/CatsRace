@@ -18,6 +18,14 @@
 
 namespace {
 constexpr const char* GameLobbyBucketId = "AGS2026Summer";
+constexpr const char* LobbyStateAttributeKey = "LOBBY_STATE";
+constexpr const char* LobbyStateWaiting = "WAITING";
+constexpr const char* LobbyStateRacing = "RACING";
+
+bool IsLobbyRacing(const FLobbyInfo& LobbyInfo) {
+  return LobbyInfo.GetStringAttribute(LobbyStateAttributeKey, LobbyStateWaiting) ==
+         LobbyStateRacing;
+}
 }
 
 REGISTER_GAME_MODE(AMenuScene)
@@ -199,6 +207,9 @@ void AMenuScene::CreateOnlineLobby() {
   request.HostIPAddress = localIPAddress;
   request.Attributes.push_back({"LOBBYNAME", FLobbyAttributeValue::FromString(safeLobbyName), true});
   request.Attributes.push_back({"HOSTNAME", FLobbyAttributeValue::FromString(PlayerName), true});
+  request.Attributes.push_back(
+      {LobbyStateAttributeKey, FLobbyAttributeValue::FromString(LobbyStateWaiting), true}
+  );
 
   OnlineStatusMessage = "Create online lobby requested. HostIP=" + localIPAddress;
   UpdateActiveStatus();
@@ -287,7 +298,43 @@ void AMenuScene::JoinSelectedOnlineLobby() {
     return;
   }
 
-  const FLobbyInfo lobbyInfo = OnlineSearchResults[SelectedOnlineLobbyIndex];
+  const int lobbyIndex = SelectedOnlineLobbyIndex;
+  const FLobbyInfo lobbyInfo = OnlineSearchResults[lobbyIndex];
+  if (IsLobbyRacing(lobbyInfo)) {
+    OnlineStatusMessage = "レース中のため参加できません。";
+    UpdateActiveStatus();
+    return;
+  }
+
+  OnlineStatusMessage = "Checking latest lobby state: " + lobbyInfo.LobbyId;
+  UpdateActiveStatus();
+  if (!OnlineSessionManager::Get().FetchLobbyInfoById(
+          lobbyInfo.LobbyId,
+          [this, lobbyIndex](bool bSuccess, const FLobbyInfo& latestLobbyInfo) {
+            if (!bSuccess || !latestLobbyInfo.bValid) {
+              OnlineStatusMessage = "Lobby state check failed. Search again if the result is stale.";
+              UpdateActiveStatus();
+              return;
+            }
+
+            if (lobbyIndex >= 0 && lobbyIndex < static_cast<int>(OnlineSearchResults.size())) {
+              OnlineSearchResults[lobbyIndex] = latestLobbyInfo;
+            }
+            if (IsLobbyRacing(latestLobbyInfo)) {
+              OnlineStatusMessage = "レース中のため参加できません。";
+              UpdateActiveWidget();
+              return;
+            }
+
+            JoinOnlineLobby(latestLobbyInfo);
+          }
+      )) {
+    OnlineStatusMessage = "Lobby state check request was rejected.";
+    UpdateActiveStatus();
+  }
+}
+
+void AMenuScene::JoinOnlineLobby(const FLobbyInfo& lobbyInfo) {
   if (lobbyInfo.HostIPAddress.empty()) {
     OnlineStatusMessage = "Selected lobby does not have HostIP.";
     UpdateActiveStatus();

@@ -33,6 +33,7 @@ class AMenuScene : public AGameModeBase {
   void CreateOnlineLobby();
   void SearchOnlineLobbies();
   void JoinSelectedOnlineLobby();
+  void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
   void LeaveOnlineLobby();
   void LoadSettings();
   void SaveSettings();
