@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <vector>
 
@@ -17,7 +17,7 @@ class PC_Clear : public APlayerController {
 
   PC_Clear();
 
-  void Draw() override;
+  void OnUpdate(float DeltaTime) override;
 
  protected:
   void BeginPlay() override;
@@ -29,11 +29,15 @@ class PC_Clear : public APlayerController {
   void ExecutePostScore(const std::string& name);
   void FetchAndDisplay();
   void ShowPostGameDialog();
-  void SpawnResultStatesFromGameInstance();
+  void RefreshMultiplayerResults();
+  void SubmitLocalResultToServerIfNeeded();
+  void Server_SubmitLocalResult(float FinishTime);
 
   std::vector<ALobbyPlayerState*> GetResultStates();
 
   WClearHUD* m_ClearHUD = nullptr;
+  std::string m_LastResultSignature;
+  bool m_bSubmittedLocalResult = false;
   std::vector<std::string> m_FetchedUserIds;
   WNameSelectDialog* m_NameSelectDialog = nullptr;
   WNameInputDialog* m_NameInputDialog = nullptr;

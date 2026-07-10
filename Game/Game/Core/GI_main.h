@@ -40,7 +40,7 @@ class GI_main : public GameInstance {
     float FinishTime = 0.0f;
   };
 
-  float ClearTime = 1000;
+  float ClearTime = -1.0f;
   std::string map_id = "/";
   std::string user_id = "";
   std::string LastGhostData = "";
