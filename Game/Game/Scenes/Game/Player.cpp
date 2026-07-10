@@ -25,9 +25,10 @@
 #include "SpriteComponent.h"
 #include "Objects/Items/SpeedDownstage.h"
 #include "Objects/Items/HeldSpeedItem.h"
-
+#include "LapCheckpoint.h"
 namespace {
-enum : FNetworkRPCId { RPC_ServerSetDrift = 1, RPC_ServerNotifyGoal = 2, RPC_ServerUseHeldItem = 3, RPC_ServerSyncDriftState = 4 };
+enum : FNetworkRPCId { RPC_ServerSetDrift = 1, RPC_ServerNotifyGoal = 2, RPC_ServerUseHeldItem = 3, RPC_ServerSyncDriftState = 4, RPC_MulticastUpdateLap = 5
+};
 }
 
 REGISTER_ACTOR(APlayer)
@@ -42,6 +43,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
   RegisterRPC(RPC_ServerSyncDriftState, ENetRPCType::Server, this, &APlayer::Server_SyncDriftState);
+  RegisterRPC(RPC_MulticastUpdateLap, ENetRPCType::Multicast, this, &APlayer::Multicast_UpdateLap);
 
   SetActorLocation(location);
   SetActorRotation(rotation);
@@ -107,8 +109,7 @@ void APlayer::OnUpdate(float DeltaTime) {
   float speed = std::sqrt(v.SizeSquared());
 
   if (bIsLocallyControlled) {
-
-      if (!m_slowSources.empty()) {
+    if (!m_slowSources.empty()) {
       float strongest = 1.0f;
       for (auto& [src, strength] : m_slowSources) {
         if (strength < strongest) {  // 値が小さいほど強い減速
@@ -117,16 +118,15 @@ void APlayer::OnUpdate(float DeltaTime) {
       }
       float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
       Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
-      }
-      if (m_accelInput > 0.0f) {
-        float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
-        float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
-        Movement->AddLocalForce({0.0f, -force});
-      } else if (m_accelInput < 0.0f) {
-        float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
-        float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
-        Movement->AddLocalForce({0.0f, force});
-  
+    }
+    if (m_accelInput > 0.0f) {
+      float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+      float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
+      Movement->AddLocalForce({0.0f, -force});
+    } else if (m_accelInput < 0.0f) {
+      float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
+      float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
+      Movement->AddLocalForce({0.0f, force});
     }
     // ---- ステアリング ----
     float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
@@ -148,8 +148,7 @@ void APlayer::OnUpdate(float DeltaTime) {
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
 
-  } 
-  else if (bIsLocallyControlled) {
+  } else if (bIsLocallyControlled) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
 
@@ -377,6 +376,9 @@ void APlayer::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
+  if (dynamic_cast<ALapCheckpoint*>(OtherActor)) {
+    return;
+  }
   if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {
     return;  // アイテム自体の処理はアイテム側の BeginOverlap で行うため、ここでは何もしない
   }
@@ -424,6 +426,9 @@ void APlayer::EndOverlap(AActor* OtherActor) {
   M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
 
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
+  if (dynamic_cast<ALapCheckpoint*>(OtherActor)) {
     return;
   }
   if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {
@@ -787,6 +792,40 @@ void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
   if (!source) return;
   // strength: 値が小さいほど強い減速（Player.cpp の更新ロジックに合わせる）
   m_slowSources[source] = strength;
+}
+void APlayer::OnLapLineCrossed(int totalCheckpoints) {
+  if (!bHasAuthority) return;
+
+  if (m_lapLineCooldown > 0.0f) return;
+
+  if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
+    M_LOG(
+        "Lap line crossed but checkpoints incomplete: {}/{}",
+        m_lastPassedCheckpoint + 1,
+        totalCheckpoints
+    );
+    return;
+  }
+
+  m_lastPassedCheckpoint = -1;
+  m_currentLap++;
+  m_lapLineCooldown = 3.0f;
+
+  // 全クライアントに周回数を通知
+  InvokeRPC(
+      RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
+  );
+
+  M_LOG("Lap {} / {} completed!", m_currentLap, TotalLaps);
+
+  if (m_currentLap >= TotalLaps) {
+    NotifyGoalReached();
+  }
+}
+
+void APlayer::Multicast_UpdateLap(int newLap) {
+  m_currentLap = newLap;
+  M_LOG("Lap updated to {} (multicast)", m_currentLap);
 }
 
 //{

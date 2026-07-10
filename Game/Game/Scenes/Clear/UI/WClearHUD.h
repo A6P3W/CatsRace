@@ -53,4 +53,8 @@ class WClearHUD : public AWidgetBase {
   UITextComponent* m_WaitingHostText = nullptr;
 
   std::vector<WRankEntryComponent*> m_ResultEntryWidgets;
+  const float m_EntryStartY = 300.0f;
+  const float m_EntryHeight = 45.0f;
+
+
 };

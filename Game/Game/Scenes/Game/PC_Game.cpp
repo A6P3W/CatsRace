@@ -18,6 +18,7 @@
 #include "SoundManager.h"
 #include "UIManager.h"
 #include "World.h"
+#include "Scenes/Game/Player.h"
 
 REGISTER_ACTOR(PC_Game)
 
@@ -47,6 +48,18 @@ void PC_Game::OnUpdate(float DeltaTime) {
     RaceTime += DeltaTime;
     if (MainHUD) {
       MainHUD->UpdateTimerText(RaceTime);
+
+      if (auto* pawn = GetPawn()) {
+        if (auto* player = dynamic_cast<APlayer*>(pawn)) {
+          MainHUD->SetHeldItemVisible(player->HasHeldItem());
+          MainHUD->UpdateLapText(player->GetCurrentLap(), 3);  
+          if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
+         
+      
+          }
+
+        }
+      }
     }
   }
 }

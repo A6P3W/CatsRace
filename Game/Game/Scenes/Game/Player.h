@@ -34,6 +34,10 @@ class APlayer : public APawn {
   bool HasHeldItem() const { return m_hasHeldItem; }
   void GrantHeldItem();
   void UseHeldItem();
+  int GetCurrentLap() const { return m_currentLap; }
+  int GetLastPassedCheckpoint() const { return m_lastPassedCheckpoint; }
+  void SetLastPassedCheckpoint(int index) { m_lastPassedCheckpoint = index; }
+  void OnLapLineCrossed(int totalCheckpoints);
  private:
   MCameraComponent* m_camera = nullptr;
   MEasyShakeComponent* m_shake = nullptr;
@@ -45,7 +49,7 @@ class APlayer : public APawn {
   float m_accelInput = 0.0f;
   float m_slider = 0.0f;
   bool m_isSpeedUp = false;
-
+  float m_lapLineCooldown = 0.0f;
   const float MaxSpeed = 70.0f;
   const float MaxReverseSpeed = 20.0f;
   const float AccelForce = 3.5f;
@@ -80,7 +84,9 @@ class APlayer : public APawn {
   FShakeHandle m_crashshake;
   // ---- スピードダウン管理 ----
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
-
+  int m_currentLap = 0;                                   // 完了した周回数（0始まり）
+  int m_lastPassedCheckpoint = -1;                        // 最後に通過したチェックポイント番号
+  static constexpr int TotalLaps = 3;                     // 総周回数
   struct FSkidMark {
     FVector2D Location;
     FRotator Rotation;
@@ -102,7 +108,7 @@ class APlayer : public APawn {
   std::vector<FDriftParticle> m_driftParticles;
   float m_particleTimer = 0.0f;
   static constexpr float ParticleInterval = 0.02f;
-
+  void Multicast_UpdateLap(int newLap);
   void OnDriftPressed();
   void OnDriftReleased();
   void UpdateDrift(float DeltaTime, float speed);

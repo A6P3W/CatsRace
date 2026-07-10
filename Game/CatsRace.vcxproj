@@ -63,6 +63,8 @@
     <ClCompile Include="Game\Ghost\GhostRecorderComponent.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedDownstage.cpp" />
     <ClCompile Include="Game\Objects\Items\HeldSpeedItem.cpp" />
+    <ClCompile Include="Game\Scenes\Game\LapCheckpoint.cpp" />
+    <ClCompile Include="Game\Scenes\Game\GameScene2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
@@ -104,6 +106,8 @@
     <ClInclude Include="Game\Ghost\GhostRecorderComponent.h" />
     <ClInclude Include="Game\Objects\Items\SpeedDownstage.h" />
     <ClInclude Include="Game\Objects\Items\HeldSpeedItem.h" />
+    <ClInclude Include="Game\Scenes\Game\LapCheckpoint.h" />
+    <ClInclude Include="Game\Scenes\Game\GameScene2.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include=".default\file-exclamation-point.png" />
