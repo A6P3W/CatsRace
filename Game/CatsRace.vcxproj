@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\AGENTS.md" />
+    <None Include="..\Readme.md" />
     <None Include="Game\include.md">
       <SubType>
       </SubType>
