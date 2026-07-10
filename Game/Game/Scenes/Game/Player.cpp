@@ -25,7 +25,7 @@
 #include "SpriteComponent.h"
 #include "Objects/Items/SpeedDownstage.h"
 #include "Objects/Items/HeldSpeedItem.h"
-
+#include "LapCheckpoint.h"
 namespace {
 enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3, RPC_ServerUseHeldItem = 4 };
 }
@@ -381,6 +381,9 @@ void APlayer::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
+  if (dynamic_cast<ALapCheckpoint*>(OtherActor)) {
+    return;
+  }
   if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {
     return;  // アイテム自体の処理はアイテム側の BeginOverlap で行うため、ここでは何もしない
   }
@@ -428,6 +431,9 @@ void APlayer::EndOverlap(AActor* OtherActor) {
   M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
 
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
+    return;
+  }
+  if (dynamic_cast<ALapCheckpoint*>(OtherActor)) {
     return;
   }
   if (dynamic_cast<AHeldSpeedItem*>(OtherActor)) {

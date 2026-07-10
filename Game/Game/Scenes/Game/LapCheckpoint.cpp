@@ -12,7 +12,7 @@ ALapCheckpoint::ALapCheckpoint(FVector2D location, FRotator rotation) {
   SetActorRotation(rotation);
 
   auto collision =
-      std::make_unique<MRectangleCollisionComponent>(200.0f, 400.0f);  
+      std::make_unique<MRectangleCollisionComponent>(1200.0f, 200.0f);  
   m_collision = collision.get();
   m_collision->SetParentComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);

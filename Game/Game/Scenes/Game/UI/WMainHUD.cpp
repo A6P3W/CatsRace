@@ -27,7 +27,7 @@ WMainHUD::WMainHUD() {
   m_ItemText->SetVisibility(false);
   AddComponent(std::move(itemText));
 
-  auto lapText = std::make_unique<UITextComponent>("LAP 1 / 3", 0xFFFFFF, 28);
+    auto lapText = std::make_unique<UITextComponent>("LAP 1 / 3", 0xFFFFFF, 28);
   m_LapText = lapText.get();
   m_LapText->SetAnchor(EUIAnchor::TopRight);
   m_LapText->SetAnchoredPosition({-120.0f, 60.0f});
