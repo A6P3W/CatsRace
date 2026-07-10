@@ -309,6 +309,8 @@ void WSearchLobbyWidget::SetLobbyResults(
     EmptyText->SetVisibility(Results.empty());
   }
 
+  ResultList->RemoveItem(BackButton);
+
   for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
     const FLobbyInfo& lobbyInfo = Results[index];
     const std::string label =
@@ -320,17 +322,26 @@ void WSearchLobbyWidget::SetLobbyResults(
         OnLobbySelected(index);
       }
     };
-    if (index == SelectedIndex) {
-      SetFocusedButton(button);
-    }
     LobbyButtons.push_back(button);
   }
 
+  ResultList->AddItem(BackButton);
+
   RebuildNavigation();
+
+  if (SelectedIndex >= 0 && SelectedIndex < static_cast<int>(LobbyButtons.size())) {
+    SetFocusedButton(LobbyButtons[SelectedIndex]);
+  } else {
+    SetFocusedButton(RefreshButton);
+  }
 }
 
 void WSearchLobbyWidget::RebuildNavigation() {
   ResultList->BuildNavigation();
+
+  RefreshButton->Navigation.Up = nullptr;
+  BackButton->Navigation.Down = nullptr;
+
   if (!LobbyButtons.empty()) {
     RefreshButton->Navigation.Down = LobbyButtons.front();
     LobbyButtons.front()->Navigation.Up = RefreshButton;

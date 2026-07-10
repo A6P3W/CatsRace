@@ -72,6 +72,7 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
       MainMenuWidget->OnUserNameChanged = [this](const std::string& NewName) {
         strncpy_s(PlayerName, sizeof(PlayerName), NewName.c_str(), _TRUNCATE);
         SaveSettings();
+        LobbyName = std::string(PlayerName) + "'s Lobby";
       };
       MainMenuWidget->OnCreateLobby = [this]() { ShowMenuState(EMenuState::CreateLobby); };
       MainMenuWidget->OnSearchLobby = [this]() { ShowMenuState(EMenuState::SearchLobby); };
@@ -352,11 +353,12 @@ void AMenuScene::LeaveOnlineLobby() {
 
 void AMenuScene::LoadSettings() {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    const std::string name = gi->player_name.empty() ? gi->user_id : gi->player_name;
-    if (!name.empty()) {
-      strncpy_s(PlayerName, sizeof(PlayerName), name.c_str(), _TRUNCATE);
-      LobbyName = name + "'s Lobby";
+    if (gi->player_name.empty()) {
+      gi->player_name = gi->user_id.empty() ? PlayerNameDefaults::Generate() : gi->user_id;
     }
+    strncpy_s(PlayerName, sizeof(PlayerName), gi->player_name.c_str(), _TRUNCATE);
+    LobbyName = gi->player_name + "'s Lobby";
+
     if (!gi->last_server_ip.empty()) {
       strncpy_s(ServerAddress, sizeof(ServerAddress), gi->last_server_ip.c_str(), _TRUNCATE);
     }
@@ -365,7 +367,14 @@ void AMenuScene::LoadSettings() {
 
 void AMenuScene::SaveSettings() {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->player_name = PlayerName[0] == '\0' ? "Player" : PlayerName;
+    if (PlayerName[0] != '\0') {
+      gi->player_name = PlayerName;
+    } else if (gi->player_name.empty()) {
+      gi->player_name = PlayerNameDefaults::Generate();
+    }
+    if (PlayerName[0] == '\0') {
+      strncpy_s(PlayerName, sizeof(PlayerName), gi->player_name.c_str(), _TRUNCATE);
+    }
     gi->last_server_ip = ServerAddress;
   }
 }
