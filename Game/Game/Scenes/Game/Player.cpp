@@ -27,7 +27,13 @@
 #include "Objects/Items/HeldSpeedItem.h"
 #include "LapCheckpoint.h"
 namespace {
-enum : FNetworkRPCId { RPC_ServerMove = 1, RPC_ServerSetDrift = 2, RPC_ServerNotifyGoal = 3, RPC_ServerUseHeldItem = 4 };
+enum : FNetworkRPCId {
+  RPC_ServerMove = 1,
+  RPC_ServerSetDrift = 2,
+  RPC_ServerNotifyGoal = 3,
+  RPC_ServerUseHeldItem = 4,
+  RPC_MulticastUpdateLap = 5
+};
 }
 
 REGISTER_ACTOR(APlayer)
@@ -42,6 +48,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
+  RegisterRPC(RPC_MulticastUpdateLap, ENetRPCType::Multicast, this, &APlayer::Multicast_UpdateLap);
 
   SetActorLocation(location);
   SetActorRotation(rotation);
@@ -801,10 +808,7 @@ void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
 void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   if (!bHasAuthority) return;
 
-  // クールダウン中は無視（連続通過防止）
-  if (m_lapLineCooldown > 0.0f) {
-    return;
-  }
+  if (m_lapLineCooldown > 0.0f) return;
 
   if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
     M_LOG(
@@ -817,14 +821,23 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
 
   m_lastPassedCheckpoint = -1;
   m_currentLap++;
-  m_lapLineCooldown = 3.0f;  
-  MarkReplicatedStateDirty();
+  m_lapLineCooldown = 3.0f;
+
+  // 全クライアントに周回数を通知
+  InvokeRPC(
+      RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
+  );
 
   M_LOG("Lap {} / {} completed!", m_currentLap, TotalLaps);
 
   if (m_currentLap >= TotalLaps) {
     NotifyGoalReached();
   }
+}
+
+void APlayer::Multicast_UpdateLap(int newLap) {
+  m_currentLap = newLap;
+  M_LOG("Lap updated to {} (multicast)", m_currentLap);
 }
 
 //{

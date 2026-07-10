@@ -108,7 +108,7 @@ class APlayer : public APawn {
   std::vector<FDriftParticle> m_driftParticles;
   float m_particleTimer = 0.0f;
   static constexpr float ParticleInterval = 0.02f;
-
+  void Multicast_UpdateLap(int newLap);
   void OnDriftPressed();
   void OnDriftReleased();
   void UpdateDrift(float DeltaTime, float speed);
