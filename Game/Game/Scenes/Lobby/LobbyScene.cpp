@@ -5,6 +5,7 @@
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
 #include "NetworkManager.h"
+#include "OnlineSessionManager.h"
 #include "ActorManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
@@ -12,6 +13,16 @@
 #include "World.h"
 
 REGISTER_GAME_MODE(ALobbyScene)
+
+namespace {
+constexpr const char* LobbyStateAttributeKey = "LOBBY_STATE";
+constexpr const char* LobbyStateWaiting = "WAITING";
+constexpr const char* LobbyStateRacing = "RACING";
+
+FLobbyAttribute MakeLobbyStateAttribute(const char* State) {
+  return {LobbyStateAttributeKey, FLobbyAttributeValue::FromString(State), true};
+}
+}
 
 ALobbyScene::ALobbyScene() {
   SetUpdateableAnytime(true);
@@ -23,6 +34,11 @@ void ALobbyScene::BeginPlay() {
   AGameModeBase::BeginPlay();
   if (GetWorld()->IsServer()) {
     EnsureHostPlayerState();
+    if (OnlineSessionManager::Get().IsInLobby()) {
+      OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
+          {MakeLobbyStateAttribute(LobbyStateWaiting)}, [](bool bSuccess) { (void)bSuccess; }
+      );
+    }
   }
 }
 
@@ -146,6 +162,17 @@ void ALobbyScene::StartGame() {
   }
   const auto states = GetPlayerStates();
   SaveLobbyResultsToGameInstance(states);
+  if (OnlineSessionManager::Get().IsInLobby()) {
+    if (OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
+        {MakeLobbyStateAttribute(LobbyStateRacing)},
+        [this](bool bSuccess) {
+          (void)bSuccess;
+          GetWorld()->ServerTravel(SelectedLevelPath);
+        }
+    )) {
+      return;
+    }
+  }
   GetWorld()->ServerTravel(SelectedLevelPath);
 }
 

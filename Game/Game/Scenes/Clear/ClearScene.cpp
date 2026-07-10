@@ -3,7 +3,6 @@
 #include <DxLib.h>
 #include <KeyboardDevice.h>
 #include <Pawn.h>
-#include <imgui.h>
 
 #include <algorithm>
 #include <string>
@@ -31,8 +30,31 @@ AClearScene::AClearScene() { DefaultPlayerControllerClass = "PC_Clear"; }
 void AClearScene::BeginPlay() {
   AGameModeBase::BeginPlay();
 
+  if (GetWorld()->IsServer()) {
+    SpawnResultStatesFromGameInstance();
+  }
 }
 
+void AClearScene::SpawnResultStatesFromGameInstance() {
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi) {
+    return;
+  }
+
+  for (const auto& result : gi->multiplayer_results) {
+    auto* state = GetWorld()->SpawnActor<ALobbyPlayerState>();
+    if (!state) {
+      continue;
+    }
+
+    state->OwnerConnectionId = result.ConnectionId;
+    state->bReplicates = true;
+    state->bHasAuthority = true;
+    state->bIsLocallyControlled = result.ConnectionId == 0;
+    state->SetPlayerName(result.PlayerName);
+    state->SetFinishResult(result.bFinished, result.FinishTime);
+  }
+}
 
 void AClearScene::OnUpdate(float DeltaTime) {
   (void)DeltaTime;

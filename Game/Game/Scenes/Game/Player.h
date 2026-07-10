@@ -10,7 +10,7 @@
 #include "UMath.h"
 
 class MCameraComponent;
-class MMovementComponent;
+class MNetMovementComponent;
 class MSpriteComponent;
 class MEasyShakeComponent;
 class MCircleCollisionComponent;
@@ -41,7 +41,7 @@ class APlayer : public APawn {
  private:
   MCameraComponent* m_camera = nullptr;
   MEasyShakeComponent* m_shake = nullptr;
-  MMovementComponent* Movement = nullptr;
+  MNetMovementComponent* Movement = nullptr;
   MSpriteComponent* m_sprite = nullptr;
   MCircleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
@@ -114,8 +114,8 @@ class APlayer : public APawn {
   void UpdateDrift(float DeltaTime, float speed);
   void UpdateLocalDriftVisual(float DeltaTime, float speed);
   void OnMove(const FInputActionValue& Value);
-  void Server_Move(const FVector2D& MoveInput);
   void Server_SetDrift(bool bDriftHeld);
+  void Server_SyncDriftState(bool bDrifting, float driftDirection);
   void Server_NotifyGoal();
   bool IsDriftInputPressed();
   void OnRestartPressed();

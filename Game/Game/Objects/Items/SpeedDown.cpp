@@ -21,7 +21,6 @@ ASlowFloor::ASlowFloor(float width, float height, float slowStrength)
   sprite->SubmitBox(m_width, m_height, 0x4488FF, 1, 100);
   sprite->SetRelativeLocation({-m_width * 0.5f, -m_height * 0.5f});
   sprite->SetParentComponent(GetRootComponent());
-  AddComponent(std::move(sprite));
 
   // サウンドコンポーネントはコンストラクタで初期化する
   auto sound = std::make_unique<MSoundComponent>();

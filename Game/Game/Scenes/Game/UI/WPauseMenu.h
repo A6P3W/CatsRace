@@ -2,9 +2,11 @@
 #include <WidgetBase.h>
 
 #include <functional>
+#include <string>
 
 class UITextComponent;
 class UIBoxButtonComponent;
+class MUIVerticalBoxComponent;
 
 class WPauseMenu : public AWidgetBase {
  public:
@@ -14,6 +16,7 @@ class WPauseMenu : public AWidgetBase {
   std::function<void()> OnResumePressed;
   std::function<void()> OnRestartPressed;
   std::function<void()> OnTitlePressed;
+  std::function<void()> OnLeavePressed;
 
   void Cancel() override;
 
@@ -21,14 +24,16 @@ class WPauseMenu : public AWidgetBase {
   void BeginPlay() override;
 
  private:
+  UIBoxButtonComponent* AddMenuButton(const std::string& Label);
+
   UITextComponent* m_TxtTitle = nullptr;
+  MUIVerticalBoxComponent* m_ButtonList = nullptr;
 
   UIBoxButtonComponent* m_BtnResume = nullptr;
-  UITextComponent* m_TxtResume = nullptr;
 
   UIBoxButtonComponent* m_BtnRestart = nullptr;
-  UITextComponent* m_TxtRestart = nullptr;
 
   UIBoxButtonComponent* m_BtnTitle = nullptr;
-  UITextComponent* m_TxtTitleBtn = nullptr;
+
+  UIBoxButtonComponent* m_BtnLeave = nullptr;
 };

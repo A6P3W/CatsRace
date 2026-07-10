@@ -84,5 +84,6 @@ class WSearchLobbyWidget : public AWidgetBase {
   UITextComponent* EmptyText = nullptr;
   UITextComponent* StatusText = nullptr;
   std::vector<UIBoxButtonComponent*> LobbyButtons;
+  std::vector<UIBoxButtonComponent*> JoinableLobbyButtons;
   std::vector<UITextComponent*> LobbyTexts;
 };
