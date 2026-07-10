@@ -1,4 +1,4 @@
-﻿#include "GameSceneBase.h"
+#include "GameSceneBase.h"
 
 #include <EnhancedInputComponent.h>
 #include <NetworkManager.h>
@@ -56,6 +56,11 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
 }
 
 void AGameSceneBase::BeginPlay() {
+  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    gi->ClearTime = -1.0f;
+    gi->multiplayer_results.clear();
+  }
+
   AGameModeBase::BeginPlay();
 
   if (GetWorld()->IsServer()) {

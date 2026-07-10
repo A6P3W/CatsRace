@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <vector>
 
@@ -38,6 +38,7 @@ class PC_Clear : public APlayerController {
   WClearHUD* m_ClearHUD = nullptr;
   std::string m_LastResultSignature;
   bool m_bSubmittedLocalResult = false;
+  float m_ResultSubmitRetryCooldown = 0.0f;
   std::vector<std::string> m_FetchedUserIds;
   WNameSelectDialog* m_NameSelectDialog = nullptr;
   WNameInputDialog* m_NameInputDialog = nullptr;

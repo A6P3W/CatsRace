@@ -1,4 +1,4 @@
-﻿#include "Scenes/Clear/PC_Clear.h"
+#include "Scenes/Clear/PC_Clear.h"
 
 #include <DxLib.h>
 #include <EnhancedInputComponent.h>
@@ -14,6 +14,7 @@
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "InputManager.h"
+#include "Log.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
 #include "Scenes/Clear/UI/WNameInputDialog.h"
@@ -90,8 +91,6 @@ void PC_Clear::BeginPlay() {
 }
 
 void PC_Clear::OnUpdate(float DeltaTime) {
-  (void)DeltaTime;
-
   if (bIsLocallyControlled) {
     if (MEnhancedInputComponent* input = GetInputComponent()) {
       if (InputMapper* mapper = GetInputMapper()) {
@@ -103,6 +102,9 @@ void PC_Clear::OnUpdate(float DeltaTime) {
   if (!bIsLocallyControlled || !m_ClearHUD || GetWorld()->IsStandalone()) {
     return;
   }
+
+  m_ResultSubmitRetryCooldown =
+      (std::max)(0.0f, m_ResultSubmitRetryCooldown - DeltaTime);
 
   SubmitLocalResultToServerIfNeeded();
   RefreshMultiplayerResults();
@@ -350,36 +352,41 @@ void PC_Clear::RefreshMultiplayerResults() {
 }
 
 void PC_Clear::SubmitLocalResultToServerIfNeeded() {
-  if (m_bSubmittedLocalResult || GetWorld()->IsServer() || GetWorld()->IsStandalone()) {
+  if (m_bSubmittedLocalResult || GetWorld()->IsServer() ||
+      GetWorld()->IsStandalone()) {
     return;
   }
 
-  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  auto* gi =
+      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   if (!gi || gi->ClearTime < 0.0f) {
     return;
   }
 
-  const FNetworkConnectionId localId = NetworkManager::GetInstance().GetLocalConnectionId();
-  for (const auto* state : GetResultStates()) {
-    if (!state || state->OwnerConnectionId != localId) {
-      continue;
-    }
+  const FNetworkConnectionId localId =
+      NetworkManager::GetInstance().GetLocalConnectionId();
 
-    if (state->IsFinished()) {
+  // サーバーから完走結果が返ってきた場合だけ送信完了とする
+  for (const auto* state : GetResultStates()) {
+    if (state && state->OwnerConnectionId == localId &&
+        state->IsFinished()) {
       m_bSubmittedLocalResult = true;
       return;
     }
+  }
 
-    if (InvokeRPC(
-            RPC_ServerSubmitLocalResult,
-            ENetRPCType::Server,
-            ENetPacketReliability::Reliable,
-            gi->ClearTime
-        )) {
-      m_bSubmittedLocalResult = true;
-    }
+  if (m_ResultSubmitRetryCooldown > 0.0f) {
     return;
   }
+
+  const bool bSent = InvokeRPC(
+      RPC_ServerSubmitLocalResult,
+      ENetRPCType::Server,
+      ENetPacketReliability::Reliable,
+      gi->ClearTime
+  );
+
+  m_ResultSubmitRetryCooldown = bSent ? 0.5f : 0.1f;
 }
 
 void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
@@ -388,25 +395,56 @@ void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
   }
 
   const FNetworkConnectionId connectionId = OwnerConnectionId;
+  std::string playerName =
+      "Player " + std::to_string(connectionId + 1);
+
   for (auto* state : GetResultStates()) {
-    if (state && state->OwnerConnectionId == connectionId && !state->IsFinished()) {
+    if (!state || state->OwnerConnectionId != connectionId) {
+      continue;
+    }
+
+    playerName = state->GetPlayerName();
+
+    if (!state->IsFinished() || state->GetFinishTime() <= 0.0f) {
       state->SetFinishResult(true, FinishTime);
-      break;
+    }
+    break;
+  }
+
+  auto* gi =
+      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi) {
+    return;
+  }
+
+  auto existing = std::find_if(
+      gi->multiplayer_results.begin(),
+      gi->multiplayer_results.end(),
+      [connectionId](const GI_main::FMultiplayerResult& result) {
+        return result.ConnectionId == connectionId;
+      }
+  );
+
+  if (existing == gi->multiplayer_results.end()) {
+    GI_main::FMultiplayerResult result;
+    result.ConnectionId = connectionId;
+    result.PlayerName = playerName;
+    result.bFinished = true;
+    result.FinishTime = FinishTime;
+    gi->multiplayer_results.push_back(result);
+  } else {
+    existing->bFinished = true;
+    existing->FinishTime = FinishTime;
+
+    if (!playerName.empty()) {
+      existing->PlayerName = playerName;
     }
   }
 
-  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    auto existing = std::find_if(
-        gi->multiplayer_results.begin(),
-        gi->multiplayer_results.end(),
-        [connectionId](const GI_main::FMultiplayerResult& result) {
-          return result.ConnectionId == connectionId;
-        }
-    );
-    if (existing != gi->multiplayer_results.end() && !existing->bFinished) {
-      existing->bFinished = true;
-      existing->FinishTime = FinishTime;
-    }
-  }
+  M_LOG(
+      "Clear result accepted: connection={}, time={}",
+      connectionId,
+      FinishTime
+  );
 }
 
