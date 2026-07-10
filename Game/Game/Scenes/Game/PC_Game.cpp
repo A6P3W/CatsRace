@@ -56,6 +56,11 @@ void PC_Game::OnUpdate(float DeltaTime) {
       if (auto* pawn = GetPawn()) {
         if (auto* player = dynamic_cast<APlayer*>(pawn)) {
           m_MainHUD->SetHeldItemVisible(player->HasHeldItem());
+          m_MainHUD->UpdateLapText(player->GetCurrentLap(), 3);  
+          if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
+         
+      
+          }
 
         }
       }

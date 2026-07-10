@@ -142,7 +142,9 @@ void APlayer::OnUpdate(float DeltaTime) {
   } else if (bIsLocallyControlled) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
-
+  if (m_lapLineCooldown > 0.0f) {
+    m_lapLineCooldown -= DeltaTime;
+  }
   // 全員実行
   UpdateDriftEffect(DeltaTime);
   DrawDriftEffect();
@@ -789,6 +791,34 @@ void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
   if (!source) return;
   // strength: 値が小さいほど強い減速（Player.cpp の更新ロジックに合わせる）
   m_slowSources[source] = strength;
+}
+void APlayer::OnLapLineCrossed(int totalCheckpoints) {
+  if (!bHasAuthority) return;
+
+  // クールダウン中は無視（連続通過防止）
+  if (m_lapLineCooldown > 0.0f) {
+    return;
+  }
+
+  if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
+    M_LOG(
+        "Lap line crossed but checkpoints incomplete: {}/{}",
+        m_lastPassedCheckpoint + 1,
+        totalCheckpoints
+    );
+    return;
+  }
+
+  m_lastPassedCheckpoint = -1;
+  m_currentLap++;
+  m_lapLineCooldown = 3.0f;  
+  MarkReplicatedStateDirty();
+
+  M_LOG("Lap {} / {} completed!", m_currentLap, TotalLaps);
+
+  if (m_currentLap >= TotalLaps) {
+    NotifyGoalReached();
+  }
 }
 
 //{

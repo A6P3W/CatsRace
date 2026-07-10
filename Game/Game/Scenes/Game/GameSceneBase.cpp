@@ -34,6 +34,8 @@
 #include "Scenes/Game/UI/WPauseMenu.h"
 #include "Services/LeaderBoardManager.h"
 #include "UMath.h"
+#include "Objects/Items/HeldSpeedItem.h"
+
 AGameSceneBase::AGameSceneBase(
 ) {
   DefaultPawnClass = APlayer::StaticClassName();
@@ -58,35 +60,26 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
 void AGameSceneBase::BeginPlay() {
   AGameModeBase::BeginPlay();
 
-  if (GetWorld()->IsServer()) {
+
+   if (GetWorld()->IsServer()) {
     std::vector<FVector2D> savedLocations;
 
-    // 1. 今マップにある（エディタで置かれた）キノコの座標をすべてメモして、古いキノコを消す
     for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
       if (auto* editorItem = dynamic_cast<AHeldSpeedItem*>(actorPtr.get())) {
         savedLocations.push_back(editorItem->GetActorLocation());
-        editorItem->Destroy();  // エディタ配置の（ネットワークIDが壊れている）古いキノコを破棄
+        editorItem->Destroy();
       }
     }
 
-    // 2. メモした座標に、サーバー権限で正しいキノコを再生成する
-    // これにより、クライアント側にも正しい NetworkId でアイテムが複製されます
     for (const auto& loc : savedLocations) {
-      GetWorld()->SpawnActor<AHeldSpeedItem>(loc);
+      SpawnHeldSpeedItemWithRespawn(loc);  // コールバック付きで再スポーン
     }
   }
 
   SpawnActor<ASampleA>();
   LoadTopGhost();
   M_LOG("Game scene initialized: {}", MapId);
-  if (GetWorld()->IsServer()) {
-    // アイテムの生成はサーバー側だけで行う（bReplicates=true なのでクライアントへ自動同期される）
 
-
-    GetWorldTimerManager().SetTimer(
-        CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
-    );
-  }
   if (GetWorld()->IsServer()) {
     GetWorldTimerManager().SetTimer(
         CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
@@ -303,4 +296,23 @@ void AGameSceneBase::RestartGame() { OpenCurrentScene(); }
 
 void AGameSceneBase::ReturnToTitle() {
   SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
+}
+void AGameSceneBase::SpawnHeldSpeedItemWithRespawn(FVector2D location) {
+  auto* item = GetWorld()->SpawnActor<AHeldSpeedItem>(location);
+  if (!item) return;
+
+  item->SetOnPickedUp([this, location]() {
+    // タイマーハンドルをメンバに積んで SetTimer のメンバ関数版で呼ぶ
+    m_pendingRespawnLocations.push_back(location);
+    FTimerHandle handle;
+    GetWorldTimerManager().SetTimer(handle, this, &AGameSceneBase::RespawnNextItem, 3.0f, false);
+    m_itemRespawnHandles.push_back(handle);
+  });
+}
+
+void AGameSceneBase::RespawnNextItem() {
+  if (m_pendingRespawnLocations.empty()) return;
+  FVector2D loc = m_pendingRespawnLocations.front();
+  m_pendingRespawnLocations.erase(m_pendingRespawnLocations.begin());
+  SpawnHeldSpeedItemWithRespawn(loc);
 }

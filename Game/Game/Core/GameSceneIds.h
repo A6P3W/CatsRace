@@ -9,4 +9,5 @@ constexpr FNetworkSceneId Lobby = 3;
 constexpr FNetworkSceneId Game01 = 10;
 constexpr FNetworkSceneId Game02 = 11;
 constexpr FNetworkSceneId Clear = 100;
+constexpr FNetworkSceneId Game2 = 110;
 }  // namespace GameSceneIds

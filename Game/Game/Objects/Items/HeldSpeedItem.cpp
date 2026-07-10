@@ -68,7 +68,7 @@ void AHeldSpeedItem::BeginOverlap(AActor* OtherActor) {
   }
 
   M_LOG("HeldSpeedItem: granted to player (conn={})", player->OwnerConnectionId);
-
+  if (m_onPickedUp) m_onPickedUp();
   Destroy();
 }
 

@@ -7,6 +7,7 @@
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/PC_Clear.h"
 #include "Scenes/Game/GameScene01.h"
+#include "Scenes/Game/GameScene2.h"
 #include "Scenes/Game/PC_Game.h"
 #include "Scenes/Loading/LoadingScene.h"
 #include "Scenes/Lobby/LobbyScene.h"
@@ -22,7 +23,7 @@ void SetupGame() {
   SM.RegisterLevelPath(GameSceneIds::Game01, "Resources/GameScene01.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Game02, "Resources/GameScene02.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Clear, "Resources/ClearScene.BLevel");
-
+  SM.RegisterLevelPath(GameSceneIds::Game2, "Resources/GameScene2.BLevel");
   SM.SetStartupLevelPath("Resources/LoadingScene.BLevel");
   SetMouseDispFlag(1);
 }

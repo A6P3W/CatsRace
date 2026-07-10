@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <TimerHandle.h>
 #include <TimerManager.h>
 
@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "GameModeBase.h"
+#include "UMath.h"
 
 class WCountDown;
 class WMainHUD;
@@ -22,14 +23,12 @@ class AGameSceneBase : public AGameModeBase {
   APlayerController* OnClientConnected(FNetworkConnectionId ConnectionId) override;
   void OnClientDisconnected(FNetworkConnectionId ConnectionId) override;
   void BeginPlay() override;
-
   void OnPlayerSpawned(
       APlayerController* Controller, APawn* Pawn, FNetworkConnectionId ConnectionId
   ) override;
-
+  void SpawnHeldSpeedItemWithRespawn(FVector2D location);
   float GetRaceTime() const { return RaceTime; }
   const std::string& GetMapId() const { return MapId; }
-
   void RaceFinish();
   void NotifyPlayerFinished(APlayer* Player);
   virtual void RestartGame();
@@ -44,6 +43,7 @@ class AGameSceneBase : public AGameModeBase {
   void SaveResult(FNetworkConnectionId ConnectionId, float FinishTime);
   bool AreAllPlayersFinished() const;
   void TravelToClear();
+  void RespawnNextItem();  
 
   int m_CountDown = 3;
   FTimerHandle CountHandle;
@@ -59,4 +59,7 @@ class AGameSceneBase : public AGameModeBase {
   std::string MapId;
   std::string LevelFileName;
   FVector2D PlayerStartLocation;
+
+  std::vector<FTimerHandle> m_itemRespawnHandles;    
+  std::vector<FVector2D> m_pendingRespawnLocations; 
 };

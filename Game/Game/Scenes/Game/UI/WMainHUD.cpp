@@ -26,6 +26,12 @@ WMainHUD::WMainHUD() {
   m_ItemText->SetAnchoredPosition({55.0f, -20.0f});
   m_ItemText->SetVisibility(false);
   AddComponent(std::move(itemText));
+
+  auto lapText = std::make_unique<UITextComponent>("LAP 1 / 3", 0xFFFFFF, 28);
+  m_LapText = lapText.get();
+  m_LapText->SetAnchor(EUIAnchor::TopRight);
+  m_LapText->SetAnchoredPosition({-120.0f, 60.0f});
+  AddComponent(std::move(lapText));
 }
 
 void WMainHUD::UpdateTimerText(float elapsedTime) {
@@ -43,4 +49,9 @@ void WMainHUD::UpdateTimerText(float elapsedTime) {
 void WMainHUD::SetHeldItemVisible(bool bVisible) {
   if (m_ItemIcon) m_ItemIcon->SetVisibility(bVisible);
   if (m_ItemText) m_ItemText->SetVisibility(bVisible);
+}
+void WMainHUD::UpdateLapText(int currentLap, int totalLaps) {
+  if (m_LapText) {
+    m_LapText->SetText("LAP " + std::to_string(currentLap + 1) + " / " + std::to_string(totalLaps));
+  }
 }
