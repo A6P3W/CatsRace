@@ -255,5 +255,6 @@
     <None Include="vcpkg.json" />
     <None Include="Game\include.md" />
     <None Include="..\AGENTS.md" />
+    <None Include="..\Readme.md" />
   </ItemGroup>
 </Project>
