@@ -33,11 +33,12 @@ class AMenuScene : public AGameModeBase {
   void CreateOnlineLobby();
   void SearchOnlineLobbies();
   void JoinSelectedOnlineLobby();
+  void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
   void LeaveOnlineLobby();
   void LoadSettings();
   void SaveSettings();
 
-  char PlayerName[64] = "Player";
+  char PlayerName[64] = "";
   char ServerAddress[64] = "127.0.0.1";
   std::string LobbyName = "Player Lobby";
   int Port = 7777;

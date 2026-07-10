@@ -1,15 +1,20 @@
-﻿#include "Scenes/Clear/PC_Clear.h"
+#include "Scenes/Clear/PC_Clear.h"
 
 #include <DxLib.h>
+#include <EnhancedInputComponent.h>
 #include <KeyboardDevice.h>
-#include <imgui.h>
+#include <NetworkManager.h>
 
 #include <algorithm>
+#include <iomanip>
+#include <map>
+#include <sstream>
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "InputManager.h"
+#include "Log.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
 #include "Scenes/Clear/UI/WNameInputDialog.h"
@@ -23,6 +28,8 @@
 #include "World.h"
 
 namespace {
+enum : FNetworkRPCId { RPC_ServerSubmitLocalResult = 1 };
+
 std::string GetReplayLevelPath() {
   auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   if (gi && !gi->last_level_path.empty()) {
@@ -34,7 +41,15 @@ std::string GetReplayLevelPath() {
 
 REGISTER_ACTOR(PC_Clear)
 
-PC_Clear::PC_Clear() { SetUpdateableAnytime(true); }
+PC_Clear::PC_Clear() {
+  SetUpdateableAnytime(true);
+  RegisterRPC(
+      RPC_ServerSubmitLocalResult,
+      ENetRPCType::Server,
+      this,
+      &PC_Clear::Server_SubmitLocalResult
+  );
+}
 
 void PC_Clear::BeginPlay() {
   APlayerController::BeginPlay();
@@ -44,15 +59,26 @@ void PC_Clear::BeginPlay() {
   }
 
   SetInputMode(EInputMode::UIOnly);
+  SetupInputMappings();
 
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  float clearTime = gi ? gi->ClearTime : 0.0f;
-  SpawnResultStatesFromGameInstance();
   m_ClearHUD = GetWorld()->SpawnActor<WClearHUD>();
   UIManager::GetInstance()->AddWidget(m_ClearHUD);
+  UIManager::GetInstance()->SetFocusedWidget(m_ClearHUD);
 
   if (m_ClearHUD) {
-    m_ClearHUD->SetClearTime(clearTime);
+    const bool bIsStandalone = GetWorld()->IsStandalone();
+    m_ClearHUD->SetHostMode(GetWorld()->IsServer());
+    m_ClearHUD->SetWaitingForHost(!GetWorld()->IsServer() && !bIsStandalone);
+    m_ClearHUD->OnReplay = [this]() { GetWorld()->ServerTravel(GetReplayLevelPath()); };
+    m_ClearHUD->OnBackToLobby = [this]() { GetWorld()->ServerTravel(GameSceneIds::Lobby); };
+
+    if (bIsStandalone) {
+      m_ClearHUD->SetClearTime(gi ? gi->ClearTime : -1.0f);
+    } else {
+      m_ClearHUD->SetClearTime(-1.0f);
+      m_ClearHUD->SetWaitingForResults(true);
+    }
   }
 
   if (GetWorld()->IsStandalone()) {
@@ -64,30 +90,24 @@ void PC_Clear::BeginPlay() {
   }
 }
 
-void PC_Clear::SpawnResultStatesFromGameInstance() {
-  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi) {
+void PC_Clear::OnUpdate(float DeltaTime) {
+  if (bIsLocallyControlled) {
+    if (MEnhancedInputComponent* input = GetInputComponent()) {
+      if (InputMapper* mapper = GetInputMapper()) {
+        input->ProcessInputBindings(*mapper, true, false);
+      }
+    }
+  }
+
+  if (!bIsLocallyControlled || !m_ClearHUD || GetWorld()->IsStandalone()) {
     return;
   }
 
-  if (gi->multiplayer_results.empty()) {
-    GI_main::FMultiplayerResult result;
-    result.ConnectionId = 0;
-    result.PlayerName = gi->player_name.empty() ? gi->user_id : gi->player_name;
-    result.bFinished = true;
-    result.FinishTime = gi->ClearTime;
-    gi->multiplayer_results.push_back(result);
-  }
+  m_ResultSubmitRetryCooldown =
+      (std::max)(0.0f, m_ResultSubmitRetryCooldown - DeltaTime);
 
-  for (const auto& result : gi->multiplayer_results) {
-    auto* state = GetWorld()->SpawnActor<ALobbyPlayerState>();
-    state->OwnerConnectionId = result.ConnectionId;
-    state->bReplicates = true;
-    state->bHasAuthority = true;
-    state->bIsLocallyControlled = result.ConnectionId == 0;
-    state->SetPlayerName(result.PlayerName);
-    state->SetFinishResult(result.bFinished, result.FinishTime);
-  }
+  SubmitLocalResultToServerIfNeeded();
+  RefreshMultiplayerResults();
 }
 
 void PC_Clear::ShowNameFlow() {
@@ -236,21 +256,45 @@ void PC_Clear::ShowPostGameDialog() {
 }
 
 std::vector<ALobbyPlayerState*> PC_Clear::GetResultStates() {
-  std::vector<ALobbyPlayerState*> states;
+  std::map<FNetworkConnectionId, ALobbyPlayerState*> stateByConnectionId;
   if (!GetWorld() || !GetWorld()->GetObjectManager()) {
-    return states;
+    return {};
   }
   for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
     if (auto* state = dynamic_cast<ALobbyPlayerState*>(actorPtr.get())) {
-      if (!state->IsPendingDestroy()) {
-        states.push_back(state);
+      if (state->IsPendingDestroy()) {
+        continue;
+      }
+
+      auto existingIt = stateByConnectionId.find(state->OwnerConnectionId);
+      if (existingIt == stateByConnectionId.end()) {
+        stateByConnectionId[state->OwnerConnectionId] = state;
+        continue;
+      }
+
+      ALobbyPlayerState* existing = existingIt->second;
+      const bool bPreferState =
+          (state->bHasAuthority && existing && !existing->bHasAuthority) ||
+          (state->IsFinished() && existing && !existing->IsFinished()) ||
+          (state->IsFinished() && state->GetFinishTime() > 0.0f && existing &&
+           existing->GetFinishTime() <= 0.0f);
+      if (bPreferState) {
+        existingIt->second = state;
       }
     }
   }
+
+  std::vector<ALobbyPlayerState*> states;
+  for (const auto& pair : stateByConnectionId) {
+    if (pair.second) {
+      states.push_back(pair.second);
+    }
+  }
+
   std::sort(
       states.begin(), states.end(), [](const ALobbyPlayerState* a, const ALobbyPlayerState* b) {
         if (a->IsFinished() != b->IsFinished()) return a->IsFinished() > b->IsFinished();
-        if (a->GetFinishTime() != b->GetFinishTime())
+        if (a->IsFinished() && a->GetFinishTime() != b->GetFinishTime())
           return a->GetFinishTime() < b->GetFinishTime();
         return a->OwnerConnectionId < b->OwnerConnectionId;
       }
@@ -258,43 +302,149 @@ std::vector<ALobbyPlayerState*> PC_Clear::GetResultStates() {
   return states;
 }
 
-void PC_Clear::Draw() {
-  APlayerController::Draw();
-
-  if (!bIsLocallyControlled) {
+void PC_Clear::RefreshMultiplayerResults() {
+  if (!m_ClearHUD) {
     return;
   }
 
-  if (GetWorld()->IsStandalone()) {
-    return;
-  }
-
+  const FNetworkConnectionId localId = NetworkManager::GetInstance().GetLocalConnectionId();
   const auto states = GetResultStates();
-  ImGui::SetNextWindowSize(ImVec2(620.0f, 460.0f), ImGuiCond_FirstUseEver);
-  ImGui::Begin("Multiplayer Results");
-  ImGui::TextUnformatted("Race Results");
-  ImGui::Separator();
-  int rank = 1;
+  std::ostringstream signature;
+  signature << std::fixed << std::setprecision(2);
+
+  std::vector<FResultEntryViewData> results;
+  results.reserve(states.size());
+
   for (const auto* state : states) {
-    if (!state) continue;
-    if (state->IsFinished()) {
-      ImGui::Text("%d. %s  %.2f", rank++, state->GetPlayerName().c_str(), state->GetFinishTime());
-    } else {
-      ImGui::Text("-. %s  DNF", state->GetPlayerName().c_str());
+    if (!state) {
+      continue;
+    }
+
+    const bool bLocalPlayer =
+        (GetWorld()->IsServer() && state->OwnerConnectionId == 0) ||
+        state->OwnerConnectionId == localId || state->bIsLocallyControlled;
+
+    FResultEntryViewData data;
+    data.ConnectionId = state->OwnerConnectionId;
+    data.PlayerName = state->GetPlayerName();
+    data.bFinished = state->IsFinished();
+    data.FinishTime = state->GetFinishTime();
+    data.bLocalPlayer = bLocalPlayer;
+    results.push_back(data);
+
+    signature << data.ConnectionId << ':' << data.PlayerName << ':' << (data.bFinished ? 1 : 0)
+              << ':' << data.FinishTime << '|';
+
+    if (bLocalPlayer && data.bFinished) {
+      m_ClearHUD->SetClearTime(data.FinishTime);
     }
   }
-  ImGui::Separator();
-  if (GetWorld()->IsServer()) {
-    if (ImGui::Button("Replay", ImVec2(160.0f, 34.0f))) {
-      GetWorld()->ServerTravel(GetReplayLevelPath());
+
+  m_ClearHUD->SetWaitingForResults(results.empty());
+  m_ClearHUD->SetHostMode(GetWorld()->IsServer());
+  m_ClearHUD->SetWaitingForHost(!GetWorld()->IsServer());
+
+  const std::string nextSignature = signature.str();
+  if (nextSignature != m_LastResultSignature) {
+    m_LastResultSignature = nextSignature;
+    m_ClearHUD->SetMultiplayerResults(results);
+  }
+}
+
+void PC_Clear::SubmitLocalResultToServerIfNeeded() {
+  if (m_bSubmittedLocalResult || GetWorld()->IsServer() ||
+      GetWorld()->IsStandalone()) {
+    return;
+  }
+
+  auto* gi =
+      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi || gi->ClearTime < 0.0f) {
+    return;
+  }
+
+  const FNetworkConnectionId localId =
+      NetworkManager::GetInstance().GetLocalConnectionId();
+
+  // サーバーから完走結果が返ってきた場合だけ送信完了とする
+  for (const auto* state : GetResultStates()) {
+    if (state && state->OwnerConnectionId == localId &&
+        state->IsFinished()) {
+      m_bSubmittedLocalResult = true;
+      return;
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Back To Lobby", ImVec2(160.0f, 34.0f))) {
-      GetWorld()->ServerTravel(GameSceneIds::Lobby);
+  }
+
+  if (m_ResultSubmitRetryCooldown > 0.0f) {
+    return;
+  }
+
+  const bool bSent = InvokeRPC(
+      RPC_ServerSubmitLocalResult,
+      ENetRPCType::Server,
+      ENetPacketReliability::Reliable,
+      gi->ClearTime
+  );
+
+  m_ResultSubmitRetryCooldown = bSent ? 0.5f : 0.1f;
+}
+
+void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
+  if (!GetWorld() || !GetWorld()->IsServer() || FinishTime < 0.0f) {
+    return;
+  }
+
+  const FNetworkConnectionId connectionId = OwnerConnectionId;
+  std::string playerName =
+      "Player " + std::to_string(connectionId + 1);
+
+  for (auto* state : GetResultStates()) {
+    if (!state || state->OwnerConnectionId != connectionId) {
+      continue;
     }
+
+    playerName = state->GetPlayerName();
+
+    if (!state->IsFinished() || state->GetFinishTime() <= 0.0f) {
+      state->SetFinishResult(true, FinishTime);
+    }
+    break;
+  }
+
+  auto* gi =
+      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi) {
+    return;
+  }
+
+  auto existing = std::find_if(
+      gi->multiplayer_results.begin(),
+      gi->multiplayer_results.end(),
+      [connectionId](const GI_main::FMultiplayerResult& result) {
+        return result.ConnectionId == connectionId;
+      }
+  );
+
+  if (existing == gi->multiplayer_results.end()) {
+    GI_main::FMultiplayerResult result;
+    result.ConnectionId = connectionId;
+    result.PlayerName = playerName;
+    result.bFinished = true;
+    result.FinishTime = FinishTime;
+    gi->multiplayer_results.push_back(result);
   } else {
-    ImGui::TextUnformatted("Waiting for host.");
+    existing->bFinished = true;
+    existing->FinishTime = FinishTime;
+
+    if (!playerName.empty()) {
+      existing->PlayerName = playerName;
+    }
   }
-  ImGui::End();
+
+  M_LOG(
+      "Clear result accepted: connection={}, time={}",
+      connectionId,
+      FinishTime
+  );
 }
 

@@ -7,6 +7,7 @@
 #include <UITextComponent.h>
 #include <UIVerticalBoxComponent.h>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -24,16 +25,29 @@ constexpr int InputLabelFontSize = 20;
 constexpr float InputLabelOffsetY = -28.0f;
 constexpr float InputTextOffsetY = 7.0f;
 constexpr float InputActionHintOffsetY = -18.0f;
+constexpr const char* LobbyStateAttributeKey = "LOBBY_STATE";
+constexpr const char* LobbyStateWaiting = "WAITING";
+constexpr const char* LobbyStateRacing = "RACING";
+constexpr int ButtonTextColor = 0xFFFFFF;
+constexpr int DisabledButtonTextColor = 0x888888;
+const int ButtonNormalColor = GetColor(32, 38, 48);
+const int ButtonHoveredColor = GetColor(30, 115, 190);
+const int ButtonPressedColor = GetColor(15, 78, 140);
+const int DisabledButtonColor = GetColor(58, 58, 58);
 
 UIBoxButtonComponent* AddButton(
     AWidgetBase* Owner,
     MUIVerticalBoxComponent* Container,
     const std::string& Label,
     float Width = MenuButtonWidth,
-    float Height = MenuButtonHeight
+    float Height = MenuButtonHeight,
+    int NormalColor = ButtonNormalColor,
+    int HoveredColor = ButtonHoveredColor,
+    int PressedColor = ButtonPressedColor,
+    int TextColor = ButtonTextColor
 ) {
   auto button = std::make_unique<UIBoxButtonComponent>(
-      Width, Height, GetColor(32, 38, 48), GetColor(30, 115, 190), GetColor(15, 78, 140)
+      Width, Height, NormalColor, HoveredColor, PressedColor
   );
   UIBoxButtonComponent* buttonPtr = button.get();
   buttonPtr->SetPivot({0.5f, 0.5f});
@@ -41,7 +55,7 @@ UIBoxButtonComponent* AddButton(
     Container->AddItem(buttonPtr);
   }
 
-  auto text = std::make_unique<UITextComponent>(Label, 0xFFFFFF, 24);
+  auto text = std::make_unique<UITextComponent>(Label, TextColor, 24);
   text->SetParentComponent(buttonPtr);
   text->SetAnchor(EUIAnchor::MiddleCenter);
   text->SetPivot({0.5f, 0.5f});
@@ -67,6 +81,11 @@ std::string GetLobbyDisplayName(const FLobbyInfo& LobbyInfo) {
     name = LobbyInfo.GetStringAttribute("HOSTNAME", "Unknown Lobby");
   }
   return name;
+}
+
+bool IsLobbyRacing(const FLobbyInfo& LobbyInfo) {
+  return LobbyInfo.GetStringAttribute(LobbyStateAttributeKey, LobbyStateWaiting) ==
+         LobbyStateRacing;
 }
 }  // namespace
 
@@ -303,41 +322,102 @@ void WSearchLobbyWidget::SetLobbyResults(
     }
   }
   LobbyButtons.clear();
+  JoinableLobbyButtons.clear();
   LobbyTexts.clear();
 
   if (EmptyText) {
     EmptyText->SetVisibility(Results.empty());
   }
 
-  for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
+  ResultList->RemoveItem(BackButton);
+
+  UIBoxButtonComponent* selectedButton = nullptr;
+  auto addLobbyButton = [this, &Results, SelectedIndex, &selectedButton](int index) {
     const FLobbyInfo& lobbyInfo = Results[index];
-    const std::string label =
-        GetLobbyDisplayName(lobbyInfo) + "  " + std::to_string(lobbyInfo.CurrentMembers) + "/" +
-        std::to_string(lobbyInfo.MaxMembers);
-    UIBoxButtonComponent* button = AddButton(this, ResultList, label, 520.0f, 56.0f);
-    button->OnPressed = [this, index]() {
-      if (OnLobbySelected) {
-        OnLobbySelected(index);
-      }
-    };
-    if (index == SelectedIndex) {
-      SetFocusedButton(button);
+    const bool isRacing = IsLobbyRacing(lobbyInfo);
+    std::string label =
+        GetLobbyDisplayName(lobbyInfo) + "  " + std::to_string(lobbyInfo.CurrentMembers) + "Cats";
+    if (isRacing) {
+      label += "  [レース中]";
     }
+
+    UIBoxButtonComponent* button = nullptr;
+    if (isRacing) {
+      button = AddButton(
+          this,
+          ResultList,
+          label,
+          520.0f,
+          56.0f,
+          DisabledButtonColor,
+          DisabledButtonColor,
+          DisabledButtonColor,
+          DisabledButtonTextColor
+      );
+    } else {
+      button = AddButton(this, ResultList, label, 520.0f, 56.0f);
+      button->OnPressed = [this, index]() {
+        if (OnLobbySelected) {
+          OnLobbySelected(index);
+        }
+      };
+    }
+
     LobbyButtons.push_back(button);
+    if (!isRacing) {
+      JoinableLobbyButtons.push_back(button);
+    }
+    if (!isRacing && index == SelectedIndex) {
+      selectedButton = button;
+    }
+  };
+
+  for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
+    if (!IsLobbyRacing(Results[index])) {
+      addLobbyButton(index);
+    }
+  }
+
+  ResultList->AddItem(BackButton);
+
+  for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
+    if (IsLobbyRacing(Results[index])) {
+      addLobbyButton(index);
+    }
   }
 
   RebuildNavigation();
+
+  if (selectedButton) {
+    SetFocusedButton(selectedButton);
+  } else {
+    SetFocusedButton(RefreshButton);
+  }
 }
 
 void WSearchLobbyWidget::RebuildNavigation() {
   ResultList->BuildNavigation();
-  if (!LobbyButtons.empty()) {
-    RefreshButton->Navigation.Down = LobbyButtons.front();
-    LobbyButtons.front()->Navigation.Up = RefreshButton;
-    LobbyButtons.back()->Navigation.Down = BackButton;
-    BackButton->Navigation.Up = LobbyButtons.back();
+
+  RefreshButton->Navigation.Up = nullptr;
+  BackButton->Navigation.Down = nullptr;
+
+  if (!JoinableLobbyButtons.empty()) {
+    RefreshButton->Navigation.Down = JoinableLobbyButtons.front();
+    JoinableLobbyButtons.front()->Navigation.Up = RefreshButton;
+    JoinableLobbyButtons.back()->Navigation.Down = BackButton;
+    BackButton->Navigation.Up = JoinableLobbyButtons.back();
   } else {
     RefreshButton->Navigation.Down = BackButton;
     BackButton->Navigation.Up = RefreshButton;
+  }
+
+  BackButton->Navigation.Down = nullptr;
+  for (auto* button : LobbyButtons) {
+    if (button &&
+        std::find(JoinableLobbyButtons.begin(), JoinableLobbyButtons.end(), button) ==
+            JoinableLobbyButtons.end()) {
+      button->Navigation.Up = nullptr;
+      button->Navigation.Down = nullptr;
+    }
   }
 }

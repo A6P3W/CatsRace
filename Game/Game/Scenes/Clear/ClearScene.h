@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 
 #include "GameModeBase.h"
@@ -16,4 +16,5 @@ class AClearScene : public AGameModeBase {
   void BeginPlay() override;
 
  private:
+  void SpawnResultStatesFromGameInstance();
 };

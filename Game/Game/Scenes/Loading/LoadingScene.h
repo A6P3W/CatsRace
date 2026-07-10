@@ -17,5 +17,5 @@ class ALoadingScene : public AGameModeBase {
   void SetStatusMessage(const std::string& Message);
 
   UITextComponent* StatusText = nullptr;
-  char PlayerName[64] = "Player";
+  char PlayerName[64] = "";
 };
