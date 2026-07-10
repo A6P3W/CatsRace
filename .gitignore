@@ -374,6 +374,6 @@ Log.txt
 # CMake & vcpkg
 *build/
 /vcpkg_installed/
-/AGS_2026_Summer.code-workspace
+/CatsRace.code-workspace
 /Game/Game/PrivateConfig
 /Game/.repomixignore
