@@ -1,4 +1,4 @@
-#include "Goal.h"
+﻿#include "Goal.h"
 
 #include "Log.h"
 #include "RectAngleCollisionComponent.h"
@@ -10,10 +10,10 @@ REGISTER_ACTOR(AGoalActor)
 AGoalActor::AGoalActor(FVector2D location, FRotator rotation) {
   SetActorLocation(location);
 
-  auto collision = std::make_unique<MRectangleCollisionComponent>();
-  collision->SetParentComponent(GetRootComponent());
+  auto* collision = NewObject<MRectangleCollisionComponent>(this);
+  collision->AttachToComponent(GetRootComponent());
   collision->SetCollisionType(ECollisionType::Overlap);
-  AddComponent(std::move(collision));
+  collision->RegisterComponent();
 }
 
 void AGoalActor::BeginOverlap(AActor* OtherActor) {

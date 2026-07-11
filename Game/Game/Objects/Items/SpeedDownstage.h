@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class SpeedDownstage {};
 #pragma once
 #include <unordered_set>

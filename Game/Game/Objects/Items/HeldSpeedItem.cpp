@@ -25,24 +25,23 @@ AHeldSpeedItem::AHeldSpeedItem() {
   );
 
   // 当たり判定（Overlap）
-  auto collision = std::make_unique<MCircleCollisionComponent>(80.0f);
-  m_collision = collision.get();
-  m_collision->SetParentComponent(GetRootComponent());
+  m_collision = NewObject<MCircleCollisionComponent>(this);
+  m_collision->SetRadius(80.0f);
+  m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
-  AddComponent(std::move(collision));
+  m_collision->RegisterComponent();
 
   // ビジュアル
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_sprite = sprite.get();
-  m_sprite->SetParentComponent(GetRootComponent());
+  m_sprite = NewObject<MSpriteComponent>(this);
+  m_sprite->SetRenderSettings(0, RenderSpace::World);
+  m_sprite->AttachToComponent(GetRootComponent());
   m_sprite->SubmitCircle(80.0f, 0xFF4444, true, 200);
-  AddComponent(std::move(sprite));
+  m_sprite->RegisterComponent();
 
   // サウンド
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 }
 
 AHeldSpeedItem::AHeldSpeedItem(FVector2D location, FRotator rotation) : AHeldSpeedItem() {

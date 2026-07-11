@@ -63,14 +63,16 @@ UITextComponent* AddText(
     const FVector2D& Pivot,
     const FVector2D& Position
 ) {
-  auto text = std::make_unique<UITextComponent>(Text, Color, FontSize);
-  UITextComponent* textPtr = text.get();
-  textPtr->SetParentComponent(Parent);
+  auto* textPtr = NewObject<UITextComponent>(Owner);
+  textPtr->SetText(Text);
+  textPtr->SetColor(Color);
+  textPtr->SetFontSize(FontSize);
+  textPtr->AttachToComponent(Parent);
   textPtr->SetWidgetSize(WidgetSize);
   textPtr->SetAnchor(Anchor);
   textPtr->SetPivot(Pivot);
   textPtr->SetAnchoredPosition(Position);
-  Owner->AddComponent(std::move(text));
+  textPtr->RegisterComponent();
   return textPtr;
 }
 
@@ -84,14 +86,15 @@ UIBoxButtonComponent* AddBoxButton(
     int HoveredColor,
     int PressedColor
 ) {
-  auto button = std::make_unique<UIBoxButtonComponent>(Width, Height, NormalColor, HoveredColor, PressedColor);
-  UIBoxButtonComponent* buttonPtr = button.get();
+  auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
+  buttonPtr->SetSize(Width, Height);
+  buttonPtr->SetColors(NormalColor, HoveredColor, PressedColor);
   buttonPtr->SetPivot({0.5f, 0.5f});
   if (Container) {
     Container->AddItem(buttonPtr);
   }
 
-  Owner->AddComponent(std::move(button));
+  buttonPtr->RegisterComponent();
   AddText(
       Owner,
       buttonPtr,
@@ -114,9 +117,8 @@ UIToggleButtonComponent* AddToggleButton(
     float Width,
     float Height
 ) {
-  auto button = std::make_unique<UIToggleButtonComponent>(Width, Height, ReadyOnColor, ReadyOffColor);
-  UIToggleButtonComponent* buttonPtr = button.get();
-  buttonPtr->SetPivot({0.5f, 0.5f});
+  auto* buttonPtr = NewObject<UIToggleButtonComponent>(Owner);
+  buttonPtr->SetSize(Width, Height);
   buttonPtr->SetColors(
       ReadyOnColor,
       ReadyOnHoveredColor,
@@ -125,11 +127,12 @@ UIToggleButtonComponent* AddToggleButton(
       ReadyOffHoveredColor,
       ReadyOffPressedColor
   );
+  buttonPtr->SetPivot({0.5f, 0.5f});
   if (Container) {
     Container->AddItem(buttonPtr);
   }
 
-  Owner->AddComponent(std::move(button));
+  buttonPtr->RegisterComponent();
   AddText(
       Owner,
       buttonPtr,
@@ -153,23 +156,21 @@ void WLobbyHUD::SetLobbyController(PC_Lobby* InLobbyController) {
 void WLobbyHUD::BeginPlay() {
   AWidgetBase::BeginPlay();
 
-  auto playerListBox = std::make_unique<MUIVerticalBoxComponent>();
-  m_PlayerListBox = playerListBox.get();
+  m_PlayerListBox = NewObject<MUIVerticalBoxComponent>(this);
   m_PlayerListBox->SetAnchor(EUIAnchor::TopLeft);
   m_PlayerListBox->SetPivot({0.0f, 0.0f});
   m_PlayerListBox->SetWidgetSize({PlayerRowWidth, 1.0f});
   m_PlayerListBox->SetAnchoredPosition({36.0f, 36.0f});
   m_PlayerListBox->SetSpacing(8.0f);
-  AddComponent(std::move(playerListBox));
+  m_PlayerListBox->RegisterComponent();
 
-  auto mapInfoBox = std::make_unique<MUIVerticalBoxComponent>();
-  m_MapInfoBox = mapInfoBox.get();
+  m_MapInfoBox = NewObject<MUIVerticalBoxComponent>(this);
   m_MapInfoBox->SetAnchor(EUIAnchor::TopRight);
   m_MapInfoBox->SetPivot({1.0f, 0.0f});
   m_MapInfoBox->SetWidgetSize({360.0f, 1.0f});
   m_MapInfoBox->SetAnchoredPosition({-44.0f, 50.0f});
   m_MapInfoBox->SetSpacing(12.0f);
-  AddComponent(std::move(mapInfoBox));
+  m_MapInfoBox->RegisterComponent();
 
   m_SelectedMapText = AddText(
       this,
@@ -195,14 +196,13 @@ void WLobbyHUD::BeginPlay() {
       ButtonPressedColor
   );
 
-  auto actionBox = std::make_unique<MUIVerticalBoxComponent>();
-  m_ActionBox = actionBox.get();
+  m_ActionBox = NewObject<MUIVerticalBoxComponent>(this);
   m_ActionBox->SetAnchor(EUIAnchor::BottomCenter);
   m_ActionBox->SetPivot({0.5f, 1.0f});
   m_ActionBox->SetWidgetSize({ActionButtonWidth, 1.0f});
   m_ActionBox->SetAnchoredPosition({0.0f, -72.0f});
   m_ActionBox->SetSpacing(12.0f);
-  AddComponent(std::move(actionBox));
+  m_ActionBox->RegisterComponent();
 
   m_ReadyToggle = AddToggleButton(this, m_ActionBox, "Ready", ActionButtonWidth, ActionButtonHeight);
   m_StartGameButton = AddBoxButton(
@@ -331,12 +331,11 @@ void WLobbyHUD::UpdatePlayerList() {
   const int playerCount = static_cast<int>(states.size());
 
   while (static_cast<int>(m_PlayerRows.size()) < playerCount) {
-    auto rowRoot = std::make_unique<MUIWidgetComponent>();
-    MUIWidgetComponent* rowRootPtr = rowRoot.get();
+    auto* rowRootPtr = NewObject<MUIWidgetComponent>(this);
     rowRootPtr->SetWidgetSize({PlayerRowWidth, PlayerRowHeight});
     rowRootPtr->SetPivot({0.5f, 0.5f});
     m_PlayerListBox->AddItem(rowRootPtr);
-    AddComponent(std::move(rowRoot));
+    rowRootPtr->RegisterComponent();
 
     UITextComponent* statusText = AddText(
         this,

@@ -1,4 +1,4 @@
-#include "Ghost/GhostRecorderComponent.h"
+﻿#include "Ghost/GhostRecorderComponent.h"
 
 #include <cmath>
 
