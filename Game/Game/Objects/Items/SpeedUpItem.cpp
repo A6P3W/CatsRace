@@ -9,19 +9,20 @@
 #include "SoundComponent.h"
 REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem() {
-  auto collision = std::make_unique<MCircleCollisionComponent>(100.0f);
-  collision->SetParentComponent(GetRootComponent());
+  auto* collision = NewObject<MCircleCollisionComponent>(this);
+  collision->SetRadius(100.0f);
+  collision->AttachToComponent(GetRootComponent());
   collision->SetCollisionType(ECollisionType::Overlap);
-  AddComponent(std::move(collision));
+  collision->RegisterComponent();
 
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
+  auto* sprite = NewObject<MSpriteComponent>(this);
+  sprite->SetRenderSettings(0, RenderSpace::World);
   sprite->SubmitCircle(100.0f, 0x00FF00, 1, 128);
-  sprite->SetParentComponent(GetRootComponent());
-  AddComponent(std::move(sprite));
+  sprite->AttachToComponent(GetRootComponent());
+  sprite->RegisterComponent();
 
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 }
 
 void SpeedUpItem::BeginOverlap(AActor* OtherActor) {

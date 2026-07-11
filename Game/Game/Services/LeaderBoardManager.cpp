@@ -1,4 +1,4 @@
-#include "LeaderBoardManager.h"
+﻿#include "LeaderBoardManager.h"
 
 #include <DxLib.h>
 #include <HttpManager.h>

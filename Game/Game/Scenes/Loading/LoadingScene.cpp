@@ -19,23 +19,29 @@ REGISTER_GAME_MODE(ALoadingScene)
 ALoadingScene::ALoadingScene() {
   SetUpdateableAnytime(true);
 
-  auto background = std::make_unique<MSpriteComponent>(-10, RenderSpace::Screen);
+  auto* background = NewObject<MSpriteComponent>(this);
+  background->SetRenderSettings(-10, RenderSpace::Screen);
   background->SetRelativeLocation({0.0f, 0.0f});
   background->SubmitBox(1920.0f, 1080.0f, GetColor(0, 0, 0), true);
-  AddComponent(std::move(background));
+  background->RegisterComponent();
 
-  auto titleText = std::make_unique<UITextComponent>("Connecting to Online Services...", 0xFFFFFF, 32);
+  auto* titleText = NewObject<UITextComponent>(this);
+  titleText->SetText("Connecting to Online Services...");
+  titleText->SetColor(0xFFFFFF);
+  titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleCenter);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({0.0f, -36.0f});
-  AddComponent(std::move(titleText));
+  titleText->RegisterComponent();
 
-  auto statusText = std::make_unique<UITextComponent>("Logging in...", 0xB8C7D9, 22);
-  StatusText = statusText.get();
+  StatusText = NewObject<UITextComponent>(this);
+  StatusText->SetText("Logging in...");
+  StatusText->SetColor(0xB8C7D9);
+  StatusText->SetFontSize(22);
   StatusText->SetAnchor(EUIAnchor::MiddleCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, 24.0f});
-  AddComponent(std::move(statusText));
+  StatusText->RegisterComponent();
 }
 
 void ALoadingScene::BeginPlay() {

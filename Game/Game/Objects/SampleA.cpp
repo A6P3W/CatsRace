@@ -9,9 +9,11 @@ ASampleA::ASampleA(FVector2D location, FRotator rotation) : AActor() {
   SetActorLocation(location);
   int handle =
       ResourceManager::GetInstance().LoadResourceGraph("BaseFile/texture_Checker_64px.png");
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
+  auto* sprite = NewObject<MSpriteComponent>(this);
+  sprite->SetRenderSettings(0, RenderSpace::World);
   sprite->SubmitGraph(handle);
-  AddComponent(std::move(sprite));
+  sprite->AttachToComponent(GetRootComponent());
+  sprite->RegisterComponent();
 }
 
 ASampleA::~ASampleA() {}

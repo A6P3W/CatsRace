@@ -1,4 +1,4 @@
-#include "GameSceneBase.h"
+﻿#include "GameSceneBase.h"
 
 #include <EnhancedInputComponent.h>
 #include <NetworkManager.h>
@@ -102,9 +102,8 @@ void AGameSceneBase::OnPlayerSpawned(
   player->SetCanMove(RaceRunning);
 
   if (ConnectionId == 0) {
-    auto recorder = std::make_unique<MGhostRecorderComponent>();
-    m_GhostRecorder = recorder.get();
-    player->AddComponent(std::move(recorder));
+    m_GhostRecorder = NewObject<MGhostRecorderComponent>(player);
+    m_GhostRecorder->RegisterComponent();
   }
 
   // 参加リザルト登録

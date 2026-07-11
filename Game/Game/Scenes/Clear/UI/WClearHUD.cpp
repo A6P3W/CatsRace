@@ -24,72 +24,78 @@ UIBoxButtonComponent* AddActionButton(
     MUIVerticalBoxComponent* Container,
     const std::string& Label
 ) {
-  auto button = std::make_unique<UIBoxButtonComponent>(
-      ActionButtonWidth, ActionButtonHeight, ButtonNormalColor, ButtonHoveredColor, ButtonPressedColor
-  );
-  UIBoxButtonComponent* buttonPtr = button.get();
+  auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
+  buttonPtr->SetSize(ActionButtonWidth, ActionButtonHeight);
+  buttonPtr->SetColors(ButtonNormalColor, ButtonHoveredColor, ButtonPressedColor);
   buttonPtr->SetPivot({0.5f, 0.5f});
   if (Container) {
     Container->AddItem(buttonPtr);
   }
-  Owner->AddComponent(std::move(button));
+  buttonPtr->RegisterComponent();
 
-  auto label = std::make_unique<UITextComponent>(Label, 0xFFFFFF, 22);
-  label->SetParentComponent(buttonPtr);
+  auto* label = NewObject<UITextComponent>(Owner);
+  label->SetText(Label);
+  label->SetColor(0xFFFFFF);
+  label->SetFontSize(22);
+  label->AttachToComponent(buttonPtr);
   label->SetWidgetSize({ActionButtonWidth, ActionButtonHeight});
   label->SetAnchor(EUIAnchor::MiddleCenter);
   label->SetPivot({0.5f, 0.5f});
   label->SetAnchoredPosition({0.0f, 0.0f});
-  Owner->AddComponent(std::move(label));
+  label->RegisterComponent();
 
   return buttonPtr;
 }
 }  // namespace
 
 WClearHUD::WClearHUD() {
-  auto clearTimeText = std::make_unique<UITextComponent>("Clear Time: --.--", 0xFFFF00, 36);
-  m_ClearTimeText = clearTimeText.get();
+  m_ClearTimeText = NewObject<UITextComponent>(this);
+  m_ClearTimeText->SetText("Clear Time: --.--");
+  m_ClearTimeText->SetColor(0xFFFF00);
+  m_ClearTimeText->SetFontSize(36);
   m_ClearTimeText->SetAnchor(EUIAnchor::TopCenter);
   m_ClearTimeText->SetPivot({0.5f, 0.5f});
   m_ClearTimeText->SetAnchoredPosition({0.0f, 150.0f});
-  AddComponent(std::move(clearTimeText));
+  m_ClearTimeText->RegisterComponent();
 
-  auto resultListBox = std::make_unique<MUIVerticalBoxComponent>();
-  m_ResultListBox = resultListBox.get();
+  m_ResultListBox = NewObject<MUIVerticalBoxComponent>(this);
   m_ResultListBox->SetAnchor(EUIAnchor::TopCenter);
   m_ResultListBox->SetPivot({0.5f, 0.0f});
   m_ResultListBox->SetWidgetSize({ResultListWidth, 1.0f});
   m_ResultListBox->SetAnchoredPosition({0.0f, 240.0f});
   m_ResultListBox->SetSpacing(8.0f);
   m_ResultListBox->SetAutoResize(true);
-  AddComponent(std::move(resultListBox));
+  m_ResultListBox->RegisterComponent();
 
-  auto loadingText = std::make_unique<UITextComponent>("Waiting for results...", 0x888888, 24);
-  m_LoadingText = loadingText.get();
+  m_LoadingText = NewObject<UITextComponent>(this);
+  m_LoadingText->SetText("Waiting for results...");
+  m_LoadingText->SetColor(0x888888);
+  m_LoadingText->SetFontSize(24);
   m_LoadingText->SetAnchor(EUIAnchor::TopCenter);
   m_LoadingText->SetPivot({0.5f, 0.5f});
   m_LoadingText->SetAnchoredPosition({0.0f, 240.0f});
-  AddComponent(std::move(loadingText));
+  m_LoadingText->RegisterComponent();
 
-  auto actionBox = std::make_unique<MUIVerticalBoxComponent>();
-  m_ActionBox = actionBox.get();
+  m_ActionBox = NewObject<MUIVerticalBoxComponent>(this);
   m_ActionBox->SetAnchor(EUIAnchor::BottomCenter);
   m_ActionBox->SetPivot({0.5f, 1.0f});
   m_ActionBox->SetWidgetSize({ActionButtonWidth, 1.0f});
   m_ActionBox->SetAnchoredPosition({0.0f, -70.0f});
   m_ActionBox->SetSpacing(12.0f);
-  AddComponent(std::move(actionBox));
+  m_ActionBox->RegisterComponent();
 
   m_ReplayButton = AddActionButton(this, m_ActionBox, "Replay");
   m_BackToLobbyButton = AddActionButton(this, m_ActionBox, "Back To Lobby");
 
-  auto waitingHostText = std::make_unique<UITextComponent>("Waiting for host.", 0xDDDDDD, 24);
-  m_WaitingHostText = waitingHostText.get();
+  m_WaitingHostText = NewObject<UITextComponent>(this);
+  m_WaitingHostText->SetText("Waiting for host.");
+  m_WaitingHostText->SetColor(0xDDDDDD);
+  m_WaitingHostText->SetFontSize(24);
   m_WaitingHostText->SetAnchor(EUIAnchor::BottomCenter);
   m_WaitingHostText->SetPivot({0.5f, 1.0f});
   m_WaitingHostText->SetAnchoredPosition({0.0f, -90.0f});
   m_WaitingHostText->SetVisibility(false);
-  AddComponent(std::move(waitingHostText));
+  m_WaitingHostText->RegisterComponent();
 
   if (m_ReplayButton) {
     m_ReplayButton->OnPressed = [this]() {
@@ -133,18 +139,17 @@ void WClearHUD::SetLeaderBoard(const std::vector<FLeaderBoardEntry>& entries) {
     const auto& entryData = entries[i];
     int rank = static_cast<int>(i + 1);
 
-    auto rankEntry = std::make_unique<WRankEntryComponent>(
+    auto* rankEntryPtr = NewObject<WRankEntryComponent>(this);
+    rankEntryPtr->Initialize(
         rank, entryData.user_id, entryData.score, entryData.delta_timestamp
     );
-    WRankEntryComponent* rankEntryPtr = rankEntry.get();
-
     rankEntryPtr->SetPivot({0.5f, 0.5f});
     if (m_ResultListBox) {
       m_ResultListBox->AddItem(rankEntryPtr);
     }
 
     m_ResultEntryWidgets.push_back(rankEntryPtr);
-    AddComponent(std::move(rankEntry));
+    rankEntryPtr->RegisterComponent();
   }
 }
 
@@ -155,21 +160,21 @@ void WClearHUD::SetMultiplayerResults(const std::vector<FResultEntryViewData>& R
   int rank = 1;
   for (const FResultEntryViewData& result : Results) {
     const int entryRank = result.bFinished ? rank++ : 0;
-    auto entry = std::make_unique<WRankEntryComponent>(
+    auto* entryPtr = NewObject<WRankEntryComponent>(this);
+    entryPtr->Initialize(
         entryRank,
         result.PlayerName,
         result.bFinished,
         result.FinishTime,
         result.bLocalPlayer
     );
-    WRankEntryComponent* entryPtr = entry.get();
     entryPtr->SetPivot({0.5f, 0.5f});
     if (m_ResultListBox) {
       m_ResultListBox->AddItem(entryPtr);
     }
 
     m_ResultEntryWidgets.push_back(entryPtr);
-    AddComponent(std::move(entry));
+    entryPtr->RegisterComponent();
   }
 }
 

@@ -1,4 +1,4 @@
-#include "Ghost/GhostPlaybackComponent.h"
+﻿#include "Ghost/GhostPlaybackComponent.h"
 
 #include <algorithm>
 #include <cmath>
