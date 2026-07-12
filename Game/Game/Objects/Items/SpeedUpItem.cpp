@@ -1,7 +1,7 @@
 ﻿#include "SpeedUpItem.h"
 
 #include <SpriteComponent.h>
-
+#include "RectangleCollisionComponent.h" 
 #include "CircleCollisionComponent.h"
 #include "Log.h"
 #include "MovementComponent.h"
@@ -9,13 +9,16 @@
 #include "SoundComponent.h"
 REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem() {
-  auto collision = std::make_unique<MCircleCollisionComponent>(100.0f);
-  collision->SetParentComponent(GetRootComponent());
-  collision->SetCollisionType(ECollisionType::Overlap);
+  auto collision = std::make_unique<MRectangleCollisionComponent>(1950.0f, 980.0f);
+  m_collision = collision.get();
+  m_collision->SetParentComponent(GetRootComponent());
+  m_collision->SetCollisionType(ECollisionType::Overlap);
+  m_collision->SetStatic(true);
   AddComponent(std::move(collision));
-
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedfloa.png");
   auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  sprite->SubmitCircle(100.0f, 0x00FF00, 1, 128);
+  m_sprite = sprite.get();  
+  sprite->SubmitGraph(handle, FScale(1.0f), 255);
   sprite->SetParentComponent(GetRootComponent());
   AddComponent(std::move(sprite));
 

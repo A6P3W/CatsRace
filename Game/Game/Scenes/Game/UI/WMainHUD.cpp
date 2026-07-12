@@ -1,7 +1,7 @@
 ﻿#include "WMainHUD.h"
 #include <SpriteComponent.h>
 #include <UITextComponent.h>
-
+#include "ResourceManager.h"
 #include <iomanip>
 #include <sstream>
  
@@ -15,7 +15,8 @@ WMainHUD::WMainHUD() {
     auto itemIcon = std::make_unique<MSpriteComponent>(10, RenderSpace::Screen);
   m_ItemIcon = itemIcon.get();
   m_ItemIcon->SetRelativeLocation({80.0f, 900.0f});
-  m_ItemIcon->SubmitCircle(50.0f, 0xFF4444, true, 200);
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
+  m_ItemIcon->SubmitGraph(handle, FScale(0.3f), 200);
   m_ItemIcon->SetVisibility(false);
   AddComponent(std::move(itemIcon));
 

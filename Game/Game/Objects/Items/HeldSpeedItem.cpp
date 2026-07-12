@@ -1,13 +1,13 @@
 ﻿#include "Objects/Items/HeldSpeedItem.h"
 
-#include <TimerManager.h>  // タイマーマネージャーのヘッダー
-
+#include <TimerManager.h>  
+#include "RectangleCollisionComponent.h" 
 #include "CircleCollisionComponent.h"
 #include "Log.h"
 #include "Scenes/Game/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
-
+#include "ResourceManager.h"
 namespace {
 enum : FNetworkRPCId { RPC_MulticastHideAndDestroy = 15 };
 }
@@ -23,23 +23,20 @@ AHeldSpeedItem::AHeldSpeedItem() {
       this,
       &AHeldSpeedItem::Multicast_HideAndDestroy
   );
-
-  // 当たり判定（Overlap）
-  auto collision = std::make_unique<MCircleCollisionComponent>(80.0f);
+ auto collision = std::make_unique<MRectangleCollisionComponent>(360.0f, 85.0f);
   m_collision = collision.get();
   m_collision->SetParentComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
   AddComponent(std::move(collision));
 
-  // ビジュアル
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
   auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
   m_sprite = sprite.get();
   m_sprite->SetParentComponent(GetRootComponent());
-  m_sprite->SubmitCircle(80.0f, 0xFF4444, true, 200);
+  m_sprite->SubmitGraph(handle, FScale(1.0f), 255);
   AddComponent(std::move(sprite));
 
-  // サウンド
   auto sound = std::make_unique<MSoundComponent>();
   m_sound = sound.get();
   AddComponent(std::move(sound));
