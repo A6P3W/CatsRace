@@ -54,25 +54,25 @@ void WPauseMenu::BeginPlay() {
   AWidgetBase::BeginPlay();
 
   m_BtnResume = AddMenuButton("再開");
-  m_BtnResume->OnPressed = [this]() {
+  m_BtnResume->SetOnPressed([this]() {
     if (OnResumePressed) OnResumePressed();
-  };
+  });
 
   if (GetWorld() && GetWorld()->IsServer()) {
     m_BtnRestart = AddMenuButton("最初から");
-    m_BtnRestart->OnPressed = [this]() {
+    m_BtnRestart->SetOnPressed([this]() {
       if (OnRestartPressed) OnRestartPressed();
-    };
+    });
 
     m_BtnTitle = AddMenuButton("ロビーに戻る");
-    m_BtnTitle->OnPressed = [this]() {
+    m_BtnTitle->SetOnPressed([this]() {
       if (OnTitlePressed) OnTitlePressed();
-    };
+    });
   } else if (GetWorld() && GetWorld()->IsClient()) {
     m_BtnLeave = AddMenuButton("退出");
-    m_BtnLeave->OnPressed = [this]() {
+    m_BtnLeave->SetOnPressed([this]() {
       if (OnLeavePressed) OnLeavePressed();
-    };
+    });
   }
 
   if (m_ButtonList) {

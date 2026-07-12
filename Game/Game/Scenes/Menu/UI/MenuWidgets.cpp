@@ -135,31 +135,31 @@ void WMainMenuWidget::BeginPlay() {
   ButtonList->BuildNavigation();
   SetFocusedButton(CreateLobbyButton);
 
-  UserNameInput->OnTextChanged = [this](const std::string& Text) {
+  UserNameInput->SetOnTextChanged([this](const std::string& Text) {
     if (OnUserNameChanged) {
       OnUserNameChanged(Text);
     }
-  };
-  UserNameInput->OnTextCommitted = [this](const std::string& Text) {
+  });
+  UserNameInput->SetOnTextCommitted([this](const std::string& Text) {
     if (OnUserNameChanged) {
       OnUserNameChanged(Text);
     }
-  };
-  CreateLobbyButton->OnPressed = [this]() {
+  });
+  CreateLobbyButton->SetOnPressed([this]() {
     if (OnCreateLobby) {
       OnCreateLobby();
     }
-  };
-  SearchLobbyButton->OnPressed = [this]() {
+  });
+  SearchLobbyButton->SetOnPressed([this]() {
     if (OnSearchLobby) {
       OnSearchLobby();
     }
-  };
-  QuitGameButton->OnPressed = [this]() {
+  });
+  QuitGameButton->SetOnPressed([this]() {
     if (OnQuitGame) {
       OnQuitGame();
     }
-  };
+  });
 }
 
 void WMainMenuWidget::SetInitialUserName(const std::string& Name) {
@@ -223,26 +223,26 @@ void WCreateLobbyWidget::BeginPlay() {
   ControlList->BuildNavigation();
   SetFocusedButton(LobbyNameInput);
 
-  LobbyNameInput->OnTextChanged = [this](const std::string& Text) {
+  LobbyNameInput->SetOnTextChanged([this](const std::string& Text) {
     if (OnLobbyNameChanged) {
       OnLobbyNameChanged(Text);
     }
-  };
-  LobbyNameInput->OnTextCommitted = [this](const std::string& Text) {
+  });
+  LobbyNameInput->SetOnTextCommitted([this](const std::string& Text) {
     if (OnLobbyNameChanged) {
       OnLobbyNameChanged(Text);
     }
-  };
-  CreateButton->OnPressed = [this]() {
+  });
+  CreateButton->SetOnPressed([this]() {
     if (OnCreate) {
       OnCreate();
     }
-  };
-  BackButton->OnPressed = [this]() {
+  });
+  BackButton->SetOnPressed([this]() {
     if (OnBack) {
       OnBack();
     }
-  };
+  });
 }
 
 void WCreateLobbyWidget::SetInitialLobbyName(const std::string& LobbyName) {
@@ -302,16 +302,16 @@ void WSearchLobbyWidget::BeginPlay() {
   RebuildNavigation();
   SetFocusedButton(RefreshButton);
 
-  RefreshButton->OnPressed = [this]() {
+  RefreshButton->SetOnPressed([this]() {
     if (OnRefresh) {
       OnRefresh();
     }
-  };
-  BackButton->OnPressed = [this]() {
+  });
+  BackButton->SetOnPressed([this]() {
     if (OnBack) {
       OnBack();
     }
-  };
+  });
 }
 
 void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
@@ -372,11 +372,11 @@ void WSearchLobbyWidget::SetLobbyResults(
       );
     } else {
       button = AddButton(this, ResultList, label, 520.0f, 56.0f);
-      button->OnPressed = [this, index]() {
+      button->SetOnPressed([this, index]() {
         if (OnLobbySelected) {
           OnLobbySelected(index);
         }
-      };
+      });
     }
 
     LobbyButtons.push_back(button);

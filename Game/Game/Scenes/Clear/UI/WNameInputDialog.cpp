@@ -108,7 +108,7 @@ void WNameInputDialog::BeginPlay() {
 
   SetFocusedButton(m_BtnSubmit);
 
-  m_BtnSubmit->OnPressed = [this]() {
+  m_BtnSubmit->SetOnPressed([this]() {
     if (m_InputHandle != -1) {
       char buf[256] = {0};
       GetKeyInputString(buf, m_InputHandle);
@@ -118,13 +118,13 @@ void WNameInputDialog::BeginPlay() {
         m_Callback(cleanName);
       }
     }
-  };
+  });
 
-  m_BtnCancel->OnPressed = [this]() {
+  m_BtnCancel->SetOnPressed([this]() {
     if (m_CancelCallback) {
       m_CancelCallback();
     }
-  };
+  });
 }
 
 void WNameInputDialog::OnUpdate(float DeltaTime) {

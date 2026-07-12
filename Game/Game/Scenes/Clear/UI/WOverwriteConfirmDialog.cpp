@@ -73,17 +73,17 @@ void WOverwriteConfirmDialog::BeginPlay() {
   SetFocusedButton(m_BtnReEnter);
 
   // Button callback setup
-  m_BtnOverwrite->OnPressed = [this]() {
+  m_BtnOverwrite->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EOverwriteResult::Overwrite);
     }
-  };
+  });
 
-  m_BtnReEnter->OnPressed = [this]() {
+  m_BtnReEnter->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EOverwriteResult::ReEnter);
     }
-  };
+  });
 }
 
 void WOverwriteConfirmDialog::SetOnResult(FOnOverwriteResult callback) { m_Callback = callback; }

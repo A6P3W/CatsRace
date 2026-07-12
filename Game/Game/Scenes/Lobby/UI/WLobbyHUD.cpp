@@ -232,38 +232,38 @@ void WLobbyHUD::BeginPlay() {
   m_LeaveButton->SetAnchoredPosition({44.0f, -44.0f});
 
   if (m_ReadyToggle) {
-    m_ReadyToggle->OnToggled = [this](bool bIsOn) {
+    m_ReadyToggle->SetOnToggled([this](bool bIsOn) {
       if (!LobbyController) {
         return;
       }
       if (auto* localState = LobbyController->FindLocalPlayerState()) {
         localState->SetReady(bIsOn);
       }
-    };
+    });
   }
 
   if (m_MapSelectButton) {
-    m_MapSelectButton->OnPressed = [this]() {
+    m_MapSelectButton->SetOnPressed([this]() {
       if (LobbyController && LobbyController->GetWorld() && LobbyController->GetWorld()->IsServer()) {
         LobbyController->ShowMapSelectDialog();
       }
-    };
+    });
   }
 
   if (m_StartGameButton) {
-    m_StartGameButton->OnPressed = [this]() {
+    m_StartGameButton->SetOnPressed([this]() {
       if (LobbyController && LobbyController->GetWorld() && LobbyController->GetWorld()->IsServer() && CanStartGame()) {
         LobbyController->StartGame();
       }
-    };
+    });
   }
 
   if (m_LeaveButton) {
-    m_LeaveButton->OnPressed = [this]() {
+    m_LeaveButton->SetOnPressed([this]() {
       if (LobbyController) {
         LobbyController->LeaveLobby();
       }
-    };
+    });
   }
 
   m_bLastHostMode = bIsHost;

@@ -84,14 +84,14 @@ void WMapSelectDialog::BeginPlay() {
     }
 
     const std::string levelPath = AvailableMaps[index].LevelPath;
-    button->OnPressed = [this, levelPath]() { NotifySelected(levelPath); };
+    button->SetOnPressed([this, levelPath]() { NotifySelected(levelPath); });
 
     button->Navigation.Up = index == 0 ? m_BtnCancel : m_MapButtons[index - 1];
     button->Navigation.Down = index + 1 < mapButtonCount ? m_MapButtons[index + 1] : m_BtnCancel;
   }
 
   if (m_BtnCancel) {
-    m_BtnCancel->OnPressed = [this]() { NotifySelected(""); };
+    m_BtnCancel->SetOnPressed([this]() { NotifySelected(""); });
     if (mapButtonCount > 0) {
       m_BtnCancel->Navigation.Up = m_MapButtons[mapButtonCount - 1];
       m_BtnCancel->Navigation.Down = m_MapButtons.front();

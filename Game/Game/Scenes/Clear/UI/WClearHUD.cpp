@@ -98,18 +98,18 @@ WClearHUD::WClearHUD() {
   m_WaitingHostText->RegisterComponent();
 
   if (m_ReplayButton) {
-    m_ReplayButton->OnPressed = [this]() {
+    m_ReplayButton->SetOnPressed([this]() {
       if (OnReplay) {
         OnReplay();
       }
-    };
+    });
   }
   if (m_BackToLobbyButton) {
-    m_BackToLobbyButton->OnPressed = [this]() {
+    m_BackToLobbyButton->SetOnPressed([this]() {
       if (OnBackToLobby) {
         OnBackToLobby();
       }
-    };
+    });
   }
 
   RebuildActionNavigation();

@@ -1,5 +1,7 @@
 ﻿#include <DxLib.h>
+#include <Windows.h>
 
+#include "Application.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EOSCoreManager.h"
@@ -26,4 +28,14 @@ void SetupGame() {
   SM.RegisterLevelPath(GameSceneIds::Game2, "Resources/GameScene2.BLevel");
   SM.SetStartupLevelPath("Resources/LoadingScene.BLevel");
   SetMouseDispFlag(1);
+}
+
+int WINAPI WinMain(HINSTANCE Instance, HINSTANCE PreviousInstance, LPSTR CommandLine, int ShowCommand) {
+  (void)Instance;
+  (void)PreviousInstance;
+  (void)CommandLine;
+  (void)ShowCommand;
+  Application::SetGameSetupCallback(&SetupGame);
+  Application App;
+  return App.Run() ? 0 : 1;
 }

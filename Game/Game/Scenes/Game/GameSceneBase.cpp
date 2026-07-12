@@ -38,8 +38,8 @@
 
 AGameSceneBase::AGameSceneBase(
 ) {
-  DefaultPawnClass = APlayer::StaticClassName();
-  DefaultPlayerControllerClass = PC_Game::StaticClassName();
+  SetDefaultPawnClass(APlayer::StaticClassName());
+  SetDefaultPlayerControllerClass(PC_Game::StaticClassName());
 }
 
 void AGameSceneBase::OnUpdate(float DeltaTime) {
