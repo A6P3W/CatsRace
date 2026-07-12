@@ -63,17 +63,17 @@ void WPostGameDialog::BeginPlay() {
   SetFocusedButton(m_BtnPlayAgain);
 
   // Button callback setup
-  m_BtnPlayAgain->OnPressed = [this]() {
+  m_BtnPlayAgain->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EPostGameResult::PlayAgain);
     }
-  };
+  });
 
-  m_BtnBackToTitle->OnPressed = [this]() {
+  m_BtnBackToTitle->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EPostGameResult::BackToTitle);
     }
-  };
+  });
 }
 
 void WPostGameDialog::SetOnResult(FOnPostGameResult callback) { m_Callback = callback; }

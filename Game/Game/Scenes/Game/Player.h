@@ -70,7 +70,7 @@ class APlayer : public APawn {
   const float DriftSteerMultiplier = 1.0f;
   const float DriftMinSpeed = 3.0f;
   const float DriftBoostForce = 20.0f;
-  FVector2D m_prevLocation = FVector2D::ZeroVector;
+  FVector2D m_prevLocation = FVector2D::ZeroVector();
   MSoundComponent* m_sound = nullptr;
   int m_engineIdleHandle = -1;
   int m_engineRunHandle = -1;

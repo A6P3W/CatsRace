@@ -11,7 +11,7 @@ class MSpriteComponent;
 class ALapCheckpoint : public AActor {
  public:
   DEFINE_ACTOR_CLASS(ALapCheckpoint);
-  ALapCheckpoint(FVector2D location = FVector2D::ZeroVector, FRotator rotation = FRotator(0));
+  ALapCheckpoint(FVector2D location = FVector2D::ZeroVector(), FRotator rotation = FRotator(0));
   const std::string& GetImagePath() const { return m_imagePath; }
   void SetImagePath(const std::string& path) { m_imagePath = path; }
   // チェックポイント番号（0始まりで昇順に設定する）

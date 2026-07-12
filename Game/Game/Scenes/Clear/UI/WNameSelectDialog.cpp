@@ -98,23 +98,23 @@ void WNameSelectDialog::BeginPlay() {
   SetFocusedButton(m_BtnUseExisting);
 
   // Button callback setup
-  m_BtnUseExisting->OnPressed = [this]() {
+  m_BtnUseExisting->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(ENameSelectResult::UseExisting);
     }
-  };
+  });
 
-  m_BtnEnterNew->OnPressed = [this]() {
+  m_BtnEnterNew->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(ENameSelectResult::EnterNew);
     }
-  };
+  });
 
-  m_BtnSkip->OnPressed = [this]() {
+  m_BtnSkip->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(ENameSelectResult::Skip);
     }
-  };
+  });
 }
 
 void WNameSelectDialog::SetExistingName(const std::string& name) {
