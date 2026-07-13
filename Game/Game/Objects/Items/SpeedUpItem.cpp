@@ -9,22 +9,21 @@
 #include "SoundComponent.h"
 REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem() {
-  auto collision = std::make_unique<MRectangleCollisionComponent>(1950.0f, 980.0f);
-  m_collision = collision.get();
-  m_collision->SetParentComponent(GetRootComponent());
-  m_collision->SetCollisionType(ECollisionType::Overlap);
-  m_collision->SetStatic(true);
-  AddComponent(std::move(collision));
-  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedfloa.png");
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_sprite = sprite.get();  
-  sprite->SubmitGraph(handle, FScale(1.0f), 255);
-  sprite->SetParentComponent(GetRootComponent());
-  AddComponent(std::move(sprite));
+  auto* collision = NewObject<MRectangleCollisionComponent>(this);
+  collision->SetSize(1950.0f, 980.0f);
+  collision->AttachToComponent(GetRootComponent());
+  collision->SetCollisionType(ECollisionType::Overlap);
+  collision->RegisterComponent();
 
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedfloa.png");
+  auto* sprite = NewObject<MSpriteComponent>(this);
+  sprite->SetRenderSettings(0, RenderSpace::World);
+  sprite->SubmitGraph(handle, FScale(1.0f), 255);
+  sprite->AttachToComponent(GetRootComponent());
+  sprite->RegisterComponent();
+
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 }
 
 void SpeedUpItem::BeginOverlap(AActor* OtherActor) {

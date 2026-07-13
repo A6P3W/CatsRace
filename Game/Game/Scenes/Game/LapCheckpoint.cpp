@@ -11,22 +11,21 @@ ALapCheckpoint::ALapCheckpoint(FVector2D location, FRotator rotation) {
   SetActorLocation(location);
   SetActorRotation(rotation);
 
-  auto collision =
-      std::make_unique<MRectangleCollisionComponent>(1200.0f, 200.0f);  
-  m_collision = collision.get();
-  m_collision->SetParentComponent(GetRootComponent());
+  m_collision = NewObject<MRectangleCollisionComponent>(this);
+  m_collision->SetSize(1200.0f, 200.0f);
+  m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
-  AddComponent(std::move(collision));
+  m_collision->RegisterComponent();
 
   // ビジュアル（デバッグ表示用）
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_sprite = sprite.get();
-  m_sprite->SetParentComponent(GetRootComponent());
+  m_sprite = NewObject<MSpriteComponent>(this);
+  m_sprite->SetRenderSettings(0, RenderSpace::World);
+  m_sprite->AttachToComponent(GetRootComponent());
   m_sprite->SetRelativeLocation({-40.0f, -150.0f});
   // ゴールライン=黄色、通常チェックポイント=水色
   m_sprite->SubmitBox(80.0f, 300.0f, m_bIsLapLine ? 0xFFFF00 : 0x00FFFF, false, 180);
-  AddComponent(std::move(sprite));
+  m_sprite->RegisterComponent();
 }
 
 void ALapCheckpoint::BeginPlay() {

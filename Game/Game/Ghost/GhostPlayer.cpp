@@ -1,4 +1,4 @@
-#include "Ghost/GhostPlayer.h"
+﻿#include "Ghost/GhostPlayer.h"
 
 #include <DxLib.h>
 
@@ -17,16 +17,16 @@ AGhostPlayer::AGhostPlayer(FVector2D location, FRotator rotation) {
 
   const int handle =
       ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_1.png");
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_SpriteComponent = sprite.get();
+  m_SpriteComponent = NewObject<MSpriteComponent>(this);
+  m_SpriteComponent->SetRenderSettings(0, RenderSpace::World);
   if (handle != -1) {
     m_SpriteComponent->SubmitGraph(handle, FScale(1.0f), 188);
   }
-  AddComponent(std::move(sprite));
+  m_SpriteComponent->AttachToComponent(GetRootComponent());
+  m_SpriteComponent->RegisterComponent();
 
-  auto playback = std::make_unique<MGhostPlaybackComponent>();
-  m_PlaybackComponent = playback.get();
-  AddComponent(std::move(playback));
+  m_PlaybackComponent = NewObject<MGhostPlaybackComponent>(this);
+  m_PlaybackComponent->RegisterComponent();
 }
 
 void AGhostPlayer::Draw() {

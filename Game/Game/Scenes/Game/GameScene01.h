@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameSceneBase.h"
 
 class AGameScene01 : public AGameSceneBase {

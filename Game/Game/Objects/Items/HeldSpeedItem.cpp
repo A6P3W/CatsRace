@@ -23,23 +23,26 @@ AHeldSpeedItem::AHeldSpeedItem() {
       this,
       &AHeldSpeedItem::Multicast_HideAndDestroy
   );
- auto collision = std::make_unique<MRectangleCollisionComponent>(360.0f, 85.0f);
-  m_collision = collision.get();
-  m_collision->SetParentComponent(GetRootComponent());
+
+  // 当たり判定（Overlap）
+  m_collision = NewObject<MRectangleCollisionComponent>(this);
+  m_collision->SetSize(360.0f, 85.0f);
+  m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
-  AddComponent(std::move(collision));
+  m_collision->RegisterComponent();
 
+  // ビジュアル
   int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_sprite = sprite.get();
-  m_sprite->SetParentComponent(GetRootComponent());
+  m_sprite = NewObject<MSpriteComponent>(this);
+  m_sprite->SetRenderSettings(0, RenderSpace::World);
+  m_sprite->AttachToComponent(GetRootComponent());
   m_sprite->SubmitGraph(handle, FScale(1.0f), 255);
-  AddComponent(std::move(sprite));
+  m_sprite->RegisterComponent();
 
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  // サウンド
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 }
 
 AHeldSpeedItem::AHeldSpeedItem(FVector2D location, FRotator rotation) : AHeldSpeedItem() {

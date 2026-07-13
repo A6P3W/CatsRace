@@ -11,21 +11,23 @@ REGISTER_ACTOR(ASlowFloor);
 
 ASlowFloor::ASlowFloor(float width, float height, float slowStrength)
     : m_width(width), m_height(height), m_slowStrength(slowStrength) {
-  auto col = std::make_unique<MRectangleCollisionComponent>(m_width, m_height);
+  auto* col = NewObject<MRectangleCollisionComponent>(this);
+  col->SetSize(m_width, m_height);
   col->SetCollisionType(ECollisionType::Overlap);
   col->SetStatic(true);
-  col->SetParentComponent(GetRootComponent());
-  AddComponent(std::move(col));
+  col->AttachToComponent(GetRootComponent());
+  col->RegisterComponent();
 
-  auto sprite = std::make_unique<MSpriteComponent>(10, RenderSpace::World);
+  auto* sprite = NewObject<MSpriteComponent>(this);
+  sprite->SetRenderSettings(10, RenderSpace::World);
   sprite->SubmitBox(m_width, m_height, 0x4488FF, 1, 100);
   sprite->SetRelativeLocation({-m_width * 0.5f, -m_height * 0.5f});
-  sprite->SetParentComponent(GetRootComponent());
+  sprite->AttachToComponent(GetRootComponent());
+  sprite->RegisterComponent();
 
   // サウンドコンポーネントはコンストラクタで初期化する
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 
   M_LOG("[SlowFloor] Spawned. size=({}, {}), strength={}", m_width, m_height, m_slowStrength);
 }

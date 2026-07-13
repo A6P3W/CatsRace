@@ -46,33 +46,38 @@ UIBoxButtonComponent* AddButton(
     int PressedColor = ButtonPressedColor,
     int TextColor = ButtonTextColor
 ) {
-  auto button = std::make_unique<UIBoxButtonComponent>(
-      Width, Height, NormalColor, HoveredColor, PressedColor
-  );
-  UIBoxButtonComponent* buttonPtr = button.get();
+  auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
+  buttonPtr->SetSize(Width, Height);
+  buttonPtr->SetColors(NormalColor, HoveredColor, PressedColor);
   buttonPtr->SetPivot({0.5f, 0.5f});
   if (Container) {
     Container->AddItem(buttonPtr);
   }
+  buttonPtr->RegisterComponent();
 
-  auto text = std::make_unique<UITextComponent>(Label, TextColor, 24);
-  text->SetParentComponent(buttonPtr);
+  auto* text = NewObject<UITextComponent>(Owner);
+  text->SetText(Label);
+  text->SetColor(TextColor);
+  text->SetFontSize(24);
+  text->AttachToComponent(buttonPtr);
   text->SetAnchor(EUIAnchor::MiddleCenter);
   text->SetPivot({0.5f, 0.5f});
   text->SetAnchoredPosition({0.0f, 0.0f});
+  text->RegisterComponent();
 
-  Owner->AddComponent(std::move(button));
-  Owner->AddComponent(std::move(text));
   return buttonPtr;
 }
 
 void AddInputLabel(AWidgetBase* Owner, UIInputTextComponent* Input, const std::string& Label) {
-  auto labelText = std::make_unique<UITextComponent>(Label, InputLabelColor, InputLabelFontSize);
-  labelText->SetParentComponent(Input);
+  auto* labelText = NewObject<UITextComponent>(Owner);
+  labelText->SetText(Label);
+  labelText->SetColor(InputLabelColor);
+  labelText->SetFontSize(InputLabelFontSize);
+  labelText->AttachToComponent(Input);
   labelText->SetAnchor(EUIAnchor::MiddleCenter);
   labelText->SetPivot({0.5f, 0.5f});
   labelText->SetAnchoredPosition({0.0f, InputLabelOffsetY});
-  Owner->AddComponent(std::move(labelText));
+  labelText->RegisterComponent();
 }
 
 std::string GetLobbyDisplayName(const FLobbyInfo& LobbyInfo) {
@@ -90,19 +95,18 @@ bool IsLobbyRacing(const FLobbyInfo& LobbyInfo) {
 }  // namespace
 
 WMainMenuWidget::WMainMenuWidget() {
-  auto buttonList = std::make_unique<MUIVerticalBoxComponent>();
-  ButtonList = buttonList.get();
+  ButtonList = NewObject<MUIVerticalBoxComponent>(this);
   ButtonList->SetAnchor(EUIAnchor::MiddleCenter);
   ButtonList->SetPivot({0.5f, 0.5f});
   ButtonList->SetAnchoredPosition({0.0f, 210.0f});
   ButtonList->SetSpacing(18.0f);
-  AddComponent(std::move(buttonList));
+  ButtonList->RegisterComponent();
 
   CreateLobbyButton = AddButton(this, ButtonList, "Create Lobby");
   SearchLobbyButton = AddButton(this, ButtonList, "Search Lobby");
 
-  auto input = std::make_unique<UIInputTextComponent>(InputBoxWidth, PlayerNameInputHeight, "");
-  UserNameInput = input.get();
+  UserNameInput = NewObject<UIInputTextComponent>(this);
+  UserNameInput->SetSize(InputBoxWidth, PlayerNameInputHeight);
   UserNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
   UserNameInput->SetTextColor(0xFFFFFF);
   UserNameInput->SetHintColor(0xDDDDDD);
@@ -110,17 +114,19 @@ WMainMenuWidget::WMainMenuWidget() {
   UserNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   UserNameInput->SetPivot({0.5f, 0.5f});
   ButtonList->AddItem(UserNameInput);
-  AddComponent(std::move(input));
+  UserNameInput->RegisterComponent();
   AddInputLabel(this, UserNameInput, "プレイヤー名：");
 
   QuitGameButton = AddButton(this, ButtonList, "Quit Game");
 
-  auto statusText = std::make_unique<UITextComponent>("", 0x000000, 20);
-  StatusText = statusText.get();
+  StatusText = NewObject<UITextComponent>(this);
+  StatusText->SetText("");
+  StatusText->SetColor(0x000000);
+  StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
-  AddComponent(std::move(statusText));
+  StatusText->RegisterComponent();
 }
 
 void WMainMenuWidget::BeginPlay() {
@@ -129,31 +135,31 @@ void WMainMenuWidget::BeginPlay() {
   ButtonList->BuildNavigation();
   SetFocusedButton(CreateLobbyButton);
 
-  UserNameInput->OnTextChanged = [this](const std::string& Text) {
+  UserNameInput->SetOnTextChanged([this](const std::string& Text) {
     if (OnUserNameChanged) {
       OnUserNameChanged(Text);
     }
-  };
-  UserNameInput->OnTextCommitted = [this](const std::string& Text) {
+  });
+  UserNameInput->SetOnTextCommitted([this](const std::string& Text) {
     if (OnUserNameChanged) {
       OnUserNameChanged(Text);
     }
-  };
-  CreateLobbyButton->OnPressed = [this]() {
+  });
+  CreateLobbyButton->SetOnPressed([this]() {
     if (OnCreateLobby) {
       OnCreateLobby();
     }
-  };
-  SearchLobbyButton->OnPressed = [this]() {
+  });
+  SearchLobbyButton->SetOnPressed([this]() {
     if (OnSearchLobby) {
       OnSearchLobby();
     }
-  };
-  QuitGameButton->OnPressed = [this]() {
+  });
+  QuitGameButton->SetOnPressed([this]() {
     if (OnQuitGame) {
       OnQuitGame();
     }
-  };
+  });
 }
 
 void WMainMenuWidget::SetInitialUserName(const std::string& Name) {
@@ -169,42 +175,46 @@ void WMainMenuWidget::SetStatusText(const std::string& Text) {
 }
 
 WCreateLobbyWidget::WCreateLobbyWidget() {
-  auto titleText = std::make_unique<UITextComponent>("Create Lobby", 0xFFFFFF, 32);
+  auto* titleText = NewObject<UITextComponent>(this);
+  titleText->SetText("Create Lobby");
+  titleText->SetColor(0xFFFFFF);
+  titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleCenter);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({0.0f, 20.0f});
-  AddComponent(std::move(titleText));
+  titleText->RegisterComponent();
 
-  auto controlList = std::make_unique<MUIVerticalBoxComponent>();
-  ControlList = controlList.get();
+  ControlList = NewObject<MUIVerticalBoxComponent>(this);
   ControlList->SetAnchor(EUIAnchor::MiddleCenter);
   ControlList->SetPivot({0.5f, 0.5f});
   ControlList->SetAnchoredPosition({0.0f, 130.0f});
   ControlList->SetSpacing(18.0f);
-  AddComponent(std::move(controlList));
+  ControlList->RegisterComponent();
 
-  auto input = std::make_unique<UIInputTextComponent>(InputBoxWidth, LobbyNameInputHeight, "");
-  LobbyNameInput = input.get();
-  LobbyNameInput->SetMaxLength(32);
+  LobbyNameInput = NewObject<UIInputTextComponent>(this);
+  LobbyNameInput->SetSize(InputBoxWidth, LobbyNameInputHeight);
   LobbyNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
   LobbyNameInput->SetTextColor(0xFFFFFF);
   LobbyNameInput->SetHintColor(0xDDDDDD);
   LobbyNameInput->SetTextOffsetY(InputTextOffsetY);
   LobbyNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   LobbyNameInput->SetPivot({0.5f, 0.5f});
+  LobbyNameInput->SetMaxLength(32);
   ControlList->AddItem(LobbyNameInput);
-  AddComponent(std::move(input));
+  LobbyNameInput->RegisterComponent();
   AddInputLabel(this, LobbyNameInput, "ロビー名：");
 
   CreateButton = AddButton(this, ControlList, "Create");
   BackButton = AddButton(this, ControlList, "Back");
 
-  auto statusText = std::make_unique<UITextComponent>("", 0x000000, 20);
-  StatusText = statusText.get();
+  StatusText = NewObject<UITextComponent>(this);
+  StatusText->SetText("");
+  StatusText->SetColor(0x000000);
+  StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
-  AddComponent(std::move(statusText));
+  StatusText->RegisterComponent();
 }
 
 void WCreateLobbyWidget::BeginPlay() {
@@ -213,26 +223,26 @@ void WCreateLobbyWidget::BeginPlay() {
   ControlList->BuildNavigation();
   SetFocusedButton(LobbyNameInput);
 
-  LobbyNameInput->OnTextChanged = [this](const std::string& Text) {
+  LobbyNameInput->SetOnTextChanged([this](const std::string& Text) {
     if (OnLobbyNameChanged) {
       OnLobbyNameChanged(Text);
     }
-  };
-  LobbyNameInput->OnTextCommitted = [this](const std::string& Text) {
+  });
+  LobbyNameInput->SetOnTextCommitted([this](const std::string& Text) {
     if (OnLobbyNameChanged) {
       OnLobbyNameChanged(Text);
     }
-  };
-  CreateButton->OnPressed = [this]() {
+  });
+  CreateButton->SetOnPressed([this]() {
     if (OnCreate) {
       OnCreate();
     }
-  };
-  BackButton->OnPressed = [this]() {
+  });
+  BackButton->SetOnPressed([this]() {
     if (OnBack) {
       OnBack();
     }
-  };
+  });
 }
 
 void WCreateLobbyWidget::SetInitialLobbyName(const std::string& LobbyName) {
@@ -248,36 +258,42 @@ void WCreateLobbyWidget::SetStatusText(const std::string& Text) {
 }
 
 WSearchLobbyWidget::WSearchLobbyWidget() {
-  auto titleText = std::make_unique<UITextComponent>("Search Lobby", 0xFFFFFF, 32);
+  auto* titleText = NewObject<UITextComponent>(this);
+  titleText->SetText("Search Lobby");
+  titleText->SetColor(0xFFFFFF);
+  titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::TopCenter);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({0.0f, 150.0f});
-  AddComponent(std::move(titleText));
+  titleText->RegisterComponent();
 
-  auto resultList = std::make_unique<MUIVerticalBoxComponent>();
-  ResultList = resultList.get();
+  ResultList = NewObject<MUIVerticalBoxComponent>(this);
   ResultList->SetAnchor(EUIAnchor::TopCenter);
   ResultList->SetPivot({0.5f, 0.0f});
   ResultList->SetAnchoredPosition({0.0f, 230.0f});
   ResultList->SetSpacing(14.0f);
-  AddComponent(std::move(resultList));
+  ResultList->RegisterComponent();
 
   RefreshButton = AddButton(this, ResultList, "Refresh");
 
-  auto emptyText = std::make_unique<UITextComponent>("No lobby search results.", 0x8895A6, 20);
-  EmptyText = emptyText.get();
+  EmptyText = NewObject<UITextComponent>(this);
+  EmptyText->SetText("No lobby search results.");
+  EmptyText->SetColor(0x8895A6);
+  EmptyText->SetFontSize(20);
   EmptyText->SetPivot({0.5f, 0.5f});
   ResultList->AddItem(EmptyText);
-  AddComponent(std::move(emptyText));
+  EmptyText->RegisterComponent();
 
   BackButton = AddButton(this, ResultList, "Back");
 
-  auto statusText = std::make_unique<UITextComponent>("", 0x000000, 20);
-  StatusText = statusText.get();
+  StatusText = NewObject<UITextComponent>(this);
+  StatusText->SetText("");
+  StatusText->SetColor(0x000000);
+  StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
-  AddComponent(std::move(statusText));
+  StatusText->RegisterComponent();
 }
 
 void WSearchLobbyWidget::BeginPlay() {
@@ -286,16 +302,16 @@ void WSearchLobbyWidget::BeginPlay() {
   RebuildNavigation();
   SetFocusedButton(RefreshButton);
 
-  RefreshButton->OnPressed = [this]() {
+  RefreshButton->SetOnPressed([this]() {
     if (OnRefresh) {
       OnRefresh();
     }
-  };
-  BackButton->OnPressed = [this]() {
+  });
+  BackButton->SetOnPressed([this]() {
     if (OnBack) {
       OnBack();
     }
-  };
+  });
 }
 
 void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
@@ -356,11 +372,11 @@ void WSearchLobbyWidget::SetLobbyResults(
       );
     } else {
       button = AddButton(this, ResultList, label, 520.0f, 56.0f);
-      button->OnPressed = [this, index]() {
+      button->SetOnPressed([this, index]() {
         if (OnLobbySelected) {
           OnLobbySelected(index);
         }
-      };
+      });
     }
 
     LobbyButtons.push_back(button);

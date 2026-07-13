@@ -27,7 +27,7 @@ FLobbyAttribute MakeLobbyStateAttribute(const char* State) {
 ALobbyScene::ALobbyScene() {
   SetUpdateableAnytime(true);
   SelectedLevelPath = AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
-  DefaultPlayerControllerClass = PC_Lobby::StaticClassName();
+  SetDefaultPlayerControllerClass(PC_Lobby::StaticClassName());
 }
 
 void ALobbyScene::BeginPlay() {

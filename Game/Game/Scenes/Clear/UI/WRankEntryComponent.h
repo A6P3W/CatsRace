@@ -7,10 +7,11 @@ class UITextComponent;
 class MSpriteComponent;
 class WRankEntryComponent : public MUIWidgetComponent {
  public:
-  WRankEntryComponent(
+  WRankEntryComponent() = default;
+  void Initialize(
       int rank, const std::string& userId, float score, const std::string& deltaTimestamp
   );
-  WRankEntryComponent(
+  void Initialize(
       int rank,
       const std::string& playerName,
       bool bFinished,
@@ -18,7 +19,7 @@ class WRankEntryComponent : public MUIWidgetComponent {
       bool bLocalPlayer
   );
 
-  void RegisterComponent() override;
+  void OnRegister() override;
 
  private:
   int m_Rank;

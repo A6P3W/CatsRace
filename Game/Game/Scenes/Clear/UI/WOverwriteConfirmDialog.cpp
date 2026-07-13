@@ -7,61 +7,59 @@
 
 WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
   // Background Panel (ZOrder: 0)
-  auto bgPanel = std::make_unique<MSpriteComponent>(0, RenderSpace::Screen);
-  m_BgPanel = bgPanel.get();
+  m_BgPanel = NewObject<MSpriteComponent>(this);
+  m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
   m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 150.0f});
   m_BgPanel->SubmitBox(600, 300, GetColor(15, 15, 20), true, 220);
-  m_BgPanel->SetParentComponent(nullptr);
-  AddComponent(std::move(bgPanel));
+  m_BgPanel->RegisterComponent();
 
   // Title Text (Warning style, ZOrder: 1)
-  auto titleText = std::make_unique<UITextComponent>("この名前は登録済みです", 0xFF5555, 26);
-  m_TitleText = titleText.get();
+  m_TitleText = NewObject<UITextComponent>(this);
+  m_TitleText->SetText("この名前は登録済みです");
+  m_TitleText->SetColor(0xFF5555);
+  m_TitleText->SetFontSize(26);
   m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
   m_TitleText->SetPivot({0.5f, 0.5f});
   m_TitleText->SetAnchoredPosition({0.0f, -80.0f});
-  m_TitleText->SetParentComponent(nullptr);
-  AddComponent(std::move(titleText));
+  m_TitleText->RegisterComponent();
 
   // 1. Overwrite Button (Left, ZOrder: 1)
-  auto btnOverwrite = std::make_unique<UIBoxButtonComponent>(
-      200.0f, 45.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160)
-  );
-  m_BtnOverwrite = btnOverwrite.get();
+  m_BtnOverwrite = NewObject<UIBoxButtonComponent>(this);
+  m_BtnOverwrite->SetSize(200.0f, 45.0f);
+  m_BtnOverwrite->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
   m_BtnOverwrite->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnOverwrite->SetPivot({0.5f, 0.5f});
   m_BtnOverwrite->SetAnchoredPosition({-120.0f, 50.0f});
-  m_BtnOverwrite->SetParentComponent(nullptr);
+  m_BtnOverwrite->RegisterComponent();
 
-  auto txtOverwrite = std::make_unique<UITextComponent>("上書き", 0xFFFFFF, 18);
-  m_TxtOverwrite = txtOverwrite.get();
-  m_TxtOverwrite->SetParentComponent(m_BtnOverwrite);
+  m_TxtOverwrite = NewObject<UITextComponent>(this);
+  m_TxtOverwrite->SetText("上書き");
+  m_TxtOverwrite->SetColor(0xFFFFFF);
+  m_TxtOverwrite->SetFontSize(18);
+  m_TxtOverwrite->AttachToComponent(m_BtnOverwrite);
   m_TxtOverwrite->SetAnchor(EUIAnchor::MiddleCenter);
   m_TxtOverwrite->SetPivot({0.5f, 0.5f});
   m_TxtOverwrite->SetAnchoredPosition({0.0f, 0.0f});
-
-  AddComponent(std::move(txtOverwrite));
-  AddComponent(std::move(btnOverwrite));
+  m_TxtOverwrite->RegisterComponent();
 
   // 2. Re-enter Button (Right, ZOrder: 1)
-  auto btnReEnter = std::make_unique<UIBoxButtonComponent>(
-      200.0f, 45.0f, GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160)
-  );
-  m_BtnReEnter = btnReEnter.get();
+  m_BtnReEnter = NewObject<UIBoxButtonComponent>(this);
+  m_BtnReEnter->SetSize(200.0f, 45.0f);
+  m_BtnReEnter->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
   m_BtnReEnter->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnReEnter->SetPivot({0.5f, 0.5f});
   m_BtnReEnter->SetAnchoredPosition({120.0f, 50.0f});
-  m_BtnReEnter->SetParentComponent(nullptr);
+  m_BtnReEnter->RegisterComponent();
 
-  auto txtReEnter = std::make_unique<UITextComponent>("再入力", 0xFFFFFF, 18);
-  m_TxtReEnter = txtReEnter.get();
-  m_TxtReEnter->SetParentComponent(m_BtnReEnter);
+  m_TxtReEnter = NewObject<UITextComponent>(this);
+  m_TxtReEnter->SetText("再入力");
+  m_TxtReEnter->SetColor(0xFFFFFF);
+  m_TxtReEnter->SetFontSize(18);
+  m_TxtReEnter->AttachToComponent(m_BtnReEnter);
   m_TxtReEnter->SetAnchor(EUIAnchor::MiddleCenter);
   m_TxtReEnter->SetPivot({0.5f, 0.5f});
   m_TxtReEnter->SetAnchoredPosition({0.0f, 0.0f});
-
-  AddComponent(std::move(txtReEnter));
-  AddComponent(std::move(btnReEnter));
+  m_TxtReEnter->RegisterComponent();
 }
 
 void WOverwriteConfirmDialog::BeginPlay() {
@@ -75,17 +73,17 @@ void WOverwriteConfirmDialog::BeginPlay() {
   SetFocusedButton(m_BtnReEnter);
 
   // Button callback setup
-  m_BtnOverwrite->OnPressed = [this]() {
+  m_BtnOverwrite->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EOverwriteResult::Overwrite);
     }
-  };
+  });
 
-  m_BtnReEnter->OnPressed = [this]() {
+  m_BtnReEnter->SetOnPressed([this]() {
     if (m_Callback) {
       m_Callback(EOverwriteResult::ReEnter);
     }
-  };
+  });
 }
 
 void WOverwriteConfirmDialog::SetOnResult(FOnOverwriteResult callback) { m_Callback = callback; }

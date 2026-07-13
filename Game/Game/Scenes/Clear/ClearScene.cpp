@@ -25,7 +25,7 @@
 #include "World.h"
 
 REGISTER_GAME_MODE(AClearScene)
-AClearScene::AClearScene() { DefaultPlayerControllerClass = "PC_Clear"; }
+AClearScene::AClearScene() { SetDefaultPlayerControllerClass("PC_Clear"); }
 
 void AClearScene::BeginPlay() {
   AGameModeBase::BeginPlay();

@@ -59,39 +59,38 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   m_walkAnimHandles[4] =
       ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_5.png");
 
-  auto sprite = std::make_unique<MSpriteComponent>(0, RenderSpace::World);
-  m_sprite = sprite.get();
-  sprite->SubmitGraph(m_walkAnimHandles[0]);
-  AddComponent(std::move(sprite));
+  m_sprite = NewObject<MSpriteComponent>(this);
+  m_sprite->SetRenderSettings(0, RenderSpace::World);
+  m_sprite->SubmitGraph(m_walkAnimHandles[0]);
+  m_sprite->AttachToComponent(GetRootComponent());
+  m_sprite->RegisterComponent();
 
   SetActorScale(FScale(0.4f));
-  auto col = std::make_unique<MCircleCollisionComponent>(32.0f);
-  col->SetParentComponent(GetRootComponent());
+  auto* col = NewObject<MCircleCollisionComponent>(this);
+  col->SetRadius(32.0f);
+  col->AttachToComponent(GetRootComponent());
   col->SetCollisionType(ECollisionType::Block);
   col->SetStatic(false);
-  AddComponent(std::move(col));
+  col->RegisterComponent();
 
-  auto movement = std::make_unique<MNetMovementComponent>();
-  Movement = movement.get();
-  AddComponent(std::move(movement));
+  Movement = NewObject<MNetMovementComponent>(this);
+  Movement->RegisterComponent();
 
-  auto shake = std::make_unique<MEasyShakeComponent>();
-  m_shake = shake.get();
-  AddComponent(std::move(shake));
+  m_shake = NewObject<MEasyShakeComponent>(this);
+  m_shake->RegisterComponent();
+  
   // カメラ
-  auto camera = std::make_unique<MCameraComponent>();
-  m_camera = camera.get();
-  AddComponent(std::move(camera));
+  m_camera = NewObject<MCameraComponent>(this);
   m_camera->SetFOV(1);
-  m_camera->SetParentComponent(m_shake);
+  m_camera->AttachToComponent(m_shake);
+  m_camera->RegisterComponent();
 
-  m_camera->AddLocalOffset({0.0f, -750.0f});
+  m_camera->AddLocalOffset({0.0f, -400.0f});
   // 走行音をループ再生開始・最初は無音
   // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
 
-  auto sound = std::make_unique<MSoundComponent>();
-  m_sound = sound.get();
-  AddComponent(std::move(sound));
+  m_sound = NewObject<MSoundComponent>(this);
+  m_sound->RegisterComponent();
 }
 
 APlayer::~APlayer() {
