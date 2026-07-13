@@ -1,12 +1,14 @@
 ﻿#pragma once
-#include <TimerHandle.h>  // FTimerHandle の定義が含まれるヘッダー
+#include <TimerHandle.h>
+
 #include <functional>
+
 #include "Actor.h"
 #include "NetworkTypes.h"
+#include "RectangleCollisionComponent.h"
 #include "SoundComponent.h"
 
-class MCircleCollisionComponent;
-class MSpriteComponent;
+class MSpriteComponent;  
 
 class AHeldSpeedItem : public AActor {
  public:
@@ -15,16 +17,14 @@ class AHeldSpeedItem : public AActor {
   AHeldSpeedItem(FVector2D location, FRotator rotation);
   void SetOnPickedUp(std::function<void()> callback) { m_onPickedUp = callback; }
   void BeginOverlap(AActor* OtherActor) override;
+
  private:
   void Multicast_HideAndDestroy();
-
-  // ★ 引数なし、戻り値 void の関数。タイマーマネージャーはこの形式しか受け付けない場合が多いです
   void TriggerDestroy();
-  MCircleCollisionComponent* m_collision = nullptr;
+
+  MRectangleCollisionComponent* m_collision = nullptr;  
   MSpriteComponent* m_sprite = nullptr;
   MSoundComponent* m_sound = nullptr;
   std::function<void()> m_onPickedUp;
-
-  // ★ タイマー管理用のハンドル
   FTimerHandle m_destroyTimerHandle;
 };

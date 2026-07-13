@@ -1,13 +1,13 @@
 ﻿#include "Objects/Items/HeldSpeedItem.h"
 
-#include <TimerManager.h>  // タイマーマネージャーのヘッダー
-
+#include <TimerManager.h>  
+#include "RectangleCollisionComponent.h" 
 #include "CircleCollisionComponent.h"
 #include "Log.h"
 #include "Scenes/Game/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
-
+#include "ResourceManager.h"
 namespace {
 enum : FNetworkRPCId { RPC_MulticastHideAndDestroy = 15 };
 }
@@ -25,18 +25,19 @@ AHeldSpeedItem::AHeldSpeedItem() {
   );
 
   // 当たり判定（Overlap）
-  m_collision = NewObject<MCircleCollisionComponent>(this);
-  m_collision->SetRadius(80.0f);
+  m_collision = NewObject<MRectangleCollisionComponent>(this);
+  m_collision->SetSize(360.0f, 85.0f);
   m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
   m_collision->RegisterComponent();
 
   // ビジュアル
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(0, RenderSpace::World);
   m_sprite->AttachToComponent(GetRootComponent());
-  m_sprite->SubmitCircle(80.0f, 0xFF4444, true, 200);
+  m_sprite->SubmitGraph(handle, FScale(1.0f), 255);
   m_sprite->RegisterComponent();
 
   // サウンド
