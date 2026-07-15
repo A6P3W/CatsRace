@@ -20,7 +20,7 @@ ASlowFloor2::ASlowFloor2(float width, float height, float slowStrength)
 
   auto* sprite = NewObject<MSpriteComponent>(this);
   sprite->SetRenderSettings(10, RenderSpace::World);
-  sprite->SubmitBox(m_width, m_height, 0x4488FF, 1, 100);
+  sprite->SubmitBox(m_width, m_height, FColor{68, 136, 255, 100}, 1);
   sprite->SetRelativeLocation({-m_width * 0.5f, -m_height * 0.5f});
   sprite->AttachToComponent(GetRootComponent());
   sprite->RegisterComponent();
@@ -39,7 +39,6 @@ void ASlowFloor2::BeginOverlap(AActor* OtherActor) {
   if (!OtherActor) return;
   if (auto* player = dynamic_cast<APlayer*>(OtherActor)) {
     player->AddSlowSource(this, m_slowStrength);
-
   }
 }
 
@@ -58,13 +57,9 @@ void ASlowFloor2::OnUpdate(float DeltaTime) {
       toRemove.push_back(move);
       continue;
     }
-
   }
 
-
-    for (auto* dead : toRemove) {
+  for (auto* dead : toRemove) {
     m_overlappingMovements.erase(dead);
   }
-
-
 }

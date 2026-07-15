@@ -23,13 +23,13 @@ WNameInputDialog::WNameInputDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
   m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 175.0f});
-  m_BgPanel->SubmitBox(600, 350, GetColor(15, 15, 20), true, 220);
+  m_BgPanel->SubmitBox(600, 350, FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 
   // Title Text (ZOrder: 1)
   m_TitleText = NewObject<UITextComponent>(this);
   m_TitleText->SetText("登録名を入力してください");
-  m_TitleText->SetColor(0xFFFFFF);
+  m_TitleText->SetColor(FColor{255, 255, 255});
   m_TitleText->SetFontSize(24);
   m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
   m_TitleText->SetPivot({0.5f, 0.5f});
@@ -40,13 +40,13 @@ WNameInputDialog::WNameInputDialog() {
   m_InputBoxBg = NewObject<MSpriteComponent>(this);
   m_InputBoxBg->SetRenderSettings(1, RenderSpace::Screen);
   m_InputBoxBg->SetRelativeLocation({960.0f - 200.0f, 540.0f - 35.0f});
-  m_InputBoxBg->SubmitBox(400, 50, GetColor(30, 35, 45), true, 255);
+  m_InputBoxBg->SubmitBox(400, 50, FColor{30, 35, 45, 255}, true);
   m_InputBoxBg->RegisterComponent();
 
   // Input Box Text Component (ZOrder: 2)
   m_InputText = NewObject<UITextComponent>(this);
   m_InputText->SetText("");
-  m_InputText->SetColor(0xFFFFFF);
+  m_InputText->SetColor(FColor{255, 255, 255});
   m_InputText->SetFontSize(24);
   m_InputText->SetPivot({0.5f, 0});
   m_InputText->SetAnchoredPosition({0.0f, 0.0f});  // Left margin inside box
@@ -55,7 +55,7 @@ WNameInputDialog::WNameInputDialog() {
   // Submit Button (ZOrder: 1)
   m_BtnSubmit = NewObject<UIBoxButtonComponent>(this);
   m_BtnSubmit->SetSize(200.0f, 45.0f);
-  m_BtnSubmit->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnSubmit->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnSubmit->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnSubmit->SetPivot({0.5f, 0.5f});
   m_BtnSubmit->SetAnchoredPosition({-120.0f, 80.0f});
@@ -63,7 +63,7 @@ WNameInputDialog::WNameInputDialog() {
 
   m_TxtSubmit = NewObject<UITextComponent>(this);
   m_TxtSubmit->SetText("送信 (ENTER)");
-  m_TxtSubmit->SetColor(0xFFFFFF);
+  m_TxtSubmit->SetColor(FColor{255, 255, 255});
   m_TxtSubmit->SetFontSize(18);
   m_TxtSubmit->AttachToComponent(m_BtnSubmit);
   m_TxtSubmit->SetAnchor(EUIAnchor::MiddleCenter);
@@ -74,7 +74,7 @@ WNameInputDialog::WNameInputDialog() {
   // Cancel Button (ZOrder: 1)
   m_BtnCancel = NewObject<UIBoxButtonComponent>(this);
   m_BtnCancel->SetSize(200.0f, 45.0f);
-  m_BtnCancel->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnCancel->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnCancel->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnCancel->SetPivot({0.5f, 0.5f});
   m_BtnCancel->SetAnchoredPosition({120.0f, 80.0f});
@@ -82,7 +82,7 @@ WNameInputDialog::WNameInputDialog() {
 
   m_TxtCancel = NewObject<UITextComponent>(this);
   m_TxtCancel->SetText("登録しない (ESC)");
-  m_TxtCancel->SetColor(0xFFFFFF);
+  m_TxtCancel->SetColor(FColor{255, 255, 255});
   m_TxtCancel->SetFontSize(16);
   m_TxtCancel->AttachToComponent(m_BtnCancel);
   m_TxtCancel->SetAnchor(EUIAnchor::MiddleCenter);
