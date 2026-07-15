@@ -116,7 +116,7 @@ void APlayer::OnUpdate(float DeltaTime) {
         }
       }
       float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
-      Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
+      Movement->SetWorldVelocity(Movement->GetVelocity() * decayPerFrame);
     }
     if (m_accelInput > 0.0f) {
       float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
@@ -568,7 +568,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
 
     // ドリフト中は少し速度を落とす
     float decay = std::pow(DriftSpeedDecay, DeltaTime * 60.0f);
-    Movement->SetWorldForce(Movement->GetVelocity() * decay);
+    Movement->SetWorldVelocity(Movement->GetVelocity() * decay);
   } else {
     if (m_isDrifting) {
       // ドリフト終了 → ブースト
