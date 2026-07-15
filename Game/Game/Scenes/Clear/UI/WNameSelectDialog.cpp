@@ -10,13 +10,13 @@ WNameSelectDialog::WNameSelectDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
   m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 175.0f});
-  m_BgPanel->SubmitBox(600, 350, GetColor(15, 15, 20), true, 220);
+  m_BgPanel->SubmitBox(600, 350, FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 
   // Title Text (ZOrder: 1)
   m_TitleText = NewObject<UITextComponent>(this);
   m_TitleText->SetText("ランキングへの登録方法");
-  m_TitleText->SetColor(0xFFFFFF);
+  m_TitleText->SetColor(FColor{255, 255, 255});
   m_TitleText->SetFontSize(28);
   m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
   m_TitleText->SetPivot({0.5f, 0.5f});
@@ -26,7 +26,7 @@ WNameSelectDialog::WNameSelectDialog() {
   // 1. Use Existing Name Button
   m_BtnUseExisting = NewObject<UIBoxButtonComponent>(this);
   m_BtnUseExisting->SetSize(400.0f, 45.0f);
-  m_BtnUseExisting->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnUseExisting->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnUseExisting->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnUseExisting->SetPivot({0.5f, 0.5f});
   m_BtnUseExisting->SetAnchoredPosition({0.0f, -20.0f});
@@ -34,7 +34,7 @@ WNameSelectDialog::WNameSelectDialog() {
 
   m_TxtUseExisting = NewObject<UITextComponent>(this);
   m_TxtUseExisting->SetText("前回の名前を使用");
-  m_TxtUseExisting->SetColor(0xFFFFFF);
+  m_TxtUseExisting->SetColor(FColor{255, 255, 255});
   m_TxtUseExisting->SetFontSize(20);
   m_TxtUseExisting->AttachToComponent(m_BtnUseExisting);
   m_TxtUseExisting->SetAnchor(EUIAnchor::MiddleCenter);
@@ -45,7 +45,7 @@ WNameSelectDialog::WNameSelectDialog() {
   // 2. Enter New Name Button
   m_BtnEnterNew = NewObject<UIBoxButtonComponent>(this);
   m_BtnEnterNew->SetSize(400.0f, 45.0f);
-  m_BtnEnterNew->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnEnterNew->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnEnterNew->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnEnterNew->SetPivot({0.5f, 0.5f});
   m_BtnEnterNew->SetAnchoredPosition({0.0f, 40.0f});
@@ -53,7 +53,7 @@ WNameSelectDialog::WNameSelectDialog() {
 
   m_TxtEnterNew = NewObject<UITextComponent>(this);
   m_TxtEnterNew->SetText("新しい名前で登録");
-  m_TxtEnterNew->SetColor(0xFFFFFF);
+  m_TxtEnterNew->SetColor(FColor{255, 255, 255});
   m_TxtEnterNew->SetFontSize(20);
   m_TxtEnterNew->AttachToComponent(m_BtnEnterNew);
   m_TxtEnterNew->SetAnchor(EUIAnchor::MiddleCenter);
@@ -64,7 +64,7 @@ WNameSelectDialog::WNameSelectDialog() {
   // 3. Skip Button
   m_BtnSkip = NewObject<UIBoxButtonComponent>(this);
   m_BtnSkip->SetSize(400.0f, 45.0f);
-  m_BtnSkip->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnSkip->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnSkip->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnSkip->SetPivot({0.5f, 0.5f});
   m_BtnSkip->SetAnchoredPosition({0.0f, 100.0f});
@@ -72,7 +72,7 @@ WNameSelectDialog::WNameSelectDialog() {
 
   m_TxtSkip = NewObject<UITextComponent>(this);
   m_TxtSkip->SetText("登録しない");
-  m_TxtSkip->SetColor(0xAAAAAA);
+  m_TxtSkip->SetColor(FColor{170, 170, 170});
   m_TxtSkip->SetFontSize(20);
   m_TxtSkip->AttachToComponent(m_BtnSkip);
   m_TxtSkip->SetAnchor(EUIAnchor::MiddleCenter);

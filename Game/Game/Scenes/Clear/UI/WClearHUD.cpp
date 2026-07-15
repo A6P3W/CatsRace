@@ -15,14 +15,12 @@ namespace {
 constexpr float ResultListWidth = 620.0f;
 constexpr float ActionButtonWidth = 220.0f;
 constexpr float ActionButtonHeight = 52.0f;
-constexpr int ButtonNormalColor = 0x202630;
-constexpr int ButtonHoveredColor = 0x1E73BE;
-constexpr int ButtonPressedColor = 0x0F4E8C;
+constexpr FColor ButtonNormalColor{32, 38, 48};
+constexpr FColor ButtonHoveredColor{30, 115, 190};
+constexpr FColor ButtonPressedColor{15, 78, 140};
 
 UIBoxButtonComponent* AddActionButton(
-    WClearHUD* Owner,
-    MUIVerticalBoxComponent* Container,
-    const std::string& Label
+    WClearHUD* Owner, MUIVerticalBoxComponent* Container, const std::string& Label
 ) {
   auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
   buttonPtr->SetSize(ActionButtonWidth, ActionButtonHeight);
@@ -35,7 +33,7 @@ UIBoxButtonComponent* AddActionButton(
 
   auto* label = NewObject<UITextComponent>(Owner);
   label->SetText(Label);
-  label->SetColor(0xFFFFFF);
+  label->SetColor(FColor{255, 255, 255});
   label->SetFontSize(22);
   label->AttachToComponent(buttonPtr);
   label->SetWidgetSize({ActionButtonWidth, ActionButtonHeight});
@@ -51,7 +49,7 @@ UIBoxButtonComponent* AddActionButton(
 WClearHUD::WClearHUD() {
   m_ClearTimeText = NewObject<UITextComponent>(this);
   m_ClearTimeText->SetText("Clear Time: --.--");
-  m_ClearTimeText->SetColor(0xFFFF00);
+  m_ClearTimeText->SetColor(FColor{255, 255, 0});
   m_ClearTimeText->SetFontSize(36);
   m_ClearTimeText->SetAnchor(EUIAnchor::TopCenter);
   m_ClearTimeText->SetPivot({0.5f, 0.5f});
@@ -69,7 +67,7 @@ WClearHUD::WClearHUD() {
 
   m_LoadingText = NewObject<UITextComponent>(this);
   m_LoadingText->SetText("Waiting for results...");
-  m_LoadingText->SetColor(0x888888);
+  m_LoadingText->SetColor(FColor{136, 136, 136});
   m_LoadingText->SetFontSize(24);
   m_LoadingText->SetAnchor(EUIAnchor::TopCenter);
   m_LoadingText->SetPivot({0.5f, 0.5f});
@@ -89,7 +87,7 @@ WClearHUD::WClearHUD() {
 
   m_WaitingHostText = NewObject<UITextComponent>(this);
   m_WaitingHostText->SetText("Waiting for host.");
-  m_WaitingHostText->SetColor(0xDDDDDD);
+  m_WaitingHostText->SetColor(FColor{221, 221, 221});
   m_WaitingHostText->SetFontSize(24);
   m_WaitingHostText->SetAnchor(EUIAnchor::BottomCenter);
   m_WaitingHostText->SetPivot({0.5f, 1.0f});
@@ -140,9 +138,7 @@ void WClearHUD::SetLeaderBoard(const std::vector<FLeaderBoardEntry>& entries) {
     int rank = static_cast<int>(i + 1);
 
     auto* rankEntryPtr = NewObject<WRankEntryComponent>(this);
-    rankEntryPtr->Initialize(
-        rank, entryData.user_id, entryData.score, entryData.delta_timestamp
-    );
+    rankEntryPtr->Initialize(rank, entryData.user_id, entryData.score, entryData.delta_timestamp);
     rankEntryPtr->SetPivot({0.5f, 0.5f});
     if (m_ResultListBox) {
       m_ResultListBox->AddItem(rankEntryPtr);
@@ -162,11 +158,7 @@ void WClearHUD::SetMultiplayerResults(const std::vector<FResultEntryViewData>& R
     const int entryRank = result.bFinished ? rank++ : 0;
     auto* entryPtr = NewObject<WRankEntryComponent>(this);
     entryPtr->Initialize(
-        entryRank,
-        result.PlayerName,
-        result.bFinished,
-        result.FinishTime,
-        result.bLocalPlayer
+        entryRank, result.PlayerName, result.bFinished, result.FinishTime, result.bLocalPlayer
     );
     entryPtr->SetPivot({0.5f, 0.5f});
     if (m_ResultListBox) {

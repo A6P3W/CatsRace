@@ -10,13 +10,13 @@ WPostGameDialog::WPostGameDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
   m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 150.0f});
-  m_BgPanel->SubmitBox(600, 300, GetColor(15, 15, 20), true, 220);
+  m_BgPanel->SubmitBox(600, 300, FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 
   // 1. Play Again Button (Left, ZOrder: 1)
   m_BtnPlayAgain = NewObject<UIBoxButtonComponent>(this);
   m_BtnPlayAgain->SetSize(200.0f, 45.0f);
-  m_BtnPlayAgain->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnPlayAgain->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnPlayAgain->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnPlayAgain->SetPivot({0.5f, 0.5f});
   m_BtnPlayAgain->SetAnchoredPosition({-120.0f, 50.0f});
@@ -24,7 +24,7 @@ WPostGameDialog::WPostGameDialog() {
 
   m_TxtPlayAgain = NewObject<UITextComponent>(this);
   m_TxtPlayAgain->SetText("もう一度プレイ");
-  m_TxtPlayAgain->SetColor(0xFFFFFF);
+  m_TxtPlayAgain->SetColor(FColor{255, 255, 255});
   m_TxtPlayAgain->SetFontSize(18);
   m_TxtPlayAgain->AttachToComponent(m_BtnPlayAgain);
   m_TxtPlayAgain->SetAnchor(EUIAnchor::MiddleCenter);
@@ -35,7 +35,7 @@ WPostGameDialog::WPostGameDialog() {
   // 2. Back To Title Button (Right, ZOrder: 1)
   m_BtnBackToTitle = NewObject<UIBoxButtonComponent>(this);
   m_BtnBackToTitle->SetSize(200.0f, 45.0f);
-  m_BtnBackToTitle->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnBackToTitle->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnBackToTitle->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnBackToTitle->SetPivot({0.5f, 0.5f});
   m_BtnBackToTitle->SetAnchoredPosition({120.0f, 50.0f});
@@ -43,7 +43,7 @@ WPostGameDialog::WPostGameDialog() {
 
   m_TxtBackToTitle = NewObject<UITextComponent>(this);
   m_TxtBackToTitle->SetText("タイトルへ戻る");
-  m_TxtBackToTitle->SetColor(0xFFFFFF);
+  m_TxtBackToTitle->SetColor(FColor{255, 255, 255});
   m_TxtBackToTitle->SetFontSize(18);
   m_TxtBackToTitle->AttachToComponent(m_BtnBackToTitle);
   m_TxtBackToTitle->SetAnchor(EUIAnchor::MiddleCenter);

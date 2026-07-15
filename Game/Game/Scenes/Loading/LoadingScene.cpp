@@ -1,6 +1,7 @@
 ﻿#include "Scenes/Loading/LoadingScene.h"
 
 #include <DxLib.h>
+
 #include <cstring>
 #include <memory>
 #include <string>
@@ -22,12 +23,12 @@ ALoadingScene::ALoadingScene() {
   auto* background = NewObject<MSpriteComponent>(this);
   background->SetRenderSettings(-10, RenderSpace::Screen);
   background->SetRelativeLocation({0.0f, 0.0f});
-  background->SubmitBox(1920.0f, 1080.0f, GetColor(0, 0, 0), true);
+  background->SubmitBox(1920.0f, 1080.0f, FColor{0, 0, 0}, true);
   background->RegisterComponent();
 
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Connecting to Online Services...");
-  titleText->SetColor(0xFFFFFF);
+  titleText->SetColor(FColor{255, 255, 255});
   titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleCenter);
   titleText->SetPivot({0.5f, 0.5f});
@@ -36,7 +37,7 @@ ALoadingScene::ALoadingScene() {
 
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("Logging in...");
-  StatusText->SetColor(0xB8C7D9);
+  StatusText->SetColor(FColor{184, 199, 217});
   StatusText->SetFontSize(22);
   StatusText->SetAnchor(EUIAnchor::MiddleCenter);
   StatusText->SetPivot({0.5f, 0.5f});
