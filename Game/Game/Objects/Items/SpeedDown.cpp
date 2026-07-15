@@ -74,7 +74,7 @@ void ASlowFloor::OnUpdate(float DeltaTime) {
 
     float decayPerFrame = std::pow(m_slowStrength, DeltaTime * 60.0f);
     FVector2D v = move->GetVelocity();
-    move->SetWorldForce(v * decayPerFrame);
+    move->SetWorldVelocity(v * decayPerFrame);
   }
 
   for (auto* dead : toRemove) {
