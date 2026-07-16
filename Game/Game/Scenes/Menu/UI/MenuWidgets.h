@@ -8,6 +8,7 @@
 #include "WidgetBase.h"
 
 class MUIVerticalBoxComponent;
+class MSpriteComponent;
 class UIBoxButtonComponent;
 class UIInputTextComponent;
 class UITextComponent;
@@ -45,10 +46,13 @@ class WCreateLobbyWidget : public AWidgetBase {
   void SetInitialLobbyName(const std::string& LobbyName);
   void SetStatusText(const std::string& Text);
   void SetSearchNavigation(UIBoxButtonComponent* FirstLobbyButton);
+  void FocusCreateButton();
+  void Navigate(const FInputActionValue& Value) override;
 
   std::function<void(const std::string&)> OnLobbyNameChanged;
   std::function<void()> OnCreate;
   std::function<void()> OnBack;
+  std::function<void()> OnFocusSearchResults;
 
  protected:
   void BeginPlay() override;
@@ -59,6 +63,7 @@ class WCreateLobbyWidget : public AWidgetBase {
   UIBoxButtonComponent* CreateButton = nullptr;
   UIBoxButtonComponent* BackButton = nullptr;
   UITextComponent* StatusText = nullptr;
+  UIBoxButtonComponent* FirstSearchButton = nullptr;
 };
 
 class WSearchLobbyWidget : public AWidgetBase {
@@ -69,8 +74,11 @@ class WSearchLobbyWidget : public AWidgetBase {
   void SetStatusText(const std::string& Text);
   void SetLobbyResults(const std::vector<FLobbyInfo>& Results, int SelectedIndex);
   UIBoxButtonComponent* GetFirstJoinableButton() const;
+  bool FocusFirstJoinableButton();
+  void Navigate(const FInputActionValue& Value) override;
 
   std::function<void()> OnBack;
+  std::function<void()> OnFocusCreate;
   std::function<void(int)> OnLobbySelected;
 
  protected:
@@ -85,4 +93,20 @@ class WSearchLobbyWidget : public AWidgetBase {
   std::vector<UIBoxButtonComponent*> LobbyButtons;
   std::vector<UIBoxButtonComponent*> JoinableLobbyButtons;
   std::vector<UITextComponent*> LobbyTexts;
+};
+
+class WJoinLobbyDialog : public AWidgetBase {
+ public:
+  DEFINE_ACTOR_CLASS(WJoinLobbyDialog)
+  WJoinLobbyDialog();
+  void SetLobbyName(const std::string& Name);
+  std::function<void()> OnJoin;
+  std::function<void()> OnBack;
+ protected:
+  void BeginPlay() override;
+ private:
+  MSpriteComponent* Panel = nullptr;
+  UITextComponent* LobbyNameText = nullptr;
+  UIBoxButtonComponent* JoinButton = nullptr;
+  UIBoxButtonComponent* BackButton = nullptr;
 };

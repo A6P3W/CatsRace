@@ -9,6 +9,7 @@
 class AWidgetBase;
 class WCreateLobbyWidget;
 class WMainMenuWidget;
+class WJoinLobbyDialog;
 class WSearchLobbyWidget;
 
 class AMenuScene : public AGameModeBase {
@@ -35,6 +36,8 @@ class AMenuScene : public AGameModeBase {
   static constexpr float LobbySearchIntervalSeconds = 10.0f;
   void JoinSelectedOnlineLobby();
   void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
+  void JoinOnlineLobbyAfterLatestCheck(const FLobbyInfo& LobbyInfo);
+  void ShowJoinConfirmation(const FLobbyInfo& LobbyInfo);
   void LeaveOnlineLobby();
   void LoadSettings();
   void SaveSettings();
@@ -57,4 +60,6 @@ class AMenuScene : public AGameModeBase {
   WMainMenuWidget* MainMenuWidget = nullptr;
   WCreateLobbyWidget* CreateLobbyWidget = nullptr;
   WSearchLobbyWidget* SearchLobbyWidget = nullptr;
+  WJoinLobbyDialog* JoinLobbyDialog = nullptr;
+  std::string PendingJoinLobbyId;
 };

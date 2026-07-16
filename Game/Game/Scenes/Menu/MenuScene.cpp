@@ -67,12 +67,24 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
       };
       CreateLobbyWidget->OnCreate = [this]() { CreateOnlineLobby(); };
       CreateLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
+      CreateLobbyWidget->OnFocusSearchResults = [this]() {
+        if (SearchLobbyWidget && SearchLobbyWidget->GetFirstJoinableButton()) {
+          UIManager::GetInstance()->SetFocusedWidget(SearchLobbyWidget);
+          SearchLobbyWidget->FocusFirstJoinableButton();
+        }
+      };
 
       SearchLobbyWidget = SpawnActor<WSearchLobbyWidget>();
       SearchLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
+      SearchLobbyWidget->OnFocusCreate = [this]() {
+        if (CreateLobbyWidget) {
+          UIManager::GetInstance()->SetFocusedWidget(CreateLobbyWidget);
+          CreateLobbyWidget->FocusCreateButton();
+        }
+      };
       SearchLobbyWidget->OnLobbySelected = [this](int LobbyIndex) {
         SelectedOnlineLobbyIndex = LobbyIndex;
-        JoinSelectedOnlineLobby();
+        ShowJoinConfirmation(OnlineSearchResults[LobbyIndex]);
       };
       ActiveWidget = CreateLobbyWidget;
       break;    case EMenuState::MainMenu:
@@ -106,6 +118,11 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
 }
 
 void AMenuScene::CloseActiveWidget() {
+  if (JoinLobbyDialog) {
+    UIManager::GetInstance()->RemoveWidget(JoinLobbyDialog);
+    JoinLobbyDialog = nullptr;
+    PendingJoinLobbyId.clear();
+  }
   if (ActiveWidget) {
     UIManager::GetInstance()->RemoveWidget(ActiveWidget);
   }
@@ -121,8 +138,28 @@ void AMenuScene::CloseActiveWidget() {
 void AMenuScene::UpdateActiveWidget() {
   UpdateActiveStatus();
 
+  if (JoinLobbyDialog) {
+    const bool bPendingLobbyCanStillJoin = std::any_of(
+        OnlineSearchResults.begin(), OnlineSearchResults.end(), [this](const FLobbyInfo& LobbyInfo) {
+          return LobbyInfo.LobbyId == PendingJoinLobbyId && !IsLobbyRacing(LobbyInfo);
+        }
+    );
+    if (!bPendingLobbyCanStillJoin) {
+      UIManager::GetInstance()->RemoveWidget(JoinLobbyDialog);
+      JoinLobbyDialog = nullptr;
+      PendingJoinLobbyId.clear();
+      if (CreateLobbyWidget) {
+        UIManager::GetInstance()->SetFocusedWidget(CreateLobbyWidget);
+        CreateLobbyWidget->FocusCreateButton();
+      }
+    }
+  }
+
   if (SearchLobbyWidget) {
     SearchLobbyWidget->SetLobbyResults(OnlineSearchResults, SelectedOnlineLobbyIndex);
+    if (!JoinLobbyDialog && UIManager::GetInstance()->GetFocusedWidget() == SearchLobbyWidget) {
+      SearchLobbyWidget->FocusFirstJoinableButton();
+    }
     if (CreateLobbyWidget) {
       CreateLobbyWidget->SetSearchNavigation(SearchLobbyWidget->GetFirstJoinableButton());
     }
@@ -318,6 +355,7 @@ void AMenuScene::JoinSelectedOnlineLobby() {
   if (IsLobbyRacing(lobbyInfo)) {
     OnlineStatusMessage = "レース中のため参加できません。";
     UpdateActiveStatus();
+    SearchOnlineLobbies();
     return;
   }
 
@@ -329,6 +367,7 @@ void AMenuScene::JoinSelectedOnlineLobby() {
             if (!bSuccess || !latestLobbyInfo.bValid) {
               OnlineStatusMessage = "Lobby state check failed. Search again if the result is stale.";
               UpdateActiveStatus();
+              SearchOnlineLobbies();
               return;
             }
 
@@ -346,13 +385,62 @@ void AMenuScene::JoinSelectedOnlineLobby() {
       )) {
     OnlineStatusMessage = "Lobby state check request was rejected.";
     UpdateActiveStatus();
+    SearchOnlineLobbies();
   }
 }
 
+void AMenuScene::JoinOnlineLobbyAfterLatestCheck(const FLobbyInfo& lobbyInfo) {
+  if (!OnlineSessionManager::Get().IsLoggedIn()) {
+    OnlineStatusMessage = "Login before joining a lobby.";
+    UpdateActiveStatus();
+    return;
+  }
+
+  if (OnlineSessionManager::Get().IsInLobby()) {
+    OnlineStatusMessage = "Already in a lobby. Leave it before joining another one.";
+    UpdateActiveStatus();
+    return;
+  }
+
+  if (IsLobbyRacing(lobbyInfo)) {
+    OnlineStatusMessage = "レース中のため参加できません。";
+    UpdateActiveStatus();
+    SearchOnlineLobbies();
+    return;
+  }
+
+  OnlineStatusMessage = "Checking latest lobby state: " + lobbyInfo.LobbyId;
+  UpdateActiveStatus();
+  if (!OnlineSessionManager::Get().FetchLobbyInfoById(
+          lobbyInfo.LobbyId,
+          [this](bool bSuccess, const FLobbyInfo& latestLobbyInfo) {
+            if (!bSuccess || !latestLobbyInfo.bValid) {
+              OnlineStatusMessage = "Lobby state check failed. Search again if the result is stale.";
+              UpdateActiveStatus();
+              SearchOnlineLobbies();
+              return;
+            }
+
+            if (IsLobbyRacing(latestLobbyInfo)) {
+              OnlineStatusMessage = "レース中のため参加できません。";
+              UpdateActiveStatus();
+              SearchOnlineLobbies();
+              return;
+            }
+
+            JoinOnlineLobby(latestLobbyInfo);
+          }
+      )) {
+    OnlineStatusMessage = "Lobby state check request was rejected.";
+    UpdateActiveStatus();
+    SearchOnlineLobbies();
+  }
+}
 void AMenuScene::JoinOnlineLobby(const FLobbyInfo& lobbyInfo) {
   if (lobbyInfo.HostIPAddress.empty()) {
     OnlineStatusMessage = "Selected lobby does not have HostIP.";
     UpdateActiveStatus();
+    SearchOnlineLobbies();
     return;
   }
 
@@ -366,6 +454,7 @@ void AMenuScene::JoinOnlineLobby(const FLobbyInfo& lobbyInfo) {
               OnlineStatusMessage =
                   "Join lobby or ENet connection failed. Search again if the result is stale.";
               UpdateActiveStatus();
+              SearchOnlineLobbies();
               return;
             }
 
@@ -383,6 +472,7 @@ void AMenuScene::JoinOnlineLobby(const FLobbyInfo& lobbyInfo) {
       )) {
     OnlineStatusMessage = "Join lobby request was rejected.";
     UpdateActiveStatus();
+    SearchOnlineLobbies();
   }
 }
 
@@ -439,4 +529,41 @@ void AMenuScene::SaveSettings() {
     }
     gi->last_server_ip = ServerAddress;
   }
+}
+
+void AMenuScene::ShowJoinConfirmation(const FLobbyInfo& LobbyInfo) {
+  if (JoinLobbyDialog) return;
+  JoinLobbyDialog = SpawnActor<WJoinLobbyDialog>();
+  if (CreateLobbyWidget) {
+    CreateLobbyWidget->ClearFocusedButton();
+  }
+  if (SearchLobbyWidget) {
+    SearchLobbyWidget->ClearFocusedButton();
+  }
+  PendingJoinLobbyId = LobbyInfo.LobbyId;
+  JoinLobbyDialog->SetLobbyName(LobbyInfo.GetStringAttribute("LOBBYNAME", "Unknown Lobby"));
+  UIManager* uiManager = UIManager::GetInstance();
+  JoinLobbyDialog->OnJoin = [this, LobbyInfo]() {
+    UIManager* uiManager = UIManager::GetInstance();
+    uiManager->RemoveWidget(JoinLobbyDialog);
+    JoinLobbyDialog = nullptr;
+    PendingJoinLobbyId.clear();
+    if (CreateLobbyWidget) {
+      uiManager->SetFocusedWidget(CreateLobbyWidget);
+      CreateLobbyWidget->FocusCreateButton();
+    }
+    JoinOnlineLobbyAfterLatestCheck(LobbyInfo);
+  };
+  JoinLobbyDialog->OnBack = [this, LobbyInfo]() {
+    UIManager* uiManager = UIManager::GetInstance();
+    uiManager->RemoveWidget(JoinLobbyDialog);
+    JoinLobbyDialog = nullptr;
+    PendingJoinLobbyId.clear();
+    if (CreateLobbyWidget) {
+      uiManager->SetFocusedWidget(CreateLobbyWidget);
+      CreateLobbyWidget->FocusCreateButton();
+    }
+  };
+  uiManager->AddWidget(JoinLobbyDialog);
+  uiManager->SetFocusedWidget(JoinLobbyDialog);
 }

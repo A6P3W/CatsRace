@@ -2,6 +2,8 @@
 
 #include <Application.h>
 #include <DxLib.h>
+#include <EnhancedInputComponent.h>
+#include <SpriteComponent.h>
 #include <UIBoxButton.h>
 #include <UIInputTextComponent.h>
 #include <UITextComponent.h>
@@ -239,14 +241,23 @@ void WCreateLobbyWidget::BeginPlay() {
   });
 }
 
-void WCreateLobbyWidget::SetSearchNavigation(UIBoxButtonComponent* FirstLobbyButton) {
-  if (!FirstLobbyButton) {
+void WCreateLobbyWidget::FocusCreateButton() {
+  SetFocusedButton(CreateButton);
+  StartNavigationCooldown();
+}
+void WCreateLobbyWidget::Navigate(const FInputActionValue& Value) {
+  if (Value.Axis2D.X < -0.5f && FirstSearchButton && (GetFocusedButton() == LobbyNameInput || GetFocusedButton() == CreateButton || GetFocusedButton() == BackButton)) {
+    if (OnFocusSearchResults) OnFocusSearchResults();
+    StartNavigationCooldown();
     return;
   }
-  LobbyNameInput->Navigation.Right = FirstLobbyButton;
-  CreateButton->Navigation.Right = FirstLobbyButton;
-  BackButton->Navigation.Right = FirstLobbyButton;
-  FirstLobbyButton->Navigation.Left = CreateButton;
+  AWidgetBase::Navigate(Value);
+}
+void WCreateLobbyWidget::SetSearchNavigation(UIBoxButtonComponent* FirstLobbyButton) {
+  FirstSearchButton = FirstLobbyButton;
+  LobbyNameInput->Navigation.Right = nullptr;
+  CreateButton->Navigation.Right = nullptr;
+  BackButton->Navigation.Right = nullptr;
 }
 void WCreateLobbyWidget::SetInitialLobbyName(const std::string& LobbyName) {
   if (LobbyNameInput) {
@@ -312,6 +323,7 @@ void WSearchLobbyWidget::SetLobbyResults(
     const std::vector<FLobbyInfo>& Results, int SelectedIndex
 ) {
 
+  ClearFocusedButton();
   for (auto* button : LobbyButtons) {
     if (button) {
       ResultList->RemoveItem(button);
@@ -392,6 +404,21 @@ void WSearchLobbyWidget::SetLobbyResults(
 UIBoxButtonComponent* WSearchLobbyWidget::GetFirstJoinableButton() const {
   return JoinableLobbyButtons.empty() ? nullptr : JoinableLobbyButtons.front();
 }
+bool WSearchLobbyWidget::FocusFirstJoinableButton() {
+  UIBoxButtonComponent* firstButton = GetFirstJoinableButton();
+  if (!firstButton) return false;
+  SetFocusedButton(firstButton);
+  StartNavigationCooldown();
+  return true;
+}
+void WSearchLobbyWidget::Navigate(const FInputActionValue& Value) {
+  if (Value.Axis2D.X > 0.5f && GetFocusedButton()) {
+    if (OnFocusCreate) OnFocusCreate();
+    StartNavigationCooldown();
+    return;
+  }
+  AWidgetBase::Navigate(Value);
+}
 void WSearchLobbyWidget::RebuildNavigation() {
   ResultList->BuildNavigation();
 
@@ -403,3 +430,15 @@ void WSearchLobbyWidget::RebuildNavigation() {
     }
   }
 }
+WJoinLobbyDialog::WJoinLobbyDialog() {
+  Panel = NewObject<MSpriteComponent>(this);
+  Panel->SetRenderSettings(0, RenderSpace::Screen);
+  Panel->SetRelativeLocation({660.0f, 390.0f});
+  Panel->SubmitBox(600.0f, 300.0f, FColor{15, 15, 20, 230}, true);
+  Panel->RegisterComponent();
+  LobbyNameText = NewObject<UITextComponent>(this); LobbyNameText->SetAnchor(EUIAnchor::MiddleCenter); LobbyNameText->SetAnchoredPosition({0.0f,-60.0f}); LobbyNameText->SetFontSize(28); LobbyNameText->SetColor(FColor::White); LobbyNameText->RegisterComponent();
+  JoinButton=AddButton(this,nullptr,"参加",200.0f,52.0f); JoinButton->SetAnchor(EUIAnchor::MiddleCenter); JoinButton->SetAnchoredPosition({-120.0f,70.0f});
+  BackButton=AddButton(this,nullptr,"戻る",200.0f,52.0f); BackButton->SetAnchor(EUIAnchor::MiddleCenter); BackButton->SetAnchoredPosition({120.0f,70.0f});
+}
+void WJoinLobbyDialog::BeginPlay() { AWidgetBase::BeginPlay(); JoinButton->Navigation.Right=BackButton; BackButton->Navigation.Left=JoinButton; JoinButton->SetOnPressed([this](){if(OnJoin)OnJoin();}); BackButton->SetOnPressed([this](){if(OnBack)OnBack();}); SetFocusedButton(BackButton); }
+void WJoinLobbyDialog::SetLobbyName(const std::string& Name) { if(LobbyNameText) LobbyNameText->SetText(Name); }
