@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "NetworkManager.h"
@@ -33,6 +34,17 @@ void PC_Lobby::BeginPlay() {
 
 void PC_Lobby::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
+
+  if (!bIsLocallyControlled) {
+    return;
+  }
+
+  auto* localState = FindLocalPlayerState();
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (localState && gi && !gi->player_name.empty() &&
+      localState->GetPlayerName() != gi->player_name) {
+    localState->SetPlayerName(gi->player_name);
+  }
 }
 
 std::vector<ALobbyPlayerState*> PC_Lobby::GetPlayerStates() {
