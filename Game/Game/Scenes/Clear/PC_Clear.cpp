@@ -257,10 +257,10 @@ void PC_Clear::ShowPostGameDialog() {
 
 std::vector<ALobbyPlayerState*> PC_Clear::GetResultStates() {
   std::map<FNetworkConnectionId, ALobbyPlayerState*> stateByConnectionId;
-  if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return {};
   }
-  for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
     if (auto* state = dynamic_cast<ALobbyPlayerState*>(actorPtr.get())) {
       if (state->IsPendingDestroy()) {
         continue;

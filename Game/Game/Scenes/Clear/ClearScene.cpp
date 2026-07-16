@@ -58,8 +58,8 @@ void AClearScene::SpawnResultStatesFromGameInstance() {
 
 void AClearScene::OnUpdate(float DeltaTime) {
   (void)DeltaTime;
-  if (GetWorld()->IsServer() && GetWorld()->GetObjectManager()) {
-    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  if (GetWorld()->IsServer() && GetWorld()->GetActorManager()) {
+    for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
       if (auto* player = dynamic_cast<APlayer*>(actorPtr.get())) {
         player->Destroy();
       }
