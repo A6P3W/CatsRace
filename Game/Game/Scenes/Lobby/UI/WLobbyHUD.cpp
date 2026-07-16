@@ -3,7 +3,6 @@
 #include <DxLib.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>
-#include <UIToggleButtonComponent.h>
 #include <UIVerticalBoxComponent.h>
 #include <UIWidgetComponent.h>
 
@@ -36,14 +35,6 @@ constexpr FColor ButtonDisabledColor{85, 90, 98};
 constexpr FColor LeaveNormalColor{64, 50, 50};
 constexpr FColor LeaveHoveredColor{150, 70, 70};
 constexpr FColor LeavePressedColor{110, 45, 45};
-constexpr FColor ReadyOnColor{29, 135, 82};
-constexpr FColor ReadyOnHoveredColor{40, 169, 104};
-constexpr FColor ReadyOnPressedColor{23, 106, 65};
-constexpr FColor ReadyOffColor{55, 60, 69};
-constexpr FColor ReadyOffHoveredColor{107, 114, 128};
-constexpr FColor ReadyOffPressedColor{42, 46, 53};
-constexpr FColor ReadyTextColor{91, 227, 136};
-constexpr FColor NotReadyTextColor{255, 138, 128};
 
 std::string FindMapDisplayName(const std::string& LevelPath) {
   const auto it =
@@ -111,43 +102,6 @@ UIBoxButtonComponent* AddBoxButton(
   return buttonPtr;
 }
 
-UIToggleButtonComponent* AddToggleButton(
-    AWidgetBase* Owner,
-    MUIVerticalBoxComponent* Container,
-    const std::string& Label,
-    float Width,
-    float Height
-) {
-  auto* buttonPtr = NewObject<UIToggleButtonComponent>(Owner);
-  buttonPtr->SetSize(Width, Height);
-  buttonPtr->SetColors(
-      ReadyOnColor,
-      ReadyOnHoveredColor,
-      ReadyOnPressedColor,
-      ReadyOffColor,
-      ReadyOffHoveredColor,
-      ReadyOffPressedColor
-  );
-  buttonPtr->SetPivot({0.5f, 0.5f});
-  if (Container) {
-    Container->AddItem(buttonPtr);
-  }
-
-  buttonPtr->RegisterComponent();
-  AddText(
-      Owner,
-      buttonPtr,
-      Label,
-      FColor::White,
-      22,
-      {Width, Height},
-      EUIAnchor::MiddleCenter,
-      {0.5f, 0.5f},
-      {0.0f, 0.0f}
-  );
-
-  return buttonPtr;
-}
 }  // namespace
 
 void WLobbyHUD::SetLobbyController(PC_Lobby* InLobbyController) {
@@ -205,8 +159,6 @@ void WLobbyHUD::BeginPlay() {
   m_ActionBox->SetSpacing(12.0f);
   m_ActionBox->RegisterComponent();
 
-  m_ReadyToggle =
-      AddToggleButton(this, m_ActionBox, "Ready", ActionButtonWidth, ActionButtonHeight);
   m_StartGameButton = AddBoxButton(
       this,
       m_ActionBox,
@@ -218,6 +170,11 @@ void WLobbyHUD::BeginPlay() {
       ButtonDisabledColor
   );
 
+  StartCountdownText = AddText(
+      this, nullptr, "", FColor::White, 28, {420.0f, 40.0f},
+      EUIAnchor::BottomCenter, {0.5f, 1.0f}, {0.0f, -144.0f}
+  );
+  StartCountdownText->SetVisibility(false);
   const bool bIsHost =
       LobbyController && LobbyController->GetWorld() && LobbyController->GetWorld()->IsServer();
   m_LeaveButton = AddBoxButton(
@@ -234,21 +191,10 @@ void WLobbyHUD::BeginPlay() {
   m_LeaveButton->SetPivot({0.0f, 1.0f});
   m_LeaveButton->SetAnchoredPosition({44.0f, -44.0f});
 
-  if (m_ReadyToggle) {
-    m_ReadyToggle->SetOnToggled([this](bool bIsOn) {
-      if (!LobbyController) {
-        return;
-      }
-      if (auto* localState = LobbyController->FindLocalPlayerState()) {
-        localState->SetReady(bIsOn);
-      }
-    });
-  }
-
   if (m_MapSelectButton) {
     m_MapSelectButton->SetOnPressed([this]() {
       if (LobbyController && LobbyController->GetWorld() &&
-          LobbyController->GetWorld()->IsServer()) {
+          LobbyController->GetWorld()->IsServer() && !LobbyController->IsStartCountdownActive()) {
         LobbyController->ShowMapSelectDialog();
       }
     });
@@ -257,7 +203,7 @@ void WLobbyHUD::BeginPlay() {
   if (m_StartGameButton) {
     m_StartGameButton->SetOnPressed([this]() {
       if (LobbyController && LobbyController->GetWorld() &&
-          LobbyController->GetWorld()->IsServer() && CanStartGame()) {
+          LobbyController->GetWorld()->IsServer() && !LobbyController->IsStartCountdownActive() && !LobbyController->GetPlayerStates().empty() && !LobbyController->GetSelectedLevelPath().empty()) {
         LobbyController->StartGame();
       }
     });
@@ -278,14 +224,11 @@ void WLobbyHUD::BeginPlay() {
   if (m_StartGameButton) {
     m_StartGameButton->SetVisibility(bIsHost);
   }
-  if (m_ReadyToggle) {
-    m_ReadyToggle->SetVisibility(!bIsHost);
-  }
 
   UpdatePlayerList();
   UpdateMapInfo();
-  UpdateLocalReadyState();
   UpdateStartGameState();
+  UpdateStartCountdown();
   RebuildNavigation();
   UpdateFocusForHostMode(bIsHost);
 }
@@ -310,17 +253,14 @@ void WLobbyHUD::OnUpdate(float DeltaTime) {
     if (m_StartGameButton) {
       m_StartGameButton->SetVisibility(bIsHost);
     }
-    if (m_ReadyToggle) {
-      m_ReadyToggle->SetVisibility(!bIsHost);
-    }
     RebuildNavigation();
     UpdateFocusForHostMode(bIsHost);
   }
 
   UpdatePlayerList();
   UpdateMapInfo();
-  UpdateLocalReadyState();
   UpdateStartGameState();
+  UpdateStartCountdown();
 }
 
 void WLobbyHUD::Draw() { AWidgetBase::Draw(); }
@@ -343,8 +283,8 @@ void WLobbyHUD::UpdatePlayerList() {
     UITextComponent* statusText = AddText(
         this,
         rowRootPtr,
-        "Not Ready",
-        NotReadyTextColor,
+        "Player",
+        FColor::White,
         20,
         {132.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
@@ -380,14 +320,13 @@ void WLobbyHUD::UpdatePlayerList() {
     ALobbyPlayerState* state = states[index];
     FPlayerRow& row = m_PlayerRows[index];
     const bool bIsHost = state && state->OwnerConnectionId == 0;
-    const bool bReady = state && state->IsReady();
     const std::string playerName = state && !state->GetPlayerName().empty()
                                        ? state->GetPlayerName()
                                        : "Player " + std::to_string(index + 1);
 
     if (row.StatusText) {
-      row.StatusText->SetText(bIsHost ? "Host (Ready)" : (bReady ? "Ready" : "Not Ready"));
-      row.StatusText->SetColor((bIsHost || bReady) ? ReadyTextColor : NotReadyTextColor);
+      row.StatusText->SetText(bIsHost ? "Host" : "Player");
+      row.StatusText->SetColor(FColor::White);
     }
     if (row.NameText) {
       row.NameText->SetText(playerName);
@@ -412,36 +351,12 @@ void WLobbyHUD::UpdateMapInfo() {
   m_SelectedMapText->SetText("Selected Map: " + selectedMapName);
 }
 
-void WLobbyHUD::UpdateLocalReadyState() {
-  if (!LobbyController || !m_ReadyToggle) {
-    return;
-  }
-
-  ALobbyPlayerState* localState = LobbyController->FindLocalPlayerState();
-  if (!localState) {
-    return;
-  }
-
-  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    if (!gi->player_name.empty() && localState->GetPlayerName() != gi->player_name) {
-      localState->SetPlayerName(gi->player_name);
-    }
-  }
-
-  m_ReadyToggle->SetIsOn(localState->IsReady(), false);
-}
-
 void WLobbyHUD::UpdateStartGameState() {
   if (!m_StartGameButton) {
     return;
   }
 
-  const bool bCanStartGame = CanStartGame();
-  if (bCanStartGame == m_bLastCanStartGame) {
-    return;
-  }
-
-  m_bLastCanStartGame = bCanStartGame;
+  const bool bCanStartGame = LobbyController && LobbyController->GetWorld() && LobbyController->GetWorld()->IsServer() && !LobbyController->IsStartCountdownActive() && !LobbyController->GetPlayerStates().empty() && !LobbyController->GetSelectedLevelPath().empty();
   if (bCanStartGame) {
     m_StartGameButton->SetColors(ButtonNormalColor, ButtonHoveredColor, ButtonPressedColor);
   } else {
@@ -449,15 +364,25 @@ void WLobbyHUD::UpdateStartGameState() {
   }
 }
 
+void WLobbyHUD::UpdateStartCountdown() {
+  if (!StartCountdownText || !LobbyController) {
+    return;
+  }
+  const int seconds = LobbyController->GetStartCountdownSeconds();
+  if (seconds == LastStartCountdownSeconds) {
+    return;
+  }
+  LastStartCountdownSeconds = seconds;
+  StartCountdownText->SetVisibility(seconds >= 0);
+  StartCountdownText->SetText(
+      seconds > 0 ? "Starting in " + std::to_string(seconds) + "..." : "Starting..."
+  );
+}
 void WLobbyHUD::RebuildNavigation() {
   if (m_ActionBox) {
     m_ActionBox->BuildNavigation();
   }
 
-  if (m_ReadyToggle) {
-    m_ReadyToggle->Navigation.Left = m_LeaveButton;
-    m_ReadyToggle->Navigation.Right = m_bLastHostMode ? m_MapSelectButton : nullptr;
-  }
   if (m_StartGameButton) {
     m_StartGameButton->Navigation.Left = m_LeaveButton;
     m_StartGameButton->Navigation.Right = m_bLastHostMode ? m_MapSelectButton : nullptr;
@@ -465,7 +390,7 @@ void WLobbyHUD::RebuildNavigation() {
   }
   MUIButtonComponent* primaryActionButton =
       m_bLastHostMode ? static_cast<MUIButtonComponent*>(m_StartGameButton)
-                      : static_cast<MUIButtonComponent*>(m_ReadyToggle);
+                      : nullptr;
   if (m_LeaveButton) {
     m_LeaveButton->Navigation.Right = primaryActionButton;
   }
@@ -478,22 +403,7 @@ void WLobbyHUD::RebuildNavigation() {
 void WLobbyHUD::UpdateFocusForHostMode(bool bIsHost) {
   SetFocusedButton(
       bIsHost ? static_cast<MUIButtonComponent*>(m_StartGameButton)
-              : static_cast<MUIButtonComponent*>(m_ReadyToggle)
+              : static_cast<MUIButtonComponent*>(m_LeaveButton)
   );
 }
 
-bool WLobbyHUD::CanStartGame() const {
-  if (!LobbyController || !LobbyController->GetWorld() ||
-      !LobbyController->GetWorld()->IsServer()) {
-    return false;
-  }
-
-  const std::vector<ALobbyPlayerState*> states = LobbyController->GetPlayerStates();
-  if (states.empty()) {
-    return false;
-  }
-
-  return std::all_of(states.begin(), states.end(), [](const ALobbyPlayerState* state) {
-    return state && state->IsReady();
-  });
-}
