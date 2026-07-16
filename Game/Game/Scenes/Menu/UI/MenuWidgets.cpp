@@ -102,8 +102,7 @@ WMainMenuWidget::WMainMenuWidget() {
   ButtonList->SetSpacing(18.0f);
   ButtonList->RegisterComponent();
 
-  CreateLobbyButton = AddButton(this, ButtonList, "Create Lobby");
-  SearchLobbyButton = AddButton(this, ButtonList, "Search Lobby");
+  CreateLobbyButton = AddButton(this, ButtonList, "OnlinePlay");
 
   UserNameInput = NewObject<UIInputTextComponent>(this);
   UserNameInput->SetSize(InputBoxWidth, PlayerNameInputHeight);
@@ -150,11 +149,6 @@ void WMainMenuWidget::BeginPlay() {
       OnCreateLobby();
     }
   });
-  SearchLobbyButton->SetOnPressed([this]() {
-    if (OnSearchLobby) {
-      OnSearchLobby();
-    }
-  });
   QuitGameButton->SetOnPressed([this]() {
     if (OnQuitGame) {
       OnQuitGame();
@@ -179,15 +173,15 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   titleText->SetText("Create Lobby");
   titleText->SetColor(FColor{255, 255, 255});
   titleText->SetFontSize(32);
-  titleText->SetAnchor(EUIAnchor::MiddleCenter);
+  titleText->SetAnchor(EUIAnchor::MiddleLeft);
   titleText->SetPivot({0.5f, 0.5f});
-  titleText->SetAnchoredPosition({0.0f, 20.0f});
+  titleText->SetAnchoredPosition({430.0f, 20.0f});
   titleText->RegisterComponent();
 
   ControlList = NewObject<MUIVerticalBoxComponent>(this);
-  ControlList->SetAnchor(EUIAnchor::MiddleCenter);
+  ControlList->SetAnchor(EUIAnchor::MiddleLeft);
   ControlList->SetPivot({0.5f, 0.5f});
-  ControlList->SetAnchoredPosition({0.0f, 130.0f});
+  ControlList->SetAnchoredPosition({430.0f, 130.0f});
   ControlList->SetSpacing(18.0f);
   ControlList->RegisterComponent();
 
@@ -245,6 +239,15 @@ void WCreateLobbyWidget::BeginPlay() {
   });
 }
 
+void WCreateLobbyWidget::SetSearchNavigation(UIBoxButtonComponent* FirstLobbyButton) {
+  if (!FirstLobbyButton) {
+    return;
+  }
+  LobbyNameInput->Navigation.Right = FirstLobbyButton;
+  CreateButton->Navigation.Right = FirstLobbyButton;
+  BackButton->Navigation.Right = FirstLobbyButton;
+  FirstLobbyButton->Navigation.Left = CreateButton;
+}
 void WCreateLobbyWidget::SetInitialLobbyName(const std::string& LobbyName) {
   if (LobbyNameInput) {
     LobbyNameInput->SetText(LobbyName, true);
@@ -259,22 +262,20 @@ void WCreateLobbyWidget::SetStatusText(const std::string& Text) {
 
 WSearchLobbyWidget::WSearchLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
-  titleText->SetText("Search Lobby");
+  titleText->SetText("Lobbies");
   titleText->SetColor(FColor{255, 255, 255});
   titleText->SetFontSize(32);
-  titleText->SetAnchor(EUIAnchor::TopCenter);
+  titleText->SetAnchor(EUIAnchor::MiddleRight);
   titleText->SetPivot({0.5f, 0.5f});
-  titleText->SetAnchoredPosition({0.0f, 150.0f});
+  titleText->SetAnchoredPosition({-430.0f, -180.0f});
   titleText->RegisterComponent();
 
   ResultList = NewObject<MUIVerticalBoxComponent>(this);
-  ResultList->SetAnchor(EUIAnchor::TopCenter);
+  ResultList->SetAnchor(EUIAnchor::MiddleRight);
   ResultList->SetPivot({0.5f, 0.0f});
-  ResultList->SetAnchoredPosition({0.0f, 230.0f});
+  ResultList->SetAnchoredPosition({-430.0f, -130.0f});
   ResultList->SetSpacing(14.0f);
   ResultList->RegisterComponent();
-
-  RefreshButton = AddButton(this, ResultList, "Refresh");
 
   EmptyText = NewObject<UITextComponent>(this);
   EmptyText->SetText("No lobby search results.");
@@ -283,8 +284,6 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
   EmptyText->SetPivot({0.5f, 0.5f});
   ResultList->AddItem(EmptyText);
   EmptyText->RegisterComponent();
-
-  BackButton = AddButton(this, ResultList, "Back");
 
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
@@ -300,18 +299,7 @@ void WSearchLobbyWidget::BeginPlay() {
   AWidgetBase::BeginPlay();
 
   RebuildNavigation();
-  SetFocusedButton(RefreshButton);
 
-  RefreshButton->SetOnPressed([this]() {
-    if (OnRefresh) {
-      OnRefresh();
-    }
-  });
-  BackButton->SetOnPressed([this]() {
-    if (OnBack) {
-      OnBack();
-    }
-  });
 }
 
 void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
@@ -323,7 +311,6 @@ void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
 void WSearchLobbyWidget::SetLobbyResults(
     const std::vector<FLobbyInfo>& Results, int SelectedIndex
 ) {
-  SetFocusedButton(RefreshButton);
 
   for (auto* button : LobbyButtons) {
     if (button) {
@@ -344,7 +331,6 @@ void WSearchLobbyWidget::SetLobbyResults(
     EmptyText->SetVisibility(Results.empty());
   }
 
-  ResultList->RemoveItem(BackButton);
 
   UIBoxButtonComponent* selectedButton = nullptr;
   auto addLobbyButton = [this, &Results, SelectedIndex, &selectedButton](int index) {
@@ -393,7 +379,6 @@ void WSearchLobbyWidget::SetLobbyResults(
     }
   }
 
-  ResultList->AddItem(BackButton);
 
   for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
     if (IsLobbyRacing(Results[index])) {
@@ -402,31 +387,14 @@ void WSearchLobbyWidget::SetLobbyResults(
   }
 
   RebuildNavigation();
-
-  if (selectedButton) {
-    SetFocusedButton(selectedButton);
-  } else {
-    SetFocusedButton(RefreshButton);
-  }
 }
 
+UIBoxButtonComponent* WSearchLobbyWidget::GetFirstJoinableButton() const {
+  return JoinableLobbyButtons.empty() ? nullptr : JoinableLobbyButtons.front();
+}
 void WSearchLobbyWidget::RebuildNavigation() {
   ResultList->BuildNavigation();
 
-  RefreshButton->Navigation.Up = nullptr;
-  BackButton->Navigation.Down = nullptr;
-
-  if (!JoinableLobbyButtons.empty()) {
-    RefreshButton->Navigation.Down = JoinableLobbyButtons.front();
-    JoinableLobbyButtons.front()->Navigation.Up = RefreshButton;
-    JoinableLobbyButtons.back()->Navigation.Down = BackButton;
-    BackButton->Navigation.Up = JoinableLobbyButtons.back();
-  } else {
-    RefreshButton->Navigation.Down = BackButton;
-    BackButton->Navigation.Up = RefreshButton;
-  }
-
-  BackButton->Navigation.Down = nullptr;
   for (auto* button : LobbyButtons) {
     if (button && std::find(JoinableLobbyButtons.begin(), JoinableLobbyButtons.end(), button) ==
                       JoinableLobbyButtons.end()) {

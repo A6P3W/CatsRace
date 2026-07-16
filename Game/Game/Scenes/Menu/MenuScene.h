@@ -20,7 +20,7 @@ class AMenuScene : public AGameModeBase {
   void OnUpdate(float DeltaTime) override;
 
  private:
-  enum class EMenuState { MainMenu, CreateLobby, SearchLobby };
+  enum class EMenuState { MainMenu, OnlinePlay };
 
   void ShowMenuState(EMenuState NewState);
   void CloseActiveWidget();
@@ -32,6 +32,7 @@ class AMenuScene : public AGameModeBase {
   bool ConnectToHost();
   void CreateOnlineLobby();
   void SearchOnlineLobbies();
+  static constexpr float LobbySearchIntervalSeconds = 10.0f;
   void JoinSelectedOnlineLobby();
   void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
   void LeaveOnlineLobby();
@@ -47,6 +48,8 @@ class AMenuScene : public AGameModeBase {
   int SelectedOnlineLobbyIndex = -1;
   std::vector<FLobbyInfo> OnlineSearchResults;
   std::string StatusMessage = "Create or join a multiplayer session.";
+  float LobbySearchRemaining = 0.0f;
+  bool bLobbySearchInFlight = false;
   std::string OnlineStatusMessage = "Online services are ready.";
 
   EMenuState CurrentState = EMenuState::MainMenu;

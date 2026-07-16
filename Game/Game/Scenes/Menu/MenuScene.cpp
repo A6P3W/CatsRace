@@ -44,8 +44,14 @@ void AMenuScene::BeginPlay() {
 }
 
 void AMenuScene::OnUpdate(float DeltaTime) {
-  (void)DeltaTime;
   UpdateActiveStatus();
+  if (CurrentState != EMenuState::OnlinePlay) {
+    return;
+  }
+  LobbySearchRemaining -= DeltaTime;
+  if (LobbySearchRemaining <= 0.0f && !bLobbySearchInFlight) {
+    SearchOnlineLobbies();
+  }
 }
 
 void AMenuScene::ShowMenuState(EMenuState NewState) {
@@ -53,7 +59,7 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
   CurrentState = NewState;
 
   switch (CurrentState) {
-    case EMenuState::CreateLobby:
+    case EMenuState::OnlinePlay:
       CreateLobbyWidget = SpawnActor<WCreateLobbyWidget>();
       CreateLobbyWidget->SetInitialLobbyName(LobbyName);
       CreateLobbyWidget->OnLobbyNameChanged = [this](const std::string& NewLobbyName) {
@@ -61,19 +67,15 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
       };
       CreateLobbyWidget->OnCreate = [this]() { CreateOnlineLobby(); };
       CreateLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
-      ActiveWidget = CreateLobbyWidget;
-      break;
-    case EMenuState::SearchLobby:
+
       SearchLobbyWidget = SpawnActor<WSearchLobbyWidget>();
-      SearchLobbyWidget->OnRefresh = [this]() { SearchOnlineLobbies(); };
       SearchLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
       SearchLobbyWidget->OnLobbySelected = [this](int LobbyIndex) {
         SelectedOnlineLobbyIndex = LobbyIndex;
         JoinSelectedOnlineLobby();
       };
-      ActiveWidget = SearchLobbyWidget;
-      break;
-    case EMenuState::MainMenu:
+      ActiveWidget = CreateLobbyWidget;
+      break;    case EMenuState::MainMenu:
     default:
       MainMenuWidget = SpawnActor<WMainMenuWidget>();
       MainMenuWidget->SetInitialUserName(PlayerName);
@@ -82,8 +84,7 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
         SaveSettings();
         LobbyName = std::string(PlayerName) + "'s Lobby";
       };
-      MainMenuWidget->OnCreateLobby = [this]() { ShowMenuState(EMenuState::CreateLobby); };
-      MainMenuWidget->OnSearchLobby = [this]() { ShowMenuState(EMenuState::SearchLobby); };
+      MainMenuWidget->OnCreateLobby = [this]() { ShowMenuState(EMenuState::OnlinePlay); };
       MainMenuWidget->OnQuitGame = []() { Application::QuitGame(); };
       ActiveWidget = MainMenuWidget;
       break;
@@ -91,11 +92,15 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
 
   if (ActiveWidget) {
     UIManager::GetInstance()->AddWidget(ActiveWidget);
+    if (SearchLobbyWidget) {
+      UIManager::GetInstance()->AddWidget(SearchLobbyWidget);
+    }
     UIManager::GetInstance()->SetFocusedWidget(ActiveWidget);
   }
 
   UpdateActiveWidget();
-  if (CurrentState == EMenuState::SearchLobby) {
+  if (CurrentState == EMenuState::OnlinePlay) {
+    LobbySearchRemaining = 0.0f;
     SearchOnlineLobbies();
   }
 }
@@ -103,6 +108,9 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
 void AMenuScene::CloseActiveWidget() {
   if (ActiveWidget) {
     UIManager::GetInstance()->RemoveWidget(ActiveWidget);
+  }
+  if (SearchLobbyWidget && SearchLobbyWidget != ActiveWidget) {
+    UIManager::GetInstance()->RemoveWidget(SearchLobbyWidget);
   }
   ActiveWidget = nullptr;
   MainMenuWidget = nullptr;
@@ -115,6 +123,9 @@ void AMenuScene::UpdateActiveWidget() {
 
   if (SearchLobbyWidget) {
     SearchLobbyWidget->SetLobbyResults(OnlineSearchResults, SelectedOnlineLobbyIndex);
+    if (CreateLobbyWidget) {
+      CreateLobbyWidget->SetSearchNavigation(SearchLobbyWidget->GetFirstJoinableButton());
+    }
   }
 }
 
@@ -246,6 +257,9 @@ void AMenuScene::CreateOnlineLobby() {
 }
 
 void AMenuScene::SearchOnlineLobbies() {
+  if (CurrentState != EMenuState::OnlinePlay || bLobbySearchInFlight) {
+    return;
+  }
   if (!OnlineSessionManager::Get().IsLoggedIn()) {
     OnlineStatusMessage = "Login before searching lobbies.";
     UpdateActiveStatus();
@@ -256,12 +270,13 @@ void AMenuScene::SearchOnlineLobbies() {
   request.BucketId = GameLobbyBucketId;
   request.MaxResults = (std::max)(1, OnlineSearchMaxResults);
 
-  OnlineSearchResults.clear();
-  SelectedOnlineLobbyIndex = -1;
+  bLobbySearchInFlight = true;
+  LobbySearchRemaining = LobbySearchIntervalSeconds;
   OnlineStatusMessage = "Search lobbies requested.";
   UpdateActiveWidget();
   if (!OnlineSessionManager::Get().SearchLobbies(
           request, [this](bool bSuccess, const std::vector<FLobbyInfo>& results) {
+            bLobbySearchInFlight = false;
             if (bSuccess) {
               OnlineSearchResults = results;
               SelectedOnlineLobbyIndex = OnlineSearchResults.empty() ? -1 : 0;

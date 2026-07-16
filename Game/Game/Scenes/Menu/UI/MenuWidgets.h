@@ -44,6 +44,7 @@ class WCreateLobbyWidget : public AWidgetBase {
   WCreateLobbyWidget();
   void SetInitialLobbyName(const std::string& LobbyName);
   void SetStatusText(const std::string& Text);
+  void SetSearchNavigation(UIBoxButtonComponent* FirstLobbyButton);
 
   std::function<void(const std::string&)> OnLobbyNameChanged;
   std::function<void()> OnCreate;
@@ -67,8 +68,8 @@ class WSearchLobbyWidget : public AWidgetBase {
   WSearchLobbyWidget();
   void SetStatusText(const std::string& Text);
   void SetLobbyResults(const std::vector<FLobbyInfo>& Results, int SelectedIndex);
+  UIBoxButtonComponent* GetFirstJoinableButton() const;
 
-  std::function<void()> OnRefresh;
   std::function<void()> OnBack;
   std::function<void(int)> OnLobbySelected;
 
@@ -79,8 +80,6 @@ class WSearchLobbyWidget : public AWidgetBase {
   void RebuildNavigation();
 
   MUIVerticalBoxComponent* ResultList = nullptr;
-  UIBoxButtonComponent* RefreshButton = nullptr;
-  UIBoxButtonComponent* BackButton = nullptr;
   UITextComponent* EmptyText = nullptr;
   UITextComponent* StatusText = nullptr;
   std::vector<UIBoxButtonComponent*> LobbyButtons;
