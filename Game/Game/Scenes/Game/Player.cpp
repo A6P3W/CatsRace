@@ -298,11 +298,11 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 
 bool APlayer::IsDriftInputPressed() {
   bool bPressed = m_driftKeyPressed;
-  if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return bPressed;
   }
 
-  for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
     auto* controller = dynamic_cast<APlayerController*>(actorPtr.get());
     if (!controller || controller->GetPawn() != this || !controller->GetInputMapper()) {
       continue;

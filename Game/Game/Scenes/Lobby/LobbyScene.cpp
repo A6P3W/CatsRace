@@ -59,10 +59,10 @@ void ALobbyScene::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
 
 std::vector<ALobbyPlayerState*> ALobbyScene::GetPlayerStates() {
   std::vector<ALobbyPlayerState*> states;
-  if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return states;
   }
-  for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
     if (auto* state = dynamic_cast<ALobbyPlayerState*>(actorPtr.get())) {
       if (!state->IsPendingDestroy()) {
         states.push_back(state);
