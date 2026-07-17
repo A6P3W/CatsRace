@@ -212,7 +212,7 @@ void WLobbyHUD::BeginPlay() {
   if (m_LeaveButton) {
     m_LeaveButton->SetOnPressed([this]() {
       if (LobbyController) {
-        LobbyController->LeaveLobby();
+        LobbyController->ShowLeaveLobbyConfirmDialog();
       }
     });
   }
