@@ -35,6 +35,8 @@ class AGameSceneBase : public AGameModeBase {
   virtual void ReturnToLobby();
 
  protected:
+  void OnAllClientsTravelReady() override;
+
   virtual void OpenCurrentScene() = 0;
   void RaceCountDown();
   void RaceStart();
