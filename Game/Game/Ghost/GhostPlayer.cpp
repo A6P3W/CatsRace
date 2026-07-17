@@ -48,13 +48,12 @@ void AGhostPlayer::Draw() {
       {labelPos.X + 1.0f, labelPos.Y + 1.0f},
       m_UserId,
       m_UserIdFontHandle,
-      0x000000,
+      FColor{0, 0, 0, 180},
       RenderSpace::Screen,
-      2,
-      180
+      2
   );
   renderSystem.SubmitText(
-      labelPos, m_UserId, m_UserIdFontHandle, 0xFFFFFF, RenderSpace::Screen, 3, 255
+      labelPos, m_UserId, m_UserIdFontHandle, FColor::White, RenderSpace::Screen, 3
   );
 }
 

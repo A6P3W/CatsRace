@@ -19,11 +19,7 @@ void WRankEntryComponent::Initialize(
 }
 
 void WRankEntryComponent::Initialize(
-    int rank,
-    const std::string& playerName,
-    bool bFinished,
-    float finishTime,
-    bool bLocalPlayer
+    int rank, const std::string& playerName, bool bFinished, float finishTime, bool bLocalPlayer
 ) {
   m_Rank = rank;
   m_UserId = playerName;
@@ -40,8 +36,8 @@ void WRankEntryComponent::OnRegister() {
   if (auto* owner = GetOwner()) {
     const float width = GetWidgetSize().X;
     const float height = GetWidgetSize().Y;
-    const int textColor = m_bLocalPlayer ? GetColor(255, 232, 92) : 0xFFFFFF;
-    const int boxColor = m_bLocalPlayer ? GetColor(54, 64, 88) : GetColor(32, 36, 44);
+    const FColor textColor = m_bLocalPlayer ? FColor{255, 232, 92} : FColor::White;
+    const FColor boxColor = m_bLocalPlayer ? FColor{54, 64, 88} : FColor{32, 36, 44};
 
     // 1. 順位テキストの生成
     std::string rankStr = "-";
@@ -103,7 +99,9 @@ void WRankEntryComponent::OnRegister() {
     m_SpriteComponent = NewObject<MSpriteComponent>(owner);
     m_SpriteComponent->SetRenderSettings(GetFinalPriority(), RenderSpace::Screen);
     m_SpriteComponent->SetRelativeLocation({-width * 0.5f, -height * 0.5f});
-    m_SpriteComponent->SubmitBox(width, height, boxColor, true, 96);
+    m_SpriteComponent->SubmitBox(
+        width, height, FColor{boxColor.R, boxColor.G, boxColor.B, 96}, true
+    );
     m_SpriteComponent->AttachToComponent(this);
     m_SpriteComponent->RegisterComponent();
   }

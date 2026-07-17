@@ -10,13 +10,13 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
   m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 150.0f});
-  m_BgPanel->SubmitBox(600, 300, GetColor(15, 15, 20), true, 220);
+  m_BgPanel->SubmitBox(600, 300, FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 
   // Title Text (Warning style, ZOrder: 1)
   m_TitleText = NewObject<UITextComponent>(this);
   m_TitleText->SetText("この名前は登録済みです");
-  m_TitleText->SetColor(0xFF5555);
+  m_TitleText->SetColor(FColor{255, 85, 85});
   m_TitleText->SetFontSize(26);
   m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
   m_TitleText->SetPivot({0.5f, 0.5f});
@@ -26,7 +26,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
   // 1. Overwrite Button (Left, ZOrder: 1)
   m_BtnOverwrite = NewObject<UIBoxButtonComponent>(this);
   m_BtnOverwrite->SetSize(200.0f, 45.0f);
-  m_BtnOverwrite->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnOverwrite->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnOverwrite->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnOverwrite->SetPivot({0.5f, 0.5f});
   m_BtnOverwrite->SetAnchoredPosition({-120.0f, 50.0f});
@@ -34,7 +34,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
 
   m_TxtOverwrite = NewObject<UITextComponent>(this);
   m_TxtOverwrite->SetText("上書き");
-  m_TxtOverwrite->SetColor(0xFFFFFF);
+  m_TxtOverwrite->SetColor(FColor{255, 255, 255});
   m_TxtOverwrite->SetFontSize(18);
   m_TxtOverwrite->AttachToComponent(m_BtnOverwrite);
   m_TxtOverwrite->SetAnchor(EUIAnchor::MiddleCenter);
@@ -45,7 +45,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
   // 2. Re-enter Button (Right, ZOrder: 1)
   m_BtnReEnter = NewObject<UIBoxButtonComponent>(this);
   m_BtnReEnter->SetSize(200.0f, 45.0f);
-  m_BtnReEnter->SetColors(GetColor(40, 45, 55), GetColor(0, 120, 215), GetColor(0, 90, 160));
+  m_BtnReEnter->SetColors(FColor{40, 45, 55}, FColor{0, 120, 215}, FColor{0, 90, 160});
   m_BtnReEnter->SetAnchor(EUIAnchor::MiddleCenter);
   m_BtnReEnter->SetPivot({0.5f, 0.5f});
   m_BtnReEnter->SetAnchoredPosition({120.0f, 50.0f});
@@ -53,7 +53,7 @@ WOverwriteConfirmDialog::WOverwriteConfirmDialog() {
 
   m_TxtReEnter = NewObject<UITextComponent>(this);
   m_TxtReEnter->SetText("再入力");
-  m_TxtReEnter->SetColor(0xFFFFFF);
+  m_TxtReEnter->SetColor(FColor{255, 255, 255});
   m_TxtReEnter->SetFontSize(18);
   m_TxtReEnter->AttachToComponent(m_BtnReEnter);
   m_TxtReEnter->SetAnchor(EUIAnchor::MiddleCenter);

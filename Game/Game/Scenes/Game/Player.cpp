@@ -9,25 +9,30 @@
 #include <algorithm>
 #include <random>
 
+#include "ActorManager.h"
 #include "CameraComponent.h"
 #include "CircleCollisionComponent.h"
 #include "Core/GI_main.h"
 #include "InputManager.h"
 #include "InputMapper.h"
+#include "LapCheckpoint.h"
 #include "Log.h"
 #include "NetMovementComponent.h"
-#include "ActorManager.h"
+#include "Objects/Items/HeldSpeedItem.h"
+#include "Objects/Items/SpeedDownstage.h"
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "SpriteComponent.h"
-#include "Objects/Items/SpeedDownstage.h"
-#include "Objects/Items/HeldSpeedItem.h"
-#include "LapCheckpoint.h"
 namespace {
-enum : FNetworkRPCId { RPC_ServerSetDrift = 1, RPC_ServerNotifyGoal = 2, RPC_ServerUseHeldItem = 3, RPC_ServerSyncDriftState = 4, RPC_MulticastUpdateLap = 5
+enum : FNetworkRPCId {
+  RPC_ServerSetDrift = 1,
+  RPC_ServerNotifyGoal = 2,
+  RPC_ServerUseHeldItem = 3,
+  RPC_ServerSyncDriftState = 4,
+  RPC_MulticastUpdateLap = 5
 };
 }
 
@@ -78,7 +83,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
 
   m_shake = NewObject<MEasyShakeComponent>(this);
   m_shake->RegisterComponent();
-  
+
   // カメラ
   m_camera = NewObject<MCameraComponent>(this);
   m_camera->SetFOV(1);
@@ -116,7 +121,7 @@ void APlayer::OnUpdate(float DeltaTime) {
         }
       }
       float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
-      Movement->SetWorldForce(Movement->GetVelocity() * decayPerFrame);
+      Movement->SetWorldVelocity(Movement->GetVelocity() * decayPerFrame);
     }
     if (m_accelInput > 0.0f) {
       float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
@@ -224,15 +229,14 @@ void APlayer::OnUpdate(float DeltaTime) {
         {GaugeX, GaugeY},
         {GaugeWidth, GaugeHeight},
         FRotator(0.0f),
-        0x444444,
+        FColor{68, 68, 68, 200},
         1,
         RenderSpace::Screen,
-        250,
-        200
+        250
     );
 
     // ゲージ本体（溜まり具合に応じて色を変える）
-    int gaugeColor = (gaugeRatio >= 1.0f) ? 0xFF4444 : 0x44CCFF;
+    FColor gaugeColor = (gaugeRatio >= 1.0f) ? FColor{255, 68, 68} : FColor{68, 204, 255};
     RenderSystem::GetInstance().SubmitBox(
         {GaugeX, GaugeY},
         {GaugeWidth * gaugeRatio, GaugeHeight},
@@ -240,8 +244,7 @@ void APlayer::OnUpdate(float DeltaTime) {
         gaugeColor,
         1,
         RenderSpace::Screen,
-        251,
-        255
+        251
     );
 
     // 1/5（20%）の位置にしきい値ラインを表示
@@ -249,10 +252,9 @@ void APlayer::OnUpdate(float DeltaTime) {
     RenderSystem::GetInstance().SubmitLine(
         {thresholdX, GaugeY},
         {thresholdX, GaugeY + GaugeHeight},
-        0xFFFF00,
+        FColor::Yellow,
         RenderSpace::Screen,
-        253,
-        255
+        253
     );
 
     // 枠線
@@ -260,11 +262,10 @@ void APlayer::OnUpdate(float DeltaTime) {
         {GaugeX, GaugeY},
         {GaugeWidth, GaugeHeight},
         FRotator(0.0f),
-        0xFFFFFF,
+        FColor::White,
         0,
         RenderSpace::Screen,
-        252,
-        255
+        252
     );
   }
 }
@@ -297,11 +298,11 @@ void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComp
 
 bool APlayer::IsDriftInputPressed() {
   bool bPressed = m_driftKeyPressed;
-  if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return bPressed;
   }
 
-  for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
     auto* controller = dynamic_cast<APlayerController*>(actorPtr.get());
     if (!controller || controller->GetPawn() != this || !controller->GetInputMapper()) {
       continue;
@@ -498,7 +499,11 @@ void APlayer::DrawSpeedLines(float speed) {
     float ey = sy + dy * len;
 
     RenderSystem::GetInstance().SubmitLine(
-        {sx, sy}, {ex, ey}, 0xFFFFFF, RenderSpace::Screen, 200, alpha
+        {sx, sy},
+        {ex, ey},
+        FColor{255, 255, 255, static_cast<uint8_t>(alpha)},
+        RenderSpace::Screen,
+        200
     );
   }
 }
@@ -568,7 +573,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
 
     // ドリフト中は少し速度を落とす
     float decay = std::pow(DriftSpeedDecay, DeltaTime * 60.0f);
-    Movement->SetWorldForce(Movement->GetVelocity() * decay);
+    Movement->SetWorldVelocity(Movement->GetVelocity() * decay);
   } else {
     if (m_isDrifting) {
       // ドリフト終了 → ブースト
@@ -715,11 +720,10 @@ void APlayer::DrawDriftEffect() {
         mark.Location + topLeft,
         {6.0f, 20.0f},
         mark.Rotation,
-        0x111111,
+        FColor{17, 17, 17, static_cast<uint8_t>(alpha)},
         true,
         RenderSpace::World,
-        -1,
-        alpha
+        -1
     );
   }
 
@@ -730,23 +734,31 @@ void APlayer::DrawDriftEffect() {
 
     if (p.IsSpark) {
       FVector2D tip = p.Location + p.Velocity * 0.025f;
-      rs.SubmitLine(p.Location, tip, 0xFFCC00, RenderSpace::World, 3, alpha);
+      rs.SubmitLine(
+          p.Location, tip, FColor{255, 204, 0, static_cast<uint8_t>(alpha)}, RenderSpace::World, 3
+      );
     } else {
-      rs.SubmitCircle(p.Location, p.Radius, 0xBBBBBB, true, RenderSpace::World, 3, alpha);
+      rs.SubmitCircle(
+          p.Location,
+          p.Radius,
+          FColor{187, 187, 187, static_cast<uint8_t>(alpha)},
+          true,
+          RenderSpace::World,
+          3
+      );
     }
   }
 }
 
-
 void APlayer::GrantHeldItem() {
   if (!bHasAuthority) {
-    return;  
+    return;
   }
   m_hasHeldItem = true;
   MarkReplicatedStateDirty();
 }
 void APlayer::UseHeldItem() {
-  M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);  
+  M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
   if (!bIsLocallyControlled) {
     return;
   }
@@ -757,7 +769,7 @@ void APlayer::UseHeldItem() {
     return;
   }
   if (!m_hasHeldItem) {
-    return; 
+    return;
   }
   if (bHasAuthority) {
     Server_UseHeldItem();
@@ -768,7 +780,7 @@ void APlayer::UseHeldItem() {
 }
 void APlayer::Server_UseHeldItem() {
   if (!m_hasHeldItem) {
-    return; 
+    return;
   }
   m_hasHeldItem = false;
   MarkReplicatedStateDirty();

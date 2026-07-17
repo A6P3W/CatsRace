@@ -12,10 +12,10 @@ AGameScene2::AGameScene2() {}
 
 void AGameScene2::BeginPlay() {
   AGameSceneBase::BeginPlay();  
-  auto* cp0 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-2098.0f, 3600.0f});
+  auto* cp0 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-4968.0f, -2829.0f});
   cp0->SetCheckpointIndex(0);
 
-  auto* cp1 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-2098.0f, 3802.0f});
+  auto* cp1 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{3916.0f, 2520.0f});
   cp1->SetCheckpointIndex(1);
 
 

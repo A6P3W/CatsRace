@@ -69,7 +69,7 @@ void AGameSceneBase::BeginPlay() {
    if (GetWorld()->IsServer()) {
     std::vector<FVector2D> savedLocations;
 
-    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+    for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
       if (auto* editorItem = dynamic_cast<AHeldSpeedItem*>(actorPtr.get())) {
         savedLocations.push_back(editorItem->GetActorLocation());
         editorItem->Destroy();
@@ -183,10 +183,10 @@ APlayerController* AGameSceneBase::OnClientConnected(FNetworkConnectionId Connec
 }
 
 void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
-  if (!GetWorld() || !GetWorld()->GetObjectManager()) {
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return;
   }
-  for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
     auto* player = dynamic_cast<APlayer*>(actorPtr.get());
     if (player && player->OwnerConnectionId == ConnectionId) {
       player->Destroy();
@@ -287,8 +287,8 @@ void AGameSceneBase::RaceStart() {
     m_GhostRecorder->StartRecording();
   }
 
-  if (GetWorld() && GetWorld()->GetObjectManager()) {
-    for (const auto& actorPtr : GetWorld()->GetObjectManager()->GetAllActors()) {
+  if (GetWorld() && GetWorld()->GetActorManager()) {
+    for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
       if (auto* player = dynamic_cast<APlayer*>(actorPtr.get())) {
         player->SetCanMove(true);
       }

@@ -17,10 +17,10 @@ constexpr float MenuButtonHeight = 64.0f;
 constexpr float InputBoxWidth = 420.0f;
 constexpr float PlayerNameInputHeight = 96.0f;
 constexpr float LobbyNameInputHeight = 92.0f;
-constexpr int InputNormalColor = 0x666666;
-constexpr int InputHoveredColor = 0x888888;
-constexpr int InputEditingColor = 0x4A6F9F;
-constexpr int InputLabelColor = 0xFFFFFF;
+constexpr FColor InputNormalColor{102, 102, 102};
+constexpr FColor InputHoveredColor{136, 136, 136};
+constexpr FColor InputEditingColor{74, 111, 159};
+constexpr FColor InputLabelColor{255, 255, 255};
 constexpr int InputLabelFontSize = 20;
 constexpr float InputLabelOffsetY = -28.0f;
 constexpr float InputTextOffsetY = 7.0f;
@@ -28,12 +28,12 @@ constexpr float InputActionHintOffsetY = -18.0f;
 constexpr const char* LobbyStateAttributeKey = "LOBBY_STATE";
 constexpr const char* LobbyStateWaiting = "WAITING";
 constexpr const char* LobbyStateRacing = "RACING";
-constexpr int ButtonTextColor = 0xFFFFFF;
-constexpr int DisabledButtonTextColor = 0x888888;
-const int ButtonNormalColor = GetColor(32, 38, 48);
-const int ButtonHoveredColor = GetColor(30, 115, 190);
-const int ButtonPressedColor = GetColor(15, 78, 140);
-const int DisabledButtonColor = GetColor(58, 58, 58);
+constexpr FColor ButtonTextColor{255, 255, 255};
+constexpr FColor DisabledButtonTextColor{136, 136, 136};
+const FColor ButtonNormalColor = FColor{32, 38, 48};
+const FColor ButtonHoveredColor = FColor{30, 115, 190};
+const FColor ButtonPressedColor = FColor{15, 78, 140};
+const FColor DisabledButtonColor = FColor{58, 58, 58};
 
 UIBoxButtonComponent* AddButton(
     AWidgetBase* Owner,
@@ -41,10 +41,10 @@ UIBoxButtonComponent* AddButton(
     const std::string& Label,
     float Width = MenuButtonWidth,
     float Height = MenuButtonHeight,
-    int NormalColor = ButtonNormalColor,
-    int HoveredColor = ButtonHoveredColor,
-    int PressedColor = ButtonPressedColor,
-    int TextColor = ButtonTextColor
+    const FColor& NormalColor = ButtonNormalColor,
+    const FColor& HoveredColor = ButtonHoveredColor,
+    const FColor& PressedColor = ButtonPressedColor,
+    const FColor& TextColor = ButtonTextColor
 ) {
   auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
   buttonPtr->SetSize(Width, Height);
@@ -108,8 +108,8 @@ WMainMenuWidget::WMainMenuWidget() {
   UserNameInput = NewObject<UIInputTextComponent>(this);
   UserNameInput->SetSize(InputBoxWidth, PlayerNameInputHeight);
   UserNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
-  UserNameInput->SetTextColor(0xFFFFFF);
-  UserNameInput->SetHintColor(0xDDDDDD);
+  UserNameInput->SetTextColor(FColor{255, 255, 255});
+  UserNameInput->SetHintColor(FColor{221, 221, 221});
   UserNameInput->SetTextOffsetY(InputTextOffsetY);
   UserNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   UserNameInput->SetPivot({0.5f, 0.5f});
@@ -121,7 +121,7 @@ WMainMenuWidget::WMainMenuWidget() {
 
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
-  StatusText->SetColor(0x000000);
+  StatusText->SetColor(FColor{0, 0, 0});
   StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
@@ -177,7 +177,7 @@ void WMainMenuWidget::SetStatusText(const std::string& Text) {
 WCreateLobbyWidget::WCreateLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Create Lobby");
-  titleText->SetColor(0xFFFFFF);
+  titleText->SetColor(FColor{255, 255, 255});
   titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleCenter);
   titleText->SetPivot({0.5f, 0.5f});
@@ -194,8 +194,8 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   LobbyNameInput = NewObject<UIInputTextComponent>(this);
   LobbyNameInput->SetSize(InputBoxWidth, LobbyNameInputHeight);
   LobbyNameInput->SetColors(InputNormalColor, InputHoveredColor, InputEditingColor);
-  LobbyNameInput->SetTextColor(0xFFFFFF);
-  LobbyNameInput->SetHintColor(0xDDDDDD);
+  LobbyNameInput->SetTextColor(FColor{255, 255, 255});
+  LobbyNameInput->SetHintColor(FColor{221, 221, 221});
   LobbyNameInput->SetTextOffsetY(InputTextOffsetY);
   LobbyNameInput->SetActionHintOffsetY(InputActionHintOffsetY);
   LobbyNameInput->SetPivot({0.5f, 0.5f});
@@ -209,7 +209,7 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
 
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
-  StatusText->SetColor(0x000000);
+  StatusText->SetColor(FColor{0, 0, 0});
   StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
@@ -260,7 +260,7 @@ void WCreateLobbyWidget::SetStatusText(const std::string& Text) {
 WSearchLobbyWidget::WSearchLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Search Lobby");
-  titleText->SetColor(0xFFFFFF);
+  titleText->SetColor(FColor{255, 255, 255});
   titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::TopCenter);
   titleText->SetPivot({0.5f, 0.5f});
@@ -278,7 +278,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
 
   EmptyText = NewObject<UITextComponent>(this);
   EmptyText->SetText("No lobby search results.");
-  EmptyText->SetColor(0x8895A6);
+  EmptyText->SetColor(FColor{136, 149, 166});
   EmptyText->SetFontSize(20);
   EmptyText->SetPivot({0.5f, 0.5f});
   ResultList->AddItem(EmptyText);
@@ -288,7 +288,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
 
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
-  StatusText->SetColor(0x000000);
+  StatusText->SetColor(FColor{0, 0, 0});
   StatusText->SetFontSize(20);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
@@ -321,8 +321,7 @@ void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
 }
 
 void WSearchLobbyWidget::SetLobbyResults(
-    const std::vector<FLobbyInfo>& Results,
-    int SelectedIndex
+    const std::vector<FLobbyInfo>& Results, int SelectedIndex
 ) {
   SetFocusedButton(RefreshButton);
 
@@ -429,9 +428,8 @@ void WSearchLobbyWidget::RebuildNavigation() {
 
   BackButton->Navigation.Down = nullptr;
   for (auto* button : LobbyButtons) {
-    if (button &&
-        std::find(JoinableLobbyButtons.begin(), JoinableLobbyButtons.end(), button) ==
-            JoinableLobbyButtons.end()) {
+    if (button && std::find(JoinableLobbyButtons.begin(), JoinableLobbyButtons.end(), button) ==
+                      JoinableLobbyButtons.end()) {
       button->Navigation.Up = nullptr;
       button->Navigation.Down = nullptr;
     }
