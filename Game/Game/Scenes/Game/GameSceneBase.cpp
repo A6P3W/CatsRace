@@ -101,6 +101,10 @@ void AGameSceneBase::OnPlayerSpawned(
   // ゲーム固有のプレイヤー初期化設定
   player->SetCanMove(RaceRunning);
 
+  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    player->SetRotateCamera(gi->bRotateCamera);
+  }
+
   if (ConnectionId == 0) {
     m_GhostRecorder = NewObject<MGhostRecorderComponent>(player);
     m_GhostRecorder->RegisterComponent();
