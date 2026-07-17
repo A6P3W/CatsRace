@@ -18,12 +18,6 @@ ASlowFloor2::ASlowFloor2(float width, float height, float slowStrength)
   col->AttachToComponent(GetRootComponent());
   col->RegisterComponent();
 
- // auto* sprite = NewObject<MSpriteComponent>(this);
-  //sprite->SetRenderSettings(10, RenderSpace::World);
-  //sprite->SubmitBox(m_width, m_height, FColor{68, 136, 255, 100}, 1);
-  //sprite->SetRelativeLocation({-m_width * 0.5f, -m_height * 0.5f});
-  //sprite->AttachToComponent(GetRootComponent());
-  //sprite->RegisterComponent();
 
   m_sound = NewObject<MSoundComponent>(this);
   m_sound->RegisterComponent();
