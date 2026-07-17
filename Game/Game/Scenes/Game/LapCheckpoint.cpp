@@ -13,7 +13,7 @@ ALapCheckpoint::ALapCheckpoint(FVector2D location, FRotator rotation) {
   SetActorRotation(rotation);
 
   m_collision = NewObject<MRectangleCollisionComponent>(this);
-  m_collision->SetSize(1200.0f, 200.0f);
+  m_collision->SetSize(1200.0f, 100.0f);
   m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);

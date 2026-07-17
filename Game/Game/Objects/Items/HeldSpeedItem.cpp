@@ -26,7 +26,7 @@ AHeldSpeedItem::AHeldSpeedItem() {
 
   // 当たり判定（Overlap）
   m_collision = NewObject<MRectangleCollisionComponent>(this);
-  m_collision->SetSize(360.0f, 85.0f);
+  m_collision->SetSize(108.0f, 26.0f);
   m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
@@ -37,7 +37,7 @@ AHeldSpeedItem::AHeldSpeedItem() {
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(0, RenderSpace::World);
   m_sprite->AttachToComponent(GetRootComponent());
-  m_sprite->SubmitGraph(handle, FScale(1.0f), 255);
+  m_sprite->SubmitGraph(handle, FScale(0.3f), 255);
   m_sprite->RegisterComponent();
 
   // サウンド

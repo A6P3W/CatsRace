@@ -12,14 +12,12 @@ AGameScene2::AGameScene2() {}
 
 void AGameScene2::BeginPlay() {
   AGameSceneBase::BeginPlay();  
-
-
-  
   auto* cp0 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-4968.0f, -2829.0f});
   cp0->SetCheckpointIndex(0);
 
   auto* cp1 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{3916.0f, 2520.0f});
   cp1->SetCheckpointIndex(1);
+
 
 
   // ゴールライン（通常CPの総数を渡す）

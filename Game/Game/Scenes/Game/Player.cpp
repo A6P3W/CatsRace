@@ -807,22 +807,28 @@ void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
 void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   if (!bHasAuthority) return;
 
-  if (m_lapLineCooldown > 0.0f) return;
+  M_LOG(
+      "LapLine: lap={}, cooldown={}, lastCP={}, totalCP={}",
+      m_currentLap,
+      m_lapLineCooldown,
+      m_lastPassedCheckpoint,
+      totalCheckpoints
+  );
+
+  // if (m_lapLineCooldown > 0.0f) {
+  //   M_LOG("LapLine: ignored by cooldown");
+  //   return;
+  // }
 
   if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
-    M_LOG(
-        "Lap line crossed but checkpoints incomplete: {}/{}",
-        m_lastPassedCheckpoint + 1,
-        totalCheckpoints
-    );
+    M_LOG("LapLine: ignored by checkpoint incomplete");
     return;
   }
 
   m_lastPassedCheckpoint = -1;
   m_currentLap++;
-  m_lapLineCooldown = 3.0f;
+  m_lapLineCooldown = 5.0f;
 
-  // 全クライアントに周回数を通知
   InvokeRPC(
       RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
   );
@@ -833,12 +839,10 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
     NotifyGoalReached();
   }
 }
-
 void APlayer::Multicast_UpdateLap(int newLap) {
-  m_currentLap = newLap;
+  m_currentLap = std::min(newLap, TotalLaps);  
   M_LOG("Lap updated to {} (multicast)", m_currentLap);
 }
-
 //{
 //	if (Scale > 0) {
 //		m_movement->AddLocalForce({ 0.0f, -2.0f });
