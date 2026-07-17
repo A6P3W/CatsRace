@@ -10,7 +10,7 @@
 REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem() {
   auto* collision = NewObject<MRectangleCollisionComponent>(this);
-  collision->SetSize(1950.0f, 980.0f);
+  collision->SetSize(195.0f, 98.0f);
   collision->AttachToComponent(GetRootComponent());
   collision->SetCollisionType(ECollisionType::Overlap);
   collision->RegisterComponent();
@@ -18,7 +18,7 @@ SpeedUpItem::SpeedUpItem() {
   int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedfloa.png");
   auto* sprite = NewObject<MSpriteComponent>(this);
   sprite->SetRenderSettings(0, RenderSpace::World);
-  sprite->SubmitGraph(handle, FScale(1.0f), 255);
+  sprite->SubmitGraph(handle, FScale(0.1f), 255);
   sprite->AttachToComponent(GetRootComponent());
   sprite->RegisterComponent();
 
