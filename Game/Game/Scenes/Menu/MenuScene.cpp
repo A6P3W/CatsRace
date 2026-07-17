@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <utility>
 
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
@@ -48,8 +49,10 @@ void AMenuScene::OnUpdate(float DeltaTime) {
   if (CurrentState != EMenuState::OnlinePlay) {
     return;
   }
+
+  TryCreateOnlineLobby();
   LobbySearchRemaining -= DeltaTime;
-  if (LobbySearchRemaining <= 0.0f && !bLobbySearchInFlight) {
+  if (LobbySearchRemaining <= 0.0f && !bLobbySearchInFlight && !bCreateLobbyPending) {
     SearchOnlineLobbies();
   }
 }
@@ -120,6 +123,8 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
 }
 
 void AMenuScene::CloseActiveWidget() {
+  bCreateLobbyPending = false;
+  PendingCreateLobbyRequest.reset();
   if (JoinLobbyDialog) {
     UIManager::GetInstance()->RemoveWidget(JoinLobbyDialog);
     JoinLobbyDialog = nullptr;
@@ -230,6 +235,10 @@ bool AMenuScene::ConnectToHost() {
 }
 
 void AMenuScene::CreateOnlineLobby() {
+  if (bCreateLobbyPending) {
+    return;
+  }
+
   if (!OnlineSessionManager::Get().IsLoggedIn()) {
     OnlineStatusMessage = "Login before creating a lobby.";
     UpdateActiveStatus();
@@ -264,38 +273,71 @@ void AMenuScene::CreateOnlineLobby() {
       {LobbyStateAttributeKey, FLobbyAttributeValue::FromString(LobbyStateWaiting), true}
   );
 
-  OnlineStatusMessage = "Create online lobby requested. HostIP=" + localIPAddress;
+  PendingCreateLobbyRequest = std::move(request);
+  SetCreateLobbyPending(true);
+  OnlineStatusMessage = bLobbySearchInFlight ? "Waiting for lobby search to finish before creating."
+                                           : "Create online lobby requested. HostIP=" + localIPAddress;
   UpdateActiveStatus();
-  if (!OnlineSessionManager::Get().CreateLobby(
-          request, [this](bool bSuccess, const FLobbyInfo& lobbyInfo) {
-            if (!bSuccess) {
-              OnlineStatusMessage = "Create online lobby failed. See Logs for details.";
-              UpdateActiveStatus();
-              return;
-            }
+  TryCreateOnlineLobby();
+}
 
-            OnlineSearchResults.clear();
-            SelectedOnlineLobbyIndex = -1;
-            if (StartHost()) {
-              OnlineStatusMessage =
-                  "Online lobby created: " + lobbyInfo.LobbyId + " HostIP=" + lobbyInfo.HostIPAddress;
-              UpdateActiveStatus();
-              return;
-            }
-
-            OnlineStatusMessage = "Online lobby created, but listen server failed to start.";
-            UpdateActiveStatus();
-            OnlineSessionManager::Get().LeaveLobby([this](bool bLeaveSuccess) {
-              if (!bLeaveSuccess) {
-                OnlineStatusMessage += " Leave lobby also failed. See Logs for details.";
-                UpdateActiveStatus();
-              }
-            });
-          }
-      )) {
-    OnlineStatusMessage = "Create online lobby request was rejected.";
-    UpdateActiveStatus();
+void AMenuScene::TryCreateOnlineLobby() {
+  if (!bCreateLobbyPending || !PendingCreateLobbyRequest || bLobbySearchInFlight ||
+      OnlineSessionManager::Get().IsOperationPending()) {
+    return;
   }
+
+  const FCreateLobbyRequest request = *PendingCreateLobbyRequest;
+  OnlineStatusMessage = "Create online lobby requested. HostIP=" + request.HostIPAddress;
+  UpdateActiveStatus();
+  OnlineSessionManager::Get().CreateLobby(
+      request, [this](bool bSuccess, const FLobbyInfo& lobbyInfo) {
+        SetCreateLobbyPending(false);
+        if (!bSuccess) {
+          OnlineStatusMessage = "Create online lobby failed. See Logs for details.";
+          UpdateActiveStatus();
+          return;
+        }
+
+        OnlineSearchResults.clear();
+        SelectedOnlineLobbyIndex = -1;
+        if (StartHost()) {
+          OnlineStatusMessage =
+              "Online lobby created: " + lobbyInfo.LobbyId + " HostIP=" + lobbyInfo.HostIPAddress;
+          UpdateActiveStatus();
+          return;
+        }
+
+        OnlineStatusMessage = "Online lobby created, but listen server failed to start.";
+        UpdateActiveStatus();
+        OnlineSessionManager::Get().LeaveLobby([this](bool bLeaveSuccess) {
+          if (!bLeaveSuccess) {
+            OnlineStatusMessage += " Leave lobby also failed. See Logs for details.";
+            UpdateActiveStatus();
+          }
+        });
+      }
+  );
+}
+
+void AMenuScene::SetCreateLobbyPending(bool bPending) {
+  bCreateLobbyPending = bPending;
+  if (!bPending) {
+    PendingCreateLobbyRequest.reset();
+    if (CurrentState == EMenuState::OnlinePlay && CreateLobbyWidget) {
+      UIManager::GetInstance()->SetFocusedWidget(CreateLobbyWidget);
+      CreateLobbyWidget->FocusCreateButton();
+    }
+    return;
+  }
+
+  if (CreateLobbyWidget) {
+    CreateLobbyWidget->ClearFocusedButton();
+  }
+  if (SearchLobbyWidget) {
+    SearchLobbyWidget->ClearFocusedButton();
+  }
+  UIManager::GetInstance()->SetFocusedWidget(nullptr);
 }
 
 void AMenuScene::SearchOnlineLobbies() {
@@ -328,6 +370,7 @@ void AMenuScene::SearchOnlineLobbies() {
               OnlineStatusMessage = "Lobby search failed. See Logs for details.";
             }
             UpdateActiveWidget();
+            TryCreateOnlineLobby();
           }
       )) {
     OnlineStatusMessage = "Lobby search request was rejected.";

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <string>
+#include <optional>
 #include <vector>
 
 #include "EOSTypes.h"
@@ -32,8 +33,10 @@ class AMenuScene : public AGameModeBase {
   bool StartHost();
   bool ConnectToHost();
   void CreateOnlineLobby();
+  void TryCreateOnlineLobby();
+  void SetCreateLobbyPending(bool bPending);
   void SearchOnlineLobbies();
-  static constexpr float LobbySearchIntervalSeconds = 10.0f;
+  static constexpr float LobbySearchIntervalSeconds = 5.0f;
   void JoinSelectedOnlineLobby();
   void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
   void JoinOnlineLobbyAfterLatestCheck(const FLobbyInfo& LobbyInfo);
@@ -53,6 +56,8 @@ class AMenuScene : public AGameModeBase {
   std::string StatusMessage = "Create or join a multiplayer session.";
   float LobbySearchRemaining = 0.0f;
   bool bLobbySearchInFlight = false;
+  bool bCreateLobbyPending = false;
+  std::optional<FCreateLobbyRequest> PendingCreateLobbyRequest;
   std::string OnlineStatusMessage = "Online services are ready.";
 
   EMenuState CurrentState = EMenuState::MainMenu;
