@@ -44,6 +44,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_driftDirection);
   RegisterReplicatedProperty(&CanMove);
   RegisterReplicatedProperty(&m_hasHeldItem);
+  RegisterReplicatedProperty(&m_PlayerName);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
@@ -52,6 +53,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
 
   SetActorLocation(location);
   SetActorRotation(rotation);
+  m_PlayerNameFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
   m_walkAnimHandles[0] =
       ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_1.png");
@@ -103,6 +105,44 @@ APlayer::~APlayer() {
     m_sound->StopAll();
   }
 }
+
+void APlayer::Draw() {
+  AActor::Draw();
+
+  if (bIsLocallyControlled || m_PlayerName.empty() || m_PlayerNameFontHandle == -1) {
+    return;
+  }
+
+  auto& renderSystem = RenderSystem::GetInstance();
+  FVector2D labelPos = renderSystem.WorldToScreen(GetActorLocation());
+  const int textWidth = GetDrawStringWidthToHandle(
+      m_PlayerName.c_str(), static_cast<int>(m_PlayerName.length()), m_PlayerNameFontHandle
+  );
+  labelPos.X -= textWidth * 0.5f;
+  labelPos.Y -= 72.0f;
+
+  renderSystem.SubmitText(
+      {labelPos.X + 1.0f, labelPos.Y + 1.0f},
+      m_PlayerName,
+      m_PlayerNameFontHandle,
+      FColor{0, 0, 0, 180},
+      RenderSpace::Screen,
+      2
+  );
+  renderSystem.SubmitText(
+      labelPos, m_PlayerName, m_PlayerNameFontHandle, FColor::White, RenderSpace::Screen, 3
+  );
+}
+
+void APlayer::SetPlayerName(const std::string& PlayerName) {
+  if (m_PlayerName == PlayerName) {
+    return;
+  }
+
+  m_PlayerName = PlayerName;
+  MarkReplicatedStateDirty();
+}
+
 void APlayer::OnUpdate(float DeltaTime) {
   const float MaxSpeed = 10.0f;
   const float AccelForce = 3.5f;

@@ -3,6 +3,7 @@
 #include <Pawn.h>
 
 #include <array>
+#include <string>
 #include <unordered_map>
 
 #include "Actor.h"
@@ -24,6 +25,7 @@ class APlayer : public APawn {
   ~APlayer() override;
 
   void OnUpdate(float DeltaTime) override;
+  void Draw() override;
   void OnPossessedBy(APlayerController* NewController) override;
   void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent);
   void ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines = false);
@@ -40,6 +42,7 @@ class APlayer : public APawn {
   void OnLapLineCrossed(int totalCheckpoints);
   void SetRotateCamera(bool bInRotateCamera) { bRotateCamera = bInRotateCamera; }
   bool IsRotateCamera() const { return bRotateCamera; }
+  void SetPlayerName(const std::string& PlayerName);
 
  private:
   MCameraComponent* m_camera = nullptr;
@@ -76,6 +79,8 @@ class APlayer : public APawn {
   const float DriftBoostForce = 20.0f;
   FVector2D m_prevLocation = FVector2D::ZeroVector();
   MSoundComponent* m_sound = nullptr;
+  std::string m_PlayerName;
+  int m_PlayerNameFontHandle = -1;
   int m_engineIdleHandle = -1;
   int m_engineRunHandle = -1;
   float m_spriteTiltAngle = 0.0f;

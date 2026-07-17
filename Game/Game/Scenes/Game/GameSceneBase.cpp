@@ -60,7 +60,6 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
 void AGameSceneBase::BeginPlay() {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
     gi->ClearTime = -1.0f;
-    gi->multiplayer_results.clear();
   }
 
   AGameModeBase::BeginPlay();
@@ -116,6 +115,19 @@ void AGameSceneBase::OnPlayerSpawned(
 
   // 参加リザルト登録
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    const auto playerResult = std::find_if(
+        gi->multiplayer_results.begin(),
+        gi->multiplayer_results.end(),
+        [ConnectionId](const GI_main::FMultiplayerResult& result) {
+          return result.ConnectionId == ConnectionId;
+        }
+    );
+    player->SetPlayerName(
+        playerResult != gi->multiplayer_results.end()
+            ? playerResult->PlayerName
+            : ("Player " + std::to_string(ConnectionId + 1))
+    );
+
     auto existing = std::find_if(
         gi->multiplayer_results.begin(),
         gi->multiplayer_results.end(),
