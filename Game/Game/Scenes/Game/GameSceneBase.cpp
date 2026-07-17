@@ -86,10 +86,14 @@ void AGameSceneBase::BeginPlay() {
   M_LOG("Game scene initialized: {}", MapId);
 
   if (GetWorld()->IsServer()) {
-    GetWorldTimerManager().SetTimer(
-        CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
-    );
+    BeginTravelWait();
   }
+}
+
+void AGameSceneBase::OnAllClientsTravelReady() {
+  GetWorldTimerManager().SetTimer(
+      CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
+  );
 }
 
 void AGameSceneBase::OnPlayerSpawned(
@@ -187,19 +191,19 @@ APlayerController* AGameSceneBase::OnClientConnected(FNetworkConnectionId Connec
 }
 
 void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
-  if (!GetWorld() || !GetWorld()->GetActorManager()) {
-    return;
-  }
-  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
-    auto* player = dynamic_cast<APlayer*>(actorPtr.get());
-    if (player && player->OwnerConnectionId == ConnectionId) {
-      player->Destroy();
+  if (GetWorld() && GetWorld()->GetActorManager()) {
+    for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
+      auto* player = dynamic_cast<APlayer*>(actorPtr.get());
+      if (player && player->OwnerConnectionId == ConnectionId) {
+        player->Destroy();
+      }
+      auto* pc = dynamic_cast<APlayerController*>(actorPtr.get());
+      if (pc && pc->OwnerConnectionId == ConnectionId) {
+        pc->Destroy();
+      }
     }
-    auto* pc = dynamic_cast<APlayerController*>(actorPtr.get());
-    if (pc && pc->OwnerConnectionId == ConnectionId) {
-      pc->Destroy();
-    }
   }
+  AGameModeBase::OnClientDisconnected(ConnectionId);
 }
 
 void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {

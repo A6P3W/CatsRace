@@ -74,6 +74,7 @@ void ALobbyScene::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
   if (auto* state = FindPlayerState(ConnectionId)) {
     state->Destroy();
   }
+  AGameModeBase::OnClientDisconnected(ConnectionId);
 }
 
 std::vector<ALobbyPlayerState*> ALobbyScene::GetPlayerStates() {
