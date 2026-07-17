@@ -10,6 +10,7 @@
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
+#include "Scenes/Lobby/UI/WLeaveLobbyConfirmDialog.h"
 #include "Scenes/Lobby/UI/WLobbyHUD.h"
 #include "Scenes/Lobby/UI/WMapSelectDialog.h"
 #include "UIManager.h"
@@ -174,6 +175,34 @@ void PC_Lobby::StartGame() {
   if (auto* lobbyScene = GetLobbyScene()) {
     lobbyScene->StartGame();
   }
+}
+
+void PC_Lobby::ShowLeaveLobbyConfirmDialog() {
+  if (!bIsLocallyControlled || !GetWorld() || m_LeaveLobbyConfirmDialog) {
+    return;
+  }
+
+  m_LeaveLobbyConfirmDialog = GetWorld()->SpawnActor<WLeaveLobbyConfirmDialog>();
+  m_LeaveLobbyConfirmDialog->SetZOrderOffset(10);
+  m_LeaveLobbyConfirmDialog->OnResult = [this](bool bLeaveLobby) {
+    auto* dialog = m_LeaveLobbyConfirmDialog;
+    m_LeaveLobbyConfirmDialog = nullptr;
+    if (dialog) {
+      dialog->Destroy();
+    }
+
+    if (bLeaveLobby) {
+      LeaveLobby();
+      return;
+    }
+
+    if (m_LobbyHUD) {
+      UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+    }
+  };
+
+  UIManager::GetInstance()->AddWidget(m_LeaveLobbyConfirmDialog);
+  UIManager::GetInstance()->SetFocusedWidget(m_LeaveLobbyConfirmDialog);
 }
 
 bool PC_Lobby::IsStartCountdownActive() const {

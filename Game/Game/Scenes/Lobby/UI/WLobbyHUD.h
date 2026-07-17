@@ -32,6 +32,7 @@ class WLobbyHUD : public AWidgetBase {
 
   void UpdatePlayerList();
   void UpdateMapInfo();
+  void UpdateCameraMode();
   void UpdateStartGameState();
   void UpdateStartCountdown();
   void RebuildNavigation();
@@ -46,13 +47,16 @@ class WLobbyHUD : public AWidgetBase {
   UITextComponent* m_SelectedMapText = nullptr;
   UITextComponent* StartCountdownText = nullptr;
   UIBoxButtonComponent* m_MapSelectButton = nullptr;
+  UIBoxButtonComponent* m_CameraModeButton = nullptr;
   UIBoxButtonComponent* m_StartGameButton = nullptr;
   UIBoxButtonComponent* m_LeaveButton = nullptr;
+  UITextComponent* m_CameraModeText = nullptr;
 
   std::vector<FPlayerRow> m_PlayerRows;
 
   int m_LastPlayerCount = 0;
   std::string m_LastMapPath = "";
+  bool m_bLastRotateCamera = true;
   bool m_bLastHostMode = false;
   int LastStartCountdownSeconds = -1;
 };

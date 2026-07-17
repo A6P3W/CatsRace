@@ -76,7 +76,8 @@ UIBoxButtonComponent* AddBoxButton(
     float Height,
     const FColor& NormalColor,
     const FColor& HoveredColor,
-    const FColor& PressedColor
+    const FColor& PressedColor,
+    UITextComponent** OutLabel = nullptr
 ) {
   auto* buttonPtr = NewObject<UIBoxButtonComponent>(Owner);
   buttonPtr->SetSize(Width, Height);
@@ -87,7 +88,7 @@ UIBoxButtonComponent* AddBoxButton(
   }
 
   buttonPtr->RegisterComponent();
-  AddText(
+  UITextComponent* labelText = AddText(
       Owner,
       buttonPtr,
       Label,
@@ -98,6 +99,9 @@ UIBoxButtonComponent* AddBoxButton(
       {0.5f, 0.5f},
       {0.0f, 0.0f}
   );
+  if (OutLabel) {
+    *OutLabel = labelText;
+  }
 
   return buttonPtr;
 }
@@ -159,6 +163,18 @@ void WLobbyHUD::BeginPlay() {
   m_ActionBox->SetSpacing(12.0f);
   m_ActionBox->RegisterComponent();
 
+  m_CameraModeButton = AddBoxButton(
+      this,
+      m_ActionBox,
+      "Camera: Rotate",
+      ActionButtonWidth,
+      ActionButtonHeight,
+      ButtonNormalColor,
+      ButtonHoveredColor,
+      ButtonPressedColor,
+      &m_CameraModeText
+  );
+
   m_StartGameButton = AddBoxButton(
       this,
       m_ActionBox,
@@ -172,7 +188,7 @@ void WLobbyHUD::BeginPlay() {
 
   StartCountdownText = AddText(
       this, nullptr, "", FColor::White, 28, {420.0f, 40.0f},
-      EUIAnchor::BottomCenter, {0.5f, 1.0f}, {0.0f, -144.0f}
+      EUIAnchor::BottomCenter, {0.5f, 1.0f}, {0.0f, -216.0f}
   );
   StartCountdownText->SetVisibility(false);
   const bool bIsHost =
@@ -209,10 +225,19 @@ void WLobbyHUD::BeginPlay() {
     });
   }
 
+  if (m_CameraModeButton) {
+    m_CameraModeButton->SetOnPressed([this]() {
+      if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+        gi->bRotateCamera = !gi->bRotateCamera;
+        UpdateCameraMode();
+      }
+    });
+  }
+
   if (m_LeaveButton) {
     m_LeaveButton->SetOnPressed([this]() {
       if (LobbyController) {
-        LobbyController->LeaveLobby();
+        LobbyController->ShowLeaveLobbyConfirmDialog();
       }
     });
   }
@@ -227,6 +252,7 @@ void WLobbyHUD::BeginPlay() {
 
   UpdatePlayerList();
   UpdateMapInfo();
+  UpdateCameraMode();
   UpdateStartGameState();
   UpdateStartCountdown();
   RebuildNavigation();
@@ -259,6 +285,7 @@ void WLobbyHUD::OnUpdate(float DeltaTime) {
 
   UpdatePlayerList();
   UpdateMapInfo();
+  UpdateCameraMode();
   UpdateStartGameState();
   UpdateStartCountdown();
 }
@@ -351,6 +378,22 @@ void WLobbyHUD::UpdateMapInfo() {
   m_SelectedMapText->SetText("Selected Map: " + selectedMapName);
 }
 
+void WLobbyHUD::UpdateCameraMode() {
+  if (!m_CameraModeText) {
+    return;
+  }
+
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!gi || gi->bRotateCamera == m_bLastRotateCamera) {
+    return;
+  }
+
+  m_bLastRotateCamera = gi->bRotateCamera;
+  m_CameraModeText->SetText(
+      std::string("Camera: ") + (gi->bRotateCamera ? "Rotate" : "Fixed")
+  );
+}
+
 void WLobbyHUD::UpdateStartGameState() {
   if (!m_StartGameButton) {
     return;
@@ -386,11 +429,15 @@ void WLobbyHUD::RebuildNavigation() {
   if (m_StartGameButton) {
     m_StartGameButton->Navigation.Left = m_LeaveButton;
     m_StartGameButton->Navigation.Right = m_bLastHostMode ? m_MapSelectButton : nullptr;
-    m_StartGameButton->Navigation.Up = nullptr;
+    m_StartGameButton->Navigation.Up = m_CameraModeButton;
+  }
+  if (m_CameraModeButton) {
+    m_CameraModeButton->Navigation.Left = m_LeaveButton;
+    m_CameraModeButton->Navigation.Down = m_bLastHostMode ? m_StartGameButton : nullptr;
   }
   MUIButtonComponent* primaryActionButton =
       m_bLastHostMode ? static_cast<MUIButtonComponent*>(m_StartGameButton)
-                      : nullptr;
+                      : static_cast<MUIButtonComponent*>(m_CameraModeButton);
   if (m_LeaveButton) {
     m_LeaveButton->Navigation.Right = primaryActionButton;
   }

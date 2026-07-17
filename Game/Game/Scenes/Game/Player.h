@@ -38,6 +38,9 @@ class APlayer : public APawn {
   int GetLastPassedCheckpoint() const { return m_lastPassedCheckpoint; }
   void SetLastPassedCheckpoint(int index) { m_lastPassedCheckpoint = index; }
   void OnLapLineCrossed(int totalCheckpoints);
+  void SetRotateCamera(bool bInRotateCamera) { bRotateCamera = bInRotateCamera; }
+  bool IsRotateCamera() const { return bRotateCamera; }
+
  private:
   MCameraComponent* m_camera = nullptr;
   MEasyShakeComponent* m_shake = nullptr;
@@ -46,6 +49,7 @@ class APlayer : public APawn {
   MCircleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
 
+  bool bRotateCamera = true;
   float m_accelInput = 0.0f;
   float m_slider = 0.0f;
   bool m_isSpeedUp = false;
