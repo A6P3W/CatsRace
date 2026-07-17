@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <string>
+#include <optional>
 #include <vector>
 
 #include "EOSTypes.h"
@@ -9,6 +10,7 @@
 class AWidgetBase;
 class WCreateLobbyWidget;
 class WMainMenuWidget;
+class WJoinLobbyDialog;
 class WSearchLobbyWidget;
 
 class AMenuScene : public AGameModeBase {
@@ -20,7 +22,7 @@ class AMenuScene : public AGameModeBase {
   void OnUpdate(float DeltaTime) override;
 
  private:
-  enum class EMenuState { MainMenu, CreateLobby, SearchLobby };
+  enum class EMenuState { MainMenu, OnlinePlay };
 
   void ShowMenuState(EMenuState NewState);
   void CloseActiveWidget();
@@ -31,9 +33,14 @@ class AMenuScene : public AGameModeBase {
   bool StartHost();
   bool ConnectToHost();
   void CreateOnlineLobby();
+  void TryCreateOnlineLobby();
+  void SetCreateLobbyPending(bool bPending);
   void SearchOnlineLobbies();
+  static constexpr float LobbySearchIntervalSeconds = 5.0f;
   void JoinSelectedOnlineLobby();
   void JoinOnlineLobby(const FLobbyInfo& LobbyInfo);
+  void JoinOnlineLobbyAfterLatestCheck(const FLobbyInfo& LobbyInfo);
+  void ShowJoinConfirmation(const FLobbyInfo& LobbyInfo);
   void LeaveOnlineLobby();
   void LoadSettings();
   void SaveSettings();
@@ -47,6 +54,10 @@ class AMenuScene : public AGameModeBase {
   int SelectedOnlineLobbyIndex = -1;
   std::vector<FLobbyInfo> OnlineSearchResults;
   std::string StatusMessage = "Create or join a multiplayer session.";
+  float LobbySearchRemaining = 0.0f;
+  bool bLobbySearchInFlight = false;
+  bool bCreateLobbyPending = false;
+  std::optional<FCreateLobbyRequest> PendingCreateLobbyRequest;
   std::string OnlineStatusMessage = "Online services are ready.";
 
   EMenuState CurrentState = EMenuState::MainMenu;
@@ -54,4 +65,6 @@ class AMenuScene : public AGameModeBase {
   WMainMenuWidget* MainMenuWidget = nullptr;
   WCreateLobbyWidget* CreateLobbyWidget = nullptr;
   WSearchLobbyWidget* SearchLobbyWidget = nullptr;
+  WJoinLobbyDialog* JoinLobbyDialog = nullptr;
+  std::string PendingJoinLobbyId;
 };

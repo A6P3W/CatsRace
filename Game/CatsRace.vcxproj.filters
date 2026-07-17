@@ -108,6 +108,9 @@
     <ClCompile Include="Game\Scenes\Lobby\UI\WLobbyHUD.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Scenes\Lobby\UI\WLeaveLobbyConfirmDialog.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Game\Scenes\Lobby\UI\WMapSelectDialog.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -231,6 +234,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\UI\WLobbyHUD.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Scenes\Lobby\UI\WLeaveLobbyConfirmDialog.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Game\Scenes\Lobby\UI\WMapSelectDialog.h">

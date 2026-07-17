@@ -33,6 +33,11 @@ class ALobbyScene : public AGameModeBase {
   void SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States);
   void StartGame();
 
+  float StartCountdownRemaining = -1.0f;
+  int LastPublishedCountdownSeconds = -1;
+  bool bStartTravelRequested = false;
+  std::string PendingStartLevelPath;
+
   int MaxPlayers = 4;
   std::string SelectedLevelPath;
   PC_Lobby* m_LobbyPlayerController = nullptr;

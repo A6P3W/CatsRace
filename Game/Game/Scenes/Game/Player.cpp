@@ -268,10 +268,19 @@ void APlayer::OnUpdate(float DeltaTime) {
         252
     );
   }
+
+  if (!bRotateCamera) {
+    m_camera->SetWorldRotation(FRotator{0.0f});
+  }
 }
 
 void APlayer::OnPossessedBy(APlayerController* NewController) {
   APawn::OnPossessedBy(NewController);
+  if (bIsLocallyControlled) {
+    if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+      SetRotateCamera(gi->bRotateCamera);
+    }
+  }
   if (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)) {
     m_camera->SetActiveCamera();
   }
@@ -385,7 +394,7 @@ void APlayer::BeginOverlap(AActor* OtherActor) {
 
   // 壁や障害物に当たった時の処理（サーバーのみ実行されるので安全）
   if (m_shake) {
-    m_shake->StartShake(m_crashshake, {45, 45}, 2011);
+    m_shake->StartShake(m_crashshake, {2, 2}, 2011);
   }
   m_accelInput *= 0.5f;
 }
@@ -840,7 +849,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   }
 }
 void APlayer::Multicast_UpdateLap(int newLap) {
-  m_currentLap = std::min(newLap, TotalLaps);  
+  m_currentLap = std::min(newLap, TotalLaps);
   M_LOG("Lap updated to {} (multicast)", m_currentLap);
 }
 //{

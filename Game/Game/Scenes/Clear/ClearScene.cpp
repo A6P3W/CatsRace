@@ -57,7 +57,6 @@ void AClearScene::SpawnResultStatesFromGameInstance() {
 }
 
 void AClearScene::OnUpdate(float DeltaTime) {
-  (void)DeltaTime;
   if (GetWorld()->IsServer() && GetWorld()->GetActorManager()) {
     for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
       if (auto* player = dynamic_cast<APlayer*>(actorPtr.get())) {
@@ -65,4 +64,16 @@ void AClearScene::OnUpdate(float DeltaTime) {
       }
     }
   }
+
+  if (!GetWorld()->IsServer() || GetWorld()->IsStandalone() || bReturnToLobbyRequested) {
+    return;
+  }
+
+  ReturnToLobbyRemaining -= DeltaTime;
+  if (ReturnToLobbyRemaining > 0.0f) {
+    return;
+  }
+
+  bReturnToLobbyRequested = true;
+  GetWorld()->ServerTravel(GameSceneIds::Lobby);
 }

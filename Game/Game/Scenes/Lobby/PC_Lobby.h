@@ -9,6 +9,7 @@
 class ALobbyPlayerState;
 class ALobbyScene;
 class WLobbyHUD;
+class WLeaveLobbyConfirmDialog;
 class WMapSelectDialog;
 
 class PC_Lobby : public APlayerController {
@@ -26,8 +27,11 @@ class PC_Lobby : public APlayerController {
   void ApplyHostLobbyOptions();
   void SetMaxPlayers(int InMaxPlayers);
   void ShowMapSelectDialog();
+  void ShowLeaveLobbyConfirmDialog();
   void StartGame();
   void LeaveLobby();
+  bool IsStartCountdownActive() const;
+  int GetStartCountdownSeconds() const;
 
  protected:
   void BeginPlay() override;
@@ -37,5 +41,6 @@ class PC_Lobby : public APlayerController {
   ALobbyScene* GetLobbyScene() const;
 
   WLobbyHUD* m_LobbyHUD = nullptr;
+  WLeaveLobbyConfirmDialog* m_LeaveLobbyConfirmDialog = nullptr;
   WMapSelectDialog* m_MapSelectDialog = nullptr;
 };

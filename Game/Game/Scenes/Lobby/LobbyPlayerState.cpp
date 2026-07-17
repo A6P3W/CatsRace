@@ -8,7 +8,6 @@
 namespace {
 enum : FNetworkRPCId {
   RPC_ServerSetPlayerName = 1,
-  RPC_ServerSetReady = 2,
   RPC_ServerSetLobbyOptions = 3,
   RPC_ServerSetFinishResult = 4
 };
@@ -30,11 +29,11 @@ ALobbyPlayerState::ALobbyPlayerState() {
   bReplicates = true;
   SelectedLevelPath = GetDefaultLevelPath();
   RegisterReplicatedProperty(&PlayerName);
-  RegisterReplicatedProperty(&bReady);
   RegisterReplicatedProperty(&SelectedLevelPath);
   RegisterReplicatedProperty(&MaxPlayers);
   RegisterReplicatedProperty(&bFinished);
   RegisterReplicatedProperty(&FinishTime);
+  RegisterReplicatedProperty(&StartCountdownSeconds);
   InitializeRPCs();
 }
 
@@ -48,7 +47,6 @@ void ALobbyPlayerState::InitializeRPCs() {
   RegisterRPC(
       RPC_ServerSetPlayerName, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyPlayerName
   );
-  RegisterRPC(RPC_ServerSetReady, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyReady);
   RegisterRPC(
       RPC_ServerSetLobbyOptions, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyLobbyOptions
   );
@@ -64,14 +62,6 @@ void ALobbyPlayerState::SetPlayerName(const std::string& Name) {
   }
 
   InvokeRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name);
-}
-
-void ALobbyPlayerState::SetReady(bool bInReady) {
-  if (bHasAuthority) {
-    ApplyReady(bInReady);
-    return;
-  }
-  InvokeRPC(RPC_ServerSetReady, ENetRPCType::Server, ENetPacketReliability::Reliable, bInReady);
 }
 
 void ALobbyPlayerState::SetLobbyOptions(
@@ -109,11 +99,6 @@ void ALobbyPlayerState::ApplyPlayerName(const std::string& Name) {
   MarkReplicatedStateDirty();
 }
 
-void ALobbyPlayerState::ApplyReady(bool bInReady) {
-  bReady = bInReady;
-  MarkReplicatedStateDirty();
-}
-
 void ALobbyPlayerState::ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers) {
   SelectedLevelPath =
       IsAvailableLevelPath(InSelectedLevelPath) ? std::move(InSelectedLevelPath) : GetDefaultLevelPath();
@@ -127,3 +112,12 @@ void ALobbyPlayerState::ApplyFinishResult(bool bInFinished, float InFinishTime) 
   MarkReplicatedStateDirty();
 }
 
+
+void ALobbyPlayerState::SetStartCountdownSeconds(int InStartCountdownSeconds) {
+  if (StartCountdownSeconds == InStartCountdownSeconds) {
+    return;
+  }
+
+  StartCountdownSeconds = InStartCountdownSeconds;
+  MarkReplicatedStateDirty();
+}

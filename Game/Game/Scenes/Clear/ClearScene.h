@@ -17,4 +17,8 @@ class AClearScene : public AGameModeBase {
 
  private:
   void SpawnResultStatesFromGameInstance();
+
+  static constexpr float ReturnToLobbyDelaySeconds = 10.0f;
+  float ReturnToLobbyRemaining = ReturnToLobbyDelaySeconds;
+  bool bReturnToLobbyRequested = false;
 };

@@ -48,5 +48,6 @@ class GI_main : public GameInstance {
   std::string player_name = PlayerNameDefaults::Generate();
   std::string last_server_ip = "127.0.0.1";
   std::string last_level_path = AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+  bool bRotateCamera = true;
   std::vector<FMultiplayerResult> multiplayer_results;
 };
