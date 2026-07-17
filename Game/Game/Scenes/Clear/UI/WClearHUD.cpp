@@ -74,6 +74,15 @@ WClearHUD::WClearHUD() {
   m_LoadingText->SetAnchoredPosition({0.0f, 240.0f});
   m_LoadingText->RegisterComponent();
 
+  ReturnCountdownText = NewObject<UITextComponent>(this);
+  ReturnCountdownText->SetText("");
+  ReturnCountdownText->SetColor(FColor{221, 221, 221});
+  ReturnCountdownText->SetFontSize(24);
+  ReturnCountdownText->SetAnchor(EUIAnchor::BottomCenter);
+  ReturnCountdownText->SetPivot({0.5f, 1.0f});
+  ReturnCountdownText->SetAnchoredPosition({0.0f, -90.0f});
+  ReturnCountdownText->SetVisibility(false);
+  ReturnCountdownText->RegisterComponent();
   m_ActionBox = NewObject<MUIVerticalBoxComponent>(this);
   m_ActionBox->SetAnchor(EUIAnchor::BottomCenter);
   m_ActionBox->SetPivot({0.5f, 1.0f});
@@ -206,6 +215,18 @@ void WClearHUD::SetWaitingForResults(bool bWaiting) {
   }
 }
 
+void WClearHUD::SetReturnCountdown(int Seconds) {
+  if (!ReturnCountdownText) {
+    return;
+  }
+
+  ReturnCountdownText->SetVisibility(Seconds >= 0);
+  if (Seconds > 0) {
+    ReturnCountdownText->SetText("Returning to lobby in " + std::to_string(Seconds) + "...");
+  } else if (Seconds == 0) {
+    ReturnCountdownText->SetText("Returning to lobby...");
+  }
+}
 void WClearHUD::SetErrorText(std::string e) {
   if (m_LoadingText) {
     m_LoadingText->SetText(e);

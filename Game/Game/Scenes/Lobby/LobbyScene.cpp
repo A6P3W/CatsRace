@@ -1,6 +1,7 @@
 ﻿#include "Scenes/Lobby/LobbyScene.h"
 
 #include <algorithm>
+#include <cmath>
 
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
@@ -42,7 +43,25 @@ void ALobbyScene::BeginPlay() {
   }
 }
 
-void ALobbyScene::OnUpdate(float DeltaTime) { (void)DeltaTime; }
+void ALobbyScene::OnUpdate(float DeltaTime) {
+  if (!GetWorld()->IsServer() || StartCountdownRemaining < 0.0f || bStartTravelRequested) {
+    return;
+  }
+  StartCountdownRemaining -= DeltaTime;
+  const int seconds = (std::max)(0, static_cast<int>(std::ceil(StartCountdownRemaining)));
+  if (seconds != LastPublishedCountdownSeconds) {
+    LastPublishedCountdownSeconds = seconds;
+    if (auto* hostState = FindHostPlayerState()) {
+      hostState->SetStartCountdownSeconds(seconds);
+    }
+  }
+  if (StartCountdownRemaining > 0.0f) {
+    return;
+  }
+  bStartTravelRequested = true;
+  SaveLobbyResultsToGameInstance(GetPlayerStates());
+  GetWorld()->ServerTravel(PendingStartLevelPath);
+}
 
 void ALobbyScene::Draw() { AGameModeBase::Draw(); }
 
@@ -102,9 +121,6 @@ ALobbyPlayerState* ALobbyScene::FindPlayerState(FNetworkConnectionId ConnectionI
 
 ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId ConnectionId) {
   if (auto* existing = FindPlayerState(ConnectionId)) {
-    if (ConnectionId == 0) {
-      existing->SetReady(true);
-    }
     return existing;
   }
 
@@ -132,9 +148,6 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
   }
   state->SetPlayerName(defaultName);
   state->SetLobbyOptions(SelectedLevelPath, MaxPlayers);
-  if (ConnectionId == 0) {
-    state->SetReady(true);
-  }
   return state;
 }
 
@@ -157,22 +170,20 @@ void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerS
 }
 
 void ALobbyScene::StartGame() {
-  if (!GetWorld()->IsServer()) {
+  if (!GetWorld()->IsServer() || StartCountdownRemaining >= 0.0f || bStartTravelRequested ||
+      SelectedLevelPath.empty() || GetPlayerStates().empty()) {
     return;
   }
-  const auto states = GetPlayerStates();
-  SaveLobbyResultsToGameInstance(states);
-  if (OnlineSessionManager::Get().IsInLobby()) {
-    if (OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
-        {MakeLobbyStateAttribute(LobbyStateRacing)},
-        [this](bool bSuccess) {
-          (void)bSuccess;
-          GetWorld()->ServerTravel(SelectedLevelPath);
-        }
-    )) {
-      return;
-    }
+  PendingStartLevelPath = SelectedLevelPath;
+  StartCountdownRemaining = 5.0f;
+  LastPublishedCountdownSeconds = 5;
+  if (auto* hostState = FindHostPlayerState()) {
+    hostState->SetStartCountdownSeconds(5);
   }
-  GetWorld()->ServerTravel(SelectedLevelPath);
+  if (OnlineSessionManager::Get().IsInLobby()) {
+    OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
+        {MakeLobbyStateAttribute(LobbyStateRacing)}, [](bool bSuccess) { (void)bSuccess; }
+    );
+  }
 }
 

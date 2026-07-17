@@ -28,6 +28,8 @@ class PC_Lobby : public APlayerController {
   void ShowMapSelectDialog();
   void StartGame();
   void LeaveLobby();
+  bool IsStartCountdownActive() const;
+  int GetStartCountdownSeconds() const;
 
  protected:
   void BeginPlay() override;

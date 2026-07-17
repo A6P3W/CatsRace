@@ -32,6 +32,7 @@ class WClearHUD : public AWidgetBase {
   void SetHostMode(bool bIsHost);
   void SetWaitingForHost(bool bWaiting);
   void SetWaitingForResults(bool bWaiting);
+  void SetReturnCountdown(int Seconds);
 
   void SetErrorText(std::string e);
 
@@ -51,6 +52,7 @@ class WClearHUD : public AWidgetBase {
   UITextComponent* m_ClearTimeText = nullptr;
   UITextComponent* m_LoadingText = nullptr;
   UITextComponent* m_WaitingHostText = nullptr;
+  UITextComponent* ReturnCountdownText = nullptr;
 
   std::vector<WRankEntryComponent*> m_ResultEntryWidgets;
   const float m_EntryStartY = 300.0f;

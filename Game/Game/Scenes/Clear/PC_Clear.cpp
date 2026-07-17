@@ -6,6 +6,7 @@
 #include <NetworkManager.h>
 
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -68,16 +69,15 @@ void PC_Clear::BeginPlay() {
 
   if (m_ClearHUD) {
     const bool bIsStandalone = GetWorld()->IsStandalone();
-    m_ClearHUD->SetHostMode(GetWorld()->IsServer());
-    m_ClearHUD->SetWaitingForHost(!GetWorld()->IsServer() && !bIsStandalone);
-    m_ClearHUD->OnReplay = [this]() { GetWorld()->ServerTravel(GetReplayLevelPath()); };
-    m_ClearHUD->OnBackToLobby = [this]() { GetWorld()->ServerTravel(GameSceneIds::Lobby); };
+    m_ClearHUD->SetHostMode(false);
+    m_ClearHUD->SetWaitingForHost(false);
 
     if (bIsStandalone) {
       m_ClearHUD->SetClearTime(gi ? gi->ClearTime : -1.0f);
     } else {
       m_ClearHUD->SetClearTime(-1.0f);
       m_ClearHUD->SetWaitingForResults(true);
+      m_ClearHUD->SetReturnCountdown(10);
     }
   }
 
@@ -105,6 +105,13 @@ void PC_Clear::OnUpdate(float DeltaTime) {
 
   m_ResultSubmitRetryCooldown =
       (std::max)(0.0f, m_ResultSubmitRetryCooldown - DeltaTime);
+
+  DisplayReturnCountdownRemaining -= DeltaTime;
+  const int displayedCountdown = (std::max)(0, static_cast<int>(std::ceil(DisplayReturnCountdownRemaining)));
+  if (displayedCountdown != LastDisplayedReturnCountdown) {
+    LastDisplayedReturnCountdown = displayedCountdown;
+    m_ClearHUD->SetReturnCountdown(displayedCountdown);
+  }
 
   SubmitLocalResultToServerIfNeeded();
   RefreshMultiplayerResults();
@@ -341,8 +348,8 @@ void PC_Clear::RefreshMultiplayerResults() {
   }
 
   m_ClearHUD->SetWaitingForResults(results.empty());
-  m_ClearHUD->SetHostMode(GetWorld()->IsServer());
-  m_ClearHUD->SetWaitingForHost(!GetWorld()->IsServer());
+  m_ClearHUD->SetHostMode(false);
+  m_ClearHUD->SetWaitingForHost(false);
 
   const std::string nextSignature = signature.str();
   if (nextSignature != m_LastResultSignature) {

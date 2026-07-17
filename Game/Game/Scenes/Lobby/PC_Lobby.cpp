@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "NetworkManager.h"
@@ -33,6 +34,17 @@ void PC_Lobby::BeginPlay() {
 
 void PC_Lobby::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
+
+  if (!bIsLocallyControlled) {
+    return;
+  }
+
+  auto* localState = FindLocalPlayerState();
+  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (localState && gi && !gi->player_name.empty() &&
+      localState->GetPlayerName() != gi->player_name) {
+    localState->SetPlayerName(gi->player_name);
+  }
 }
 
 std::vector<ALobbyPlayerState*> PC_Lobby::GetPlayerStates() {
@@ -150,6 +162,7 @@ void PC_Lobby::ShowMapSelectDialog() {
 
     if (m_LobbyHUD) {
       UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+      m_LobbyHUD->FocusMapSelectButton();
     }
   };
 
@@ -163,6 +176,16 @@ void PC_Lobby::StartGame() {
   }
 }
 
+bool PC_Lobby::IsStartCountdownActive() const {
+  return GetStartCountdownSeconds() >= 0;
+}
+
+int PC_Lobby::GetStartCountdownSeconds() const {
+  if (auto* hostState = const_cast<PC_Lobby*>(this)->FindHostPlayerState()) {
+    return hostState->GetStartCountdownSeconds();
+  }
+  return -1;
+}
 void PC_Lobby::LeaveLobby() {
   auto returnToMenu = []() {
     NetworkManager::GetInstance().Disconnect();
@@ -174,12 +197,11 @@ void PC_Lobby::LeaveLobby() {
     return;
   }
 
-  if (!OnlineSessionManager::Get().LeaveLobby([returnToMenu](bool bSuccess) {
-        (void)bSuccess;
-        returnToMenu();
-      })) {
-    returnToMenu();
-  }
+  OnlineSessionManager::Get().LeaveLobby([returnToMenu](bool bSuccess) {
+    if (bSuccess) {
+      returnToMenu();
+    }
+  });
 }
 
 ALobbyScene* PC_Lobby::GetLobbyScene() const {
