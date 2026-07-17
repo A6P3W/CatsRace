@@ -20,25 +20,25 @@ ALapCheckpoint::ALapCheckpoint(FVector2D location, FRotator rotation) {
   m_collision->RegisterComponent();
 
   // ビジュアル（デバッグ表示用）
-  m_sprite = NewObject<MSpriteComponent>(this);
-  m_sprite->SetRenderSettings(0, RenderSpace::World);
-  m_sprite->AttachToComponent(GetRootComponent());
-  m_sprite->SetRelativeLocation({-40.0f, -150.0f});
+ // m_sprite = NewObject<MSpriteComponent>(this);
+ // m_sprite->SetRenderSettings(0, RenderSpace::World);
+  //m_sprite->AttachToComponent(GetRootComponent());
+ // m_sprite->SetRelativeLocation({-40.0f, -150.0f});
   // ゴールライン=黄色、通常チェックポイント=水色
-  m_sprite->SubmitBox(
-      80.0f, 300.0f, m_bIsLapLine ? FColor{255, 255, 0, 180} : FColor{0, 255, 255, 180}, false
-  );
-  m_sprite->RegisterComponent();
+ // m_sprite->SubmitBox(
+ //     80.0f, 300.0f, m_bIsLapLine ? FColor{255, 255, 0, 180} : FColor{0, 255, 255, 180}, false
+ // );
+ // m_sprite->RegisterComponent();
 }
 
 void ALapCheckpoint::BeginPlay() {
   AActor::BeginPlay();
   // ビジュアルの色をBeginPlay時に確定（コンストラクタ後にSetIsLapLineされる場合のため）
-  if (m_sprite) {
-    m_sprite->SubmitBox(
-        80.0f, 300.0f, m_bIsLapLine ? FColor{255, 255, 0, 180} : FColor{0, 255, 255, 180}, false
-    );
-  }
+ // if (m_sprite) {
+  //  m_sprite->SubmitBox(
+  //      80.0f, 300.0f, m_bIsLapLine ? FColor{255, 255, 0, 180} : FColor{0, 255, 255, 180}, false
+   // );
+ // }
 }
 
 void ALapCheckpoint::BeginOverlap(AActor* OtherActor) {
