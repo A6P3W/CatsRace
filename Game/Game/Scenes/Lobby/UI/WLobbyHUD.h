@@ -17,6 +17,7 @@ class WLobbyHUD : public AWidgetBase {
 
   void SetLobbyController(PC_Lobby* InLobbyController);
   void Draw() override;
+  void FocusMapSelectButton();
 
  protected:
   void BeginPlay() override;

@@ -69,6 +69,7 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
       CreateLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
       CreateLobbyWidget->OnFocusSearchResults = [this]() {
         if (SearchLobbyWidget && SearchLobbyWidget->GetFirstJoinableButton()) {
+          CreateLobbyWidget->ClearFocusedButton();
           UIManager::GetInstance()->SetFocusedWidget(SearchLobbyWidget);
           SearchLobbyWidget->FocusFirstJoinableButton();
         }
@@ -78,6 +79,7 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
       SearchLobbyWidget->OnBack = [this]() { ShowMenuState(EMenuState::MainMenu); };
       SearchLobbyWidget->OnFocusCreate = [this]() {
         if (CreateLobbyWidget) {
+          SearchLobbyWidget->ClearFocusedButton();
           UIManager::GetInstance()->SetFocusedWidget(CreateLobbyWidget);
           CreateLobbyWidget->FocusCreateButton();
         }
@@ -148,6 +150,9 @@ void AMenuScene::UpdateActiveWidget() {
       UIManager::GetInstance()->RemoveWidget(JoinLobbyDialog);
       JoinLobbyDialog = nullptr;
       PendingJoinLobbyId.clear();
+      if (SearchLobbyWidget) {
+        SearchLobbyWidget->ClearFocusedButton();
+      }
       if (CreateLobbyWidget) {
         UIManager::GetInstance()->SetFocusedWidget(CreateLobbyWidget);
         CreateLobbyWidget->FocusCreateButton();
@@ -548,6 +553,9 @@ void AMenuScene::ShowJoinConfirmation(const FLobbyInfo& LobbyInfo) {
     uiManager->RemoveWidget(JoinLobbyDialog);
     JoinLobbyDialog = nullptr;
     PendingJoinLobbyId.clear();
+    if (SearchLobbyWidget) {
+      SearchLobbyWidget->ClearFocusedButton();
+    }
     if (CreateLobbyWidget) {
       uiManager->SetFocusedWidget(CreateLobbyWidget);
       CreateLobbyWidget->FocusCreateButton();
@@ -559,6 +567,9 @@ void AMenuScene::ShowJoinConfirmation(const FLobbyInfo& LobbyInfo) {
     uiManager->RemoveWidget(JoinLobbyDialog);
     JoinLobbyDialog = nullptr;
     PendingJoinLobbyId.clear();
+    if (SearchLobbyWidget) {
+      SearchLobbyWidget->ClearFocusedButton();
+    }
     if (CreateLobbyWidget) {
       uiManager->SetFocusedWidget(CreateLobbyWidget);
       CreateLobbyWidget->FocusCreateButton();

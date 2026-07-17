@@ -407,3 +407,9 @@ void WLobbyHUD::UpdateFocusForHostMode(bool bIsHost) {
   );
 }
 
+void WLobbyHUD::FocusMapSelectButton() {
+  if (m_MapSelectButton) {
+    SetFocusedButton(m_MapSelectButton);
+  }
+}
+

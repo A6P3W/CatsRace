@@ -162,6 +162,7 @@ void PC_Lobby::ShowMapSelectDialog() {
 
     if (m_LobbyHUD) {
       UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+      m_LobbyHUD->FocusMapSelectButton();
     }
   };
 
