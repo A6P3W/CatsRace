@@ -19,7 +19,7 @@
 #include "UIManager.h"
 #include "World.h"
 #include "Scenes/Game/Player.h"
-
+#include "Scenes/Game/GameScene2.h"
 REGISTER_ACTOR(PC_Game)
 
 PC_Game::PC_Game() { SetUpdateableAnytime(true); }
@@ -44,26 +44,29 @@ void PC_Game::BeginPlay() {
 void PC_Game::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
 
-  if (bIsLocallyControlled && RaceRunning) {
-    RaceTime += DeltaTime;
+  if (bIsLocallyControlled) {
+    if (RaceRunning) {
+      RaceTime += DeltaTime;
+      if (MainHUD) {
+        MainHUD->UpdateTimerText(RaceTime);
+      }
+    }
+
+    // LAP表示はRaceRunning関係なく毎フレーム更新
     if (MainHUD) {
-      MainHUD->UpdateTimerText(RaceTime);
+      if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
+        MainHUD->SetHeldItemVisible(player->HasHeldItem());
 
-      if (auto* pawn = GetPawn()) {
-        if (auto* player = dynamic_cast<APlayer*>(pawn)) {
-          MainHUD->SetHeldItemVisible(player->HasHeldItem());
-          MainHUD->UpdateLapText(player->GetCurrentLap(), 3);  
-          if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
-         
-      
-          }
-
+        if (dynamic_cast<AGameScene2*>(GetWorld()->GetGameMode())) {
+          MainHUD->SetLapVisible(true);
+          MainHUD->UpdateLapText(player->GetCurrentLap(), 3);
+        } else {
+          MainHUD->SetLapVisible(false);
         }
       }
     }
   }
 }
-
 void PC_Game::RaceCountDown() {
   m_CountDown--;
 

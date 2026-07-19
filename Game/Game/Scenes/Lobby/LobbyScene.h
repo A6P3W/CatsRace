@@ -5,6 +5,7 @@
 
 #include "GameModeBase.h"
 #include "NetworkTypes.h"
+#include "SoundComponent.h"
 
 class ALobbyPlayerState;
 class APlayerController;
@@ -32,7 +33,7 @@ class ALobbyScene : public AGameModeBase {
   void EnsureHostPlayerState();
   void SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States);
   void StartGame();
-
+  MSoundComponent* m_bgmSound = nullptr;
   float StartCountdownRemaining = -1.0f;
   int LastPublishedCountdownSeconds = -1;
   bool bStartTravelRequested = false;

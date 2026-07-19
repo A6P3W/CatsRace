@@ -12,7 +12,7 @@
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
 #include "World.h"
-
+#include <filesystem>
 REGISTER_GAME_MODE(ALobbyScene)
 
 namespace {
@@ -33,6 +33,8 @@ ALobbyScene::ALobbyScene() {
 
 void ALobbyScene::BeginPlay() {
   AGameModeBase::BeginPlay();
+
+
   if (GetWorld()->IsServer()) {
     EnsureHostPlayerState();
     if (OnlineSessionManager::Get().IsInLobby()) {
@@ -41,7 +43,7 @@ void ALobbyScene::BeginPlay() {
       );
     }
   }
-}
+}  
 
 void ALobbyScene::OnUpdate(float DeltaTime) {
   if (!GetWorld()->IsServer() || StartCountdownRemaining < 0.0f || bStartTravelRequested) {

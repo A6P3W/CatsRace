@@ -10,6 +10,7 @@ class WMainHUD : public AWidgetBase {
   void UpdateTimerText(float elapsedTime);
   void SetHeldItemVisible(bool bVisible);
   void UpdateLapText(int currentLap, int totalLaps);
+  void SetLapVisible(bool bVisible);
  private:
   UITextComponent* m_TimerText = nullptr;
   MSpriteComponent* m_ItemIcon = nullptr;  
