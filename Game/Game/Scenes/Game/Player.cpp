@@ -93,11 +93,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   m_camera->RegisterComponent();
 
   m_camera->AddLocalOffset({0.0f, -400.0f});
-  // 走行音をループ再生開始・最初は無音
-  // carsound.mp3 をプロジェクトの sounds/ フォルダに置いてください
-
-  m_sound = NewObject<MSoundComponent>(this);
-  m_sound->RegisterComponent();
 }
 
 APlayer::~APlayer() {
@@ -490,11 +485,12 @@ void APlayer::EndOverlap(AActor* OtherActor) {
 }
 
 void APlayer::BeginPlay() {
-  if (!dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-    return;
+  if (bIsLocallyControlled) {
+    m_sound = NewObject<MSoundComponent>(this);
+    m_sound->RegisterComponent();
+    m_engineIdleHandle = m_sound->PlaySE("Resources/images/cat5.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("Resources/images/moving-v2.mp3", true);
   }
-  m_engineIdleHandle = m_sound->PlaySE("Resources/images/cat5.mp3", true);
-  m_engineRunHandle = m_sound->PlaySE("Resources/images/moving-v2.mp3", true);
 }
 
 void APlayer::DrawSpeedLines(float speed) {

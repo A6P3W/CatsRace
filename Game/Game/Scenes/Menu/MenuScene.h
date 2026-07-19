@@ -49,7 +49,7 @@ class AMenuScene : public AGameModeBase {
   char ServerAddress[64] = "127.0.0.1";
   std::string LobbyName = "Player Lobby";
   int Port = 7777;
-  int OnlineLobbyMaxMembers = 4;
+  int OnlineLobbyMaxMembers = 8;
   int OnlineSearchMaxResults = 10;
   int SelectedOnlineLobbyIndex = -1;
   std::vector<FLobbyInfo> OnlineSearchResults;
