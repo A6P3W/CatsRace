@@ -30,6 +30,11 @@ void PC_Lobby::BeginPlay() {
     m_LobbyHUD->SetLobbyController(this);
     UIManager::GetInstance()->AddWidget(m_LobbyHUD);
     UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+    // SoundManager 経由で直接再生
+    if (auto* sm = GetWorld()->GetSoundManager()) {
+      sm->PlaySE("Resources/images/moving-v2.mp3", false);
+    }
+
   }
 }
 

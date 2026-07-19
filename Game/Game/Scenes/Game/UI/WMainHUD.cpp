@@ -24,9 +24,7 @@ WMainHUD::WMainHUD() {
   m_ItemIcon->SubmitGraph(handle, FScale(0.3f), 200);
   m_ItemIcon->SetVisibility(false);
   m_ItemIcon->RegisterComponent();
-
   m_ItemText = NewObject<UITextComponent>(this);
-  m_ItemText->SetText("キノコ");
   m_ItemText->SetColor(FColor{255, 255, 255});
   m_ItemText->SetFontSize(22);
   m_ItemText->SetAnchor(EUIAnchor::BottomLeft);
@@ -55,7 +53,14 @@ void WMainHUD::SetHeldItemVisible(bool bVisible) {
   if (m_ItemText) m_ItemText->SetVisibility(bVisible);
 }
 void WMainHUD::UpdateLapText(int currentLap, int totalLaps) {
-  if (m_LapText) {
+  if (!m_LapText) return;
+
+  if (currentLap >= totalLaps) {
+    m_LapText->SetText("GOAL!");
+  } else {
     m_LapText->SetText("LAP " + std::to_string(currentLap + 1) + " / " + std::to_string(totalLaps));
   }
+}
+void WMainHUD::SetLapVisible(bool bVisible) {
+  if (m_LapText) m_LapText->SetVisibility(bVisible);
 }
