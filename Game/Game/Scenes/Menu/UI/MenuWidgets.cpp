@@ -246,7 +246,9 @@ void WCreateLobbyWidget::FocusCreateButton() {
   StartNavigationCooldown();
 }
 void WCreateLobbyWidget::Navigate(const FInputActionValue& Value) {
-  if (Value.Axis2D.X < -0.5f && FirstSearchButton && (GetFocusedButton() == LobbyNameInput || GetFocusedButton() == CreateButton || GetFocusedButton() == BackButton)) {
+  if (Value.Axis2D.X < -0.5f && FirstSearchButton &&
+      (GetFocusedButton() == LobbyNameInput || GetFocusedButton() == CreateButton ||
+       GetFocusedButton() == BackButton)) {
     if (OnFocusSearchResults) OnFocusSearchResults();
     StartNavigationCooldown();
     return;
@@ -310,7 +312,6 @@ void WSearchLobbyWidget::BeginPlay() {
   AWidgetBase::BeginPlay();
 
   RebuildNavigation();
-
 }
 
 void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
@@ -322,7 +323,6 @@ void WSearchLobbyWidget::SetStatusText(const std::string& Text) {
 void WSearchLobbyWidget::SetLobbyResults(
     const std::vector<FLobbyInfo>& Results, int SelectedIndex
 ) {
-
   ClearFocusedButton();
   for (auto* button : LobbyButtons) {
     if (button) {
@@ -342,7 +342,6 @@ void WSearchLobbyWidget::SetLobbyResults(
   if (EmptyText) {
     EmptyText->SetVisibility(Results.empty());
   }
-
 
   UIBoxButtonComponent* selectedButton = nullptr;
   auto addLobbyButton = [this, &Results, SelectedIndex, &selectedButton](int index) {
@@ -391,7 +390,6 @@ void WSearchLobbyWidget::SetLobbyResults(
     }
   }
 
-
   for (int index = 0; index < static_cast<int>(Results.size()); ++index) {
     if (IsLobbyRacing(Results[index])) {
       addLobbyButton(index);
@@ -436,9 +434,31 @@ WJoinLobbyDialog::WJoinLobbyDialog() {
   Panel->SetRelativeLocation({660.0f, 390.0f});
   Panel->SubmitBox(600.0f, 300.0f, FColor{15, 15, 20, 230}, true);
   Panel->RegisterComponent();
-  LobbyNameText = NewObject<UITextComponent>(this); LobbyNameText->SetAnchor(EUIAnchor::MiddleCenter); LobbyNameText->SetAnchoredPosition({0.0f,-60.0f}); LobbyNameText->SetFontSize(28); LobbyNameText->SetColor(FColor::White); LobbyNameText->RegisterComponent();
-  JoinButton=AddButton(this,nullptr,"参加",200.0f,52.0f); JoinButton->SetAnchor(EUIAnchor::MiddleCenter); JoinButton->SetAnchoredPosition({-120.0f,70.0f});
-  BackButton=AddButton(this,nullptr,"戻る",200.0f,52.0f); BackButton->SetAnchor(EUIAnchor::MiddleCenter); BackButton->SetAnchoredPosition({120.0f,70.0f});
+  LobbyNameText = NewObject<UITextComponent>(this);
+  LobbyNameText->SetAnchor(EUIAnchor::MiddleCenter);
+  LobbyNameText->SetAnchoredPosition({0.0f, -60.0f});
+  LobbyNameText->SetFontSize(28);
+  LobbyNameText->SetColor(FColor::White);
+  LobbyNameText->RegisterComponent();
+  JoinButton = AddButton(this, nullptr, "参加", 200.0f, 52.0f);
+  JoinButton->SetAnchor(EUIAnchor::MiddleCenter);
+  JoinButton->SetAnchoredPosition({-120.0f, 70.0f});
+  BackButton = AddButton(this, nullptr, "戻る", 200.0f, 52.0f);
+  BackButton->SetAnchor(EUIAnchor::MiddleCenter);
+  BackButton->SetAnchoredPosition({120.0f, 70.0f});
 }
-void WJoinLobbyDialog::BeginPlay() { AWidgetBase::BeginPlay(); JoinButton->Navigation.Right=BackButton; BackButton->Navigation.Left=JoinButton; JoinButton->SetOnPressed([this](){if(OnJoin)OnJoin();}); BackButton->SetOnPressed([this](){if(OnBack)OnBack();}); SetFocusedButton(BackButton); }
-void WJoinLobbyDialog::SetLobbyName(const std::string& Name) { if(LobbyNameText) LobbyNameText->SetText(Name); }
+void WJoinLobbyDialog::BeginPlay() {
+  AWidgetBase::BeginPlay();
+  JoinButton->Navigation.Right = BackButton;
+  BackButton->Navigation.Left = JoinButton;
+  JoinButton->SetOnPressed([this]() {
+    if (OnJoin) OnJoin();
+  });
+  BackButton->SetOnPressed([this]() {
+    if (OnBack) OnBack();
+  });
+  SetFocusedButton(JoinButton);
+}
+void WJoinLobbyDialog::SetLobbyName(const std::string& Name) {
+  if (LobbyNameText) LobbyNameText->SetText(Name);
+}

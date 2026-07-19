@@ -8,7 +8,7 @@
 
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
-#include "OnlineSessionManager.h"
+#include "OnlinePlayManager.h"
 #include "PlayerController.h"
 #include "SceneManager.h"
 #include "SpriteComponent.h"
@@ -59,27 +59,25 @@ void ALoadingScene::BeginPlay() {
     }
   }
 
-  OnlineSessionManager& onlineSession = OnlineSessionManager::Get();
-  if (!onlineSession.IsEOSInitialized()) {
+  OnlinePlayManager& onlinePlay = OnlinePlayManager::GetInstance();
+  if (!onlinePlay.IsEOSInitialized()) {
     SetStatusMessage("Online services are not initialized.");
     return;
   }
 
-  if (onlineSession.IsLoggedIn()) {
+  if (onlinePlay.IsLoggedIn()) {
     SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
     return;
   }
 
   SetStatusMessage("Logging in...");
-  if (!onlineSession.LoginWithDeviceId(PlayerName, [this](bool bSuccess) {
-        if (bSuccess) {
-          SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
-        } else {
-          SetStatusMessage("Login failed. Check logs and restart the game.");
-        }
-      })) {
-    SetStatusMessage("Login request was rejected.");
-  }
+  onlinePlay.Login(PlayerName, [this](const FOnlinePlayResult& Result) {
+    if (Result.Success) {
+      SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
+    } else {
+      SetStatusMessage(Result.Message);
+    }
+  });
 }
 
 void ALoadingScene::SetStatusMessage(const std::string& Message) {
