@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include <string>
 #include <optional>
+#include <string>
 #include <vector>
 
-#include "EOSTypes.h"
 #include "GameModeBase.h"
+#include "OnlinePlayManager.h"
 
 class AWidgetBase;
 class WCreateLobbyWidget;
@@ -49,7 +49,7 @@ class AMenuScene : public AGameModeBase {
   char ServerAddress[64] = "127.0.0.1";
   std::string LobbyName = "Player Lobby";
   int Port = 7777;
-  int OnlineLobbyMaxMembers = 4;
+  int OnlineLobbyMaxMembers = 8;
   int OnlineSearchMaxResults = 10;
   int SelectedOnlineLobbyIndex = -1;
   std::vector<FLobbyInfo> OnlineSearchResults;
@@ -57,7 +57,7 @@ class AMenuScene : public AGameModeBase {
   float LobbySearchRemaining = 0.0f;
   bool bLobbySearchInFlight = false;
   bool bCreateLobbyPending = false;
-  std::optional<FCreateLobbyRequest> PendingCreateLobbyRequest;
+  std::optional<FHostLobbyRequest> PendingCreateLobbyRequest;
   std::string OnlineStatusMessage = "Online services are ready.";
 
   EMenuState CurrentState = EMenuState::MainMenu;

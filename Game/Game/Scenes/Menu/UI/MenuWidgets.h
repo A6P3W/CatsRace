@@ -102,8 +102,10 @@ class WJoinLobbyDialog : public AWidgetBase {
   void SetLobbyName(const std::string& Name);
   std::function<void()> OnJoin;
   std::function<void()> OnBack;
+
  protected:
   void BeginPlay() override;
+
  private:
   MSpriteComponent* Panel = nullptr;
   UITextComponent* LobbyNameText = nullptr;

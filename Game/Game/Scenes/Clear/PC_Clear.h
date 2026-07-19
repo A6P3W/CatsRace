@@ -39,7 +39,7 @@ class PC_Clear : public APlayerController {
   std::string m_LastResultSignature;
   bool m_bSubmittedLocalResult = false;
   float m_ResultSubmitRetryCooldown = 0.0f;
-  float DisplayReturnCountdownRemaining = 10.0f;
+  float DisplayReturnCountdownRemaining = 5.0f;
   int LastDisplayedReturnCountdown = -1;
   std::vector<std::string> m_FetchedUserIds;
   WNameSelectDialog* m_NameSelectDialog = nullptr;

@@ -5,6 +5,7 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EOSCoreManager.h"
+#include "NetworkManager.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/PC_Clear.h"
@@ -16,7 +17,8 @@
 #include "Scenes/Lobby/PC_Lobby.h"
 #include "Scenes/Menu/MenuScene.h"
 void SetupGame() {
-  EOSCoreManager::Get().InitializeOnlineServices();
+  EOSCoreManager::GetInstance().InitializeOnlineServices();
+  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::EOSP2P);
   auto& SM = SceneManager::GetInstance();
   SM.SetGameInstance<GI_main>();
   SM.RegisterLevelPath(GameSceneIds::Loading, "Resources/LoadingScene.BLevel");
@@ -30,7 +32,8 @@ void SetupGame() {
   SetMouseDispFlag(1);
 }
 
-int WINAPI WinMain(HINSTANCE Instance, HINSTANCE PreviousInstance, LPSTR CommandLine, int ShowCommand) {
+int WINAPI
+WinMain(HINSTANCE Instance, HINSTANCE PreviousInstance, LPSTR CommandLine, int ShowCommand) {
   (void)Instance;
   (void)PreviousInstance;
   (void)CommandLine;

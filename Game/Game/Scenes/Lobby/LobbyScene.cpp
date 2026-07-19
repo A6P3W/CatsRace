@@ -3,11 +3,12 @@
 #include <algorithm>
 #include <cmath>
 
+#include "ActorManager.h"
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
+#include "EOSLobbyManager.h"
 #include "NetworkManager.h"
-#include "OnlineSessionManager.h"
-#include "ActorManager.h"
+#include "OnlinePlayManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
@@ -23,7 +24,7 @@ constexpr const char* LobbyStateRacing = "RACING";
 FLobbyAttribute MakeLobbyStateAttribute(const char* State) {
   return {LobbyStateAttributeKey, FLobbyAttributeValue::FromString(State), true};
 }
-}
+}  // namespace
 
 ALobbyScene::ALobbyScene() {
   SetUpdateableAnytime(true);
@@ -37,8 +38,8 @@ void ALobbyScene::BeginPlay() {
 
   if (GetWorld()->IsServer()) {
     EnsureHostPlayerState();
-    if (OnlineSessionManager::Get().IsInLobby()) {
-      OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
+    if (OnlinePlayManager::GetInstance().IsInLobby()) {
+      EOSLobbyManager::GetInstance().UpdateCurrentLobbyAttributes(
           {MakeLobbyStateAttribute(LobbyStateWaiting)}, [](bool bSuccess) { (void)bSuccess; }
       );
     }
@@ -139,11 +140,10 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
       if (!gi->player_name.empty()) {
         defaultName = gi->player_name;
       }
-      const bool bSavedLevelPathAvailable = std::any_of(
-          AvailableMaps.begin(),
-          AvailableMaps.end(),
-          [gi](const FMapInfo& Map) { return Map.LevelPath == gi->last_level_path; }
-      );
+      const bool bSavedLevelPathAvailable =
+          std::any_of(AvailableMaps.begin(), AvailableMaps.end(), [gi](const FMapInfo& Map) {
+            return Map.LevelPath == gi->last_level_path;
+          });
       if (bSavedLevelPathAvailable) {
         SelectedLevelPath = gi->last_level_path;
       }
@@ -183,10 +183,9 @@ void ALobbyScene::StartGame() {
   if (auto* hostState = FindHostPlayerState()) {
     hostState->SetStartCountdownSeconds(5);
   }
-  if (OnlineSessionManager::Get().IsInLobby()) {
-    OnlineSessionManager::Get().UpdateCurrentLobbyAttributes(
+  if (OnlinePlayManager::GetInstance().IsInLobby()) {
+    EOSLobbyManager::GetInstance().UpdateCurrentLobbyAttributes(
         {MakeLobbyStateAttribute(LobbyStateRacing)}, [](bool bSuccess) { (void)bSuccess; }
     );
   }
 }
-

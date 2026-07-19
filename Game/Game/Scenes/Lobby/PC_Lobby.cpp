@@ -6,7 +6,7 @@
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
 #include "NetworkManager.h"
-#include "OnlineSessionManager.h"
+#include "OnlinePlayManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
@@ -210,9 +210,7 @@ void PC_Lobby::ShowLeaveLobbyConfirmDialog() {
   UIManager::GetInstance()->SetFocusedWidget(m_LeaveLobbyConfirmDialog);
 }
 
-bool PC_Lobby::IsStartCountdownActive() const {
-  return GetStartCountdownSeconds() >= 0;
-}
+bool PC_Lobby::IsStartCountdownActive() const { return GetStartCountdownSeconds() >= 0; }
 
 int PC_Lobby::GetStartCountdownSeconds() const {
   if (auto* hostState = const_cast<PC_Lobby*>(this)->FindHostPlayerState()) {
@@ -226,13 +224,13 @@ void PC_Lobby::LeaveLobby() {
     SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
   };
 
-  if (!OnlineSessionManager::Get().IsInLobby()) {
+  if (!OnlinePlayManager::GetInstance().IsInLobby()) {
     returnToMenu();
     return;
   }
 
-  OnlineSessionManager::Get().LeaveLobby([returnToMenu](bool bSuccess) {
-    if (bSuccess) {
+  OnlinePlayManager::GetInstance().LeaveLobby([returnToMenu](const FOnlinePlayResult& Result) {
+    if (Result.Success) {
       returnToMenu();
     }
   });
