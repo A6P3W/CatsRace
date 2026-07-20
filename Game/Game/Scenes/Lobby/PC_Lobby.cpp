@@ -8,6 +8,7 @@
 #include "NetworkManager.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
+#include "Scenes/Common/UI/WControlGuide.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "Scenes/Lobby/UI/WLeaveLobbyConfirmDialog.h"
@@ -30,6 +31,11 @@ void PC_Lobby::BeginPlay() {
     m_LobbyHUD->SetLobbyController(this);
     UIManager::GetInstance()->AddWidget(m_LobbyHUD);
     UIManager::GetInstance()->SetFocusedWidget(m_LobbyHUD);
+
+    ControlGuideWidget = GetWorld()->SpawnActor<WControlGuide>();
+    ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
+    UIManager::GetInstance()->AddWidget(ControlGuideWidget);
+
     // SoundManager 経由で直接再生
     if (auto* sm = GetWorld()->GetSoundManager()) {
       sm->PlaySE("Resources/images/moving-v2.mp3", false);

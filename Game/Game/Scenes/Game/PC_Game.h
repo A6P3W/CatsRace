@@ -7,6 +7,7 @@ class EditorMode;
 class MEnhancedInputComponent;
 class WMainHUD;
 class WCountDown;
+class WControlGuide;
 class WPauseMenu;
 
 class PC_Game : public APlayerController {
@@ -33,6 +34,7 @@ class PC_Game : public APlayerController {
 
   WMainHUD* MainHUD = nullptr;
   WCountDown* CountDownWidget = nullptr;
+  WControlGuide* ControlGuideWidget = nullptr;
   WPauseMenu* PauseMenu = nullptr;
 
   float RaceTime = 0.0f;

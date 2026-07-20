@@ -11,6 +11,7 @@ class AWidgetBase;
 class WCreateLobbyWidget;
 class WMainMenuWidget;
 class WJoinLobbyDialog;
+class WControlGuide;
 class WSearchLobbyWidget;
 
 class AMenuScene : public AGameModeBase {
@@ -66,5 +67,6 @@ class AMenuScene : public AGameModeBase {
   WCreateLobbyWidget* CreateLobbyWidget = nullptr;
   WSearchLobbyWidget* SearchLobbyWidget = nullptr;
   WJoinLobbyDialog* JoinLobbyDialog = nullptr;
+  WControlGuide* ControlGuideWidget = nullptr;
   std::string PendingJoinLobbyId;
 };
