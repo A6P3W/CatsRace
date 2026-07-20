@@ -67,7 +67,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
       ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_5.png");
 
   m_sprite = NewObject<MSpriteComponent>(this);
-  m_sprite->SetRenderSettings(0, RenderSpace::World);
+  m_sprite->SetRenderSettings(50, RenderSpace::World);
   m_sprite->SubmitGraph(m_walkAnimHandles[0]);
   m_sprite->AttachToComponent(GetRootComponent());
   m_sprite->RegisterComponent();
