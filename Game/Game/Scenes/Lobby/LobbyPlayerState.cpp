@@ -29,7 +29,9 @@ ALobbyPlayerState::ALobbyPlayerState() {
   bReplicates = true;
   SelectedLevelPath = GetDefaultLevelPath();
   RegisterReplicatedProperty(&PlayerName);
-  RegisterReplicatedProperty(&SelectedLevelPath);
+  RegisterReplicatedProperty(
+      &SelectedLevelPath, this, &ALobbyPlayerState::OnRepSelectedLevelPath
+  );
   RegisterReplicatedProperty(&MaxPlayers);
   RegisterReplicatedProperty(&bFinished);
   RegisterReplicatedProperty(&FinishTime);
@@ -100,8 +102,9 @@ void ALobbyPlayerState::ApplyPlayerName(const std::string& Name) {
 }
 
 void ALobbyPlayerState::ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers) {
-  SelectedLevelPath =
-      IsAvailableLevelPath(InSelectedLevelPath) ? std::move(InSelectedLevelPath) : GetDefaultLevelPath();
+  SetSelectedMap(
+      IsAvailableLevelPath(InSelectedLevelPath) ? InSelectedLevelPath : GetDefaultLevelPath()
+  );
   MaxPlayers = InMaxPlayers < 1 ? 1 : InMaxPlayers;
   MarkReplicatedStateDirty();
 }
@@ -120,4 +123,46 @@ void ALobbyPlayerState::SetStartCountdownSeconds(int InStartCountdownSeconds) {
 
   StartCountdownSeconds = InStartCountdownSeconds;
   MarkReplicatedStateDirty();
+}
+
+ALobbyPlayerState::FCallbackHandle ALobbyPlayerState::AddOnSelectedMapChanged(
+    FSelectedMapChangedCallback Callback
+) {
+  if (!Callback) {
+    return 0;
+  }
+
+  const FCallbackHandle handle = NextSelectedMapChangedHandle++;
+  SelectedMapChangedCallbacks.emplace(handle, std::move(Callback));
+  return handle;
+}
+
+void ALobbyPlayerState::RemoveOnSelectedMapChanged(FCallbackHandle Handle) {
+  if (Handle != 0) {
+    SelectedMapChangedCallbacks.erase(Handle);
+  }
+}
+
+void ALobbyPlayerState::SetSelectedMap(const std::string& NewLevelPath) {
+  if (SelectedLevelPath == NewLevelPath) {
+    return;
+  }
+
+  SelectedLevelPath = NewLevelPath;
+  BroadcastOnSelectedMapChanged();
+}
+
+void ALobbyPlayerState::OnRepSelectedLevelPath(std::string OldLevelPath) {
+  (void)OldLevelPath;
+  BroadcastOnSelectedMapChanged();
+}
+
+void ALobbyPlayerState::BroadcastOnSelectedMapChanged() {
+  const auto callbacks = SelectedMapChangedCallbacks;
+  for (const auto& [handle, callback] : callbacks) {
+    (void)handle;
+    if (callback) {
+      callback(SelectedLevelPath);
+    }
+  }
 }

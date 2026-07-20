@@ -11,6 +11,7 @@ class ALobbyScene;
 class WLobbyHUD;
 class WLeaveLobbyConfirmDialog;
 class WMapSelectDialog;
+class AMapPreviewActor;
 
 class PC_Lobby : public APlayerController {
  public:
@@ -43,4 +44,5 @@ class PC_Lobby : public APlayerController {
   WLobbyHUD* m_LobbyHUD = nullptr;
   WLeaveLobbyConfirmDialog* m_LeaveLobbyConfirmDialog = nullptr;
   WMapSelectDialog* m_MapSelectDialog = nullptr;
+  AMapPreviewActor* MapPreviewActor = nullptr;
 };
