@@ -12,6 +12,7 @@
 #include "OnlinePlayManager.h"
 #include "PlayerController.h"
 #include "SceneManager.h"
+#include "Scenes/Common/UI/WControlGuide.h"
 #include "Scenes/Menu/UI/MenuWidgets.h"
 #include "UIManager.h"
 #include "World.h"
@@ -39,6 +40,10 @@ void AMenuScene::BeginPlay() {
   if (auto* controller = GetWorld()->GetOrCreateLocalPlayerController()) {
     controller->SetInputMode(EInputMode::UIOnly);
   }
+
+  ControlGuideWidget = SpawnActor<WControlGuide>();
+  ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
+  UIManager::GetInstance()->AddWidget(ControlGuideWidget);
 
   ShowMenuState(EMenuState::MainMenu);
 }

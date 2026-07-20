@@ -10,15 +10,16 @@
 #include "KeyboardDevice.h"
 #include "NetworkManager.h"
 #include "SceneManager.h"
+#include "Scenes/Common/UI/WControlGuide.h"
+#include "Scenes/Game/GameScene2.h"
 #include "Scenes/Game/GameSceneBase.h"
+#include "Scenes/Game/Player.h"
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
 #include "SoundManager.h"
 #include "UIManager.h"
 #include "World.h"
-#include "Scenes/Game/Player.h"
-#include "Scenes/Game/GameScene2.h"
 REGISTER_ACTOR(PC_Game)
 
 PC_Game::PC_Game() { SetUpdateableAnytime(true); }
@@ -33,6 +34,10 @@ void PC_Game::BeginPlay() {
     CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
     CountDownWidget->SetCountText(std::to_string(m_CountDown));
     UIManager::GetInstance()->AddWidget(CountDownWidget);
+
+    ControlGuideWidget = GetWorld()->SpawnActor<WControlGuide>();
+    ControlGuideWidget->SetGuideMode(EControlGuideMode::Game);
+    UIManager::GetInstance()->AddWidget(ControlGuideWidget);
 
     SetInputMode(EInputMode::UIOnly);
 
@@ -110,6 +115,9 @@ void PC_Game::TogglePause() {
     UIManager::GetInstance()->SetFocusedWidget(PauseMenu);
 
     SetInputMode(EInputMode::UIOnly);
+    if (ControlGuideWidget) {
+      ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
+    }
   } else {
     bPaused = false;
 
@@ -119,6 +127,9 @@ void PC_Game::TogglePause() {
     }
 
     SetInputMode(EInputMode::GameOnly);
+    if (ControlGuideWidget) {
+      ControlGuideWidget->SetGuideMode(EControlGuideMode::Game);
+    }
   }
 }
 
@@ -127,15 +138,11 @@ void PC_Game::RestartGame() {
   GetWorld()->ServerTravel(SM.GetCurrentLevelPath());
 }
 
-void PC_Game::ReturnToLobby() {
-  GetWorld()->ServerTravel(GameSceneIds::Lobby);
-}
+void PC_Game::ReturnToLobby() { GetWorld()->ServerTravel(GameSceneIds::Lobby); }
 
 void PC_Game::LeaveSession() {
-
-    NetworkManager::GetInstance().Disconnect();
-    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
-
+  NetworkManager::GetInstance().Disconnect();
+  SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu, ENetMode::Standalone);
 }
 
 void PC_Game::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) {
