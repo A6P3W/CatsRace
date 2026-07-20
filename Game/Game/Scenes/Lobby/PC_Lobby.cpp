@@ -34,7 +34,6 @@ void PC_Lobby::BeginPlay() {
     if (auto* sm = GetWorld()->GetSoundManager()) {
       sm->PlaySE("Resources/images/moving-v2.mp3", false);
     }
-
   }
 }
 

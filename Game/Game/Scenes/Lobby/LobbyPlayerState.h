@@ -1,12 +1,18 @@
 ﻿#pragma once
 
+#include <cstddef>
+#include <functional>
 #include <string>
+#include <unordered_map>
 
 #include "Actor.h"
 
 class ALobbyPlayerState : public AActor {
  public:
   DEFINE_ACTOR_CLASS(ALobbyPlayerState)
+
+  using FCallbackHandle = size_t;
+  using FSelectedMapChangedCallback = std::function<void(const std::string&)>;
 
   ALobbyPlayerState();
   ALobbyPlayerState(const FVector2D& Location, FRotator Rotation);
@@ -15,6 +21,9 @@ class ALobbyPlayerState : public AActor {
   void SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers);
   void SetFinishResult(bool bInFinished, float InFinishTime);
   void SetStartCountdownSeconds(int InStartCountdownSeconds);
+
+  FCallbackHandle AddOnSelectedMapChanged(FSelectedMapChangedCallback Callback);
+  void RemoveOnSelectedMapChanged(FCallbackHandle Handle);
 
   const std::string& GetPlayerName() const { return PlayerName; }
   const std::string& GetSelectedLevelPath() const { return SelectedLevelPath; }
@@ -28,6 +37,9 @@ class ALobbyPlayerState : public AActor {
   void ApplyPlayerName(const std::string& Name);
   void ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers);
   void ApplyFinishResult(bool bInFinished, float InFinishTime);
+  void SetSelectedMap(const std::string& NewLevelPath);
+  void OnRepSelectedLevelPath(std::string OldLevelPath);
+  void BroadcastOnSelectedMapChanged();
 
   std::string PlayerName = "Player";
   std::string SelectedLevelPath;
@@ -35,4 +47,6 @@ class ALobbyPlayerState : public AActor {
   bool bFinished = false;
   float FinishTime = 0.0f;
   int StartCountdownSeconds = -1;
+  FCallbackHandle NextSelectedMapChangedHandle = 1;
+  std::unordered_map<FCallbackHandle, FSelectedMapChangedCallback> SelectedMapChangedCallbacks;
 };

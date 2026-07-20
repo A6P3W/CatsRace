@@ -30,6 +30,7 @@
     <ClCompile Include="Game\Scenes\Clear\ClearScene.cpp" />
     <ClCompile Include="Game\Scenes\Clear\PC_Clear.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\LobbyPlayerState.cpp" />
+    <ClCompile Include="Game\Scenes\Lobby\MapPreviewActor.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\PC_Lobby.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\LobbyScene.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\UI\WLobbyHUD.cpp" />
@@ -74,6 +75,7 @@
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
     <ClInclude Include="Game\Scenes\Clear\PC_Clear.h" />
     <ClInclude Include="Game\Scenes\Lobby\LobbyPlayerState.h" />
+    <ClInclude Include="Game\Scenes\Lobby\MapPreviewActor.h" />
     <ClInclude Include="Game\Scenes\Lobby\PC_Lobby.h" />
     <ClInclude Include="Game\Scenes\Lobby\LobbyScene.h" />
     <ClInclude Include="Game\Scenes\Lobby\UI\WLobbyHUD.h" />
