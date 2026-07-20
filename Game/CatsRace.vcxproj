@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -42,6 +42,9 @@
     <ClCompile Include="Game\Scenes\Game\GameScene01.cpp" />
     <ClCompile Include="Game\Scenes\Game\Player.cpp" />
     <ClCompile Include="Game\Objects\SampleA.cpp" />
+    <ClCompile Include="Game\Objects\Inflow.cpp" />
+    <ClCompile Include="Game\Objects\InflowMove.cpp" />
+    <ClCompile Include="Game\Objects\InflowMoveSpawner.cpp" />
     <ClCompile Include="Game\Scenes\Game\Goal.cpp" />
     <ClCompile Include="Game\Objects\Items\SpeedUpItem.cpp" />
     <ClCompile Include="Game\Scenes\Loading\LoadingScene.cpp" />
@@ -86,6 +89,9 @@
     <ClInclude Include="Game\Objects\MyGameInstance.h" />
     <ClInclude Include="Game\Scenes\Game\Player.h" />
     <ClInclude Include="Game\Objects\SampleA.h" />
+    <ClInclude Include="Game\Objects\Inflow.h" />
+    <ClInclude Include="Game\Objects\InflowMove.h" />
+    <ClInclude Include="Game\Objects\InflowMoveSpawner.h" />
     <ClInclude Include="Game\Scenes\Game\Goal.h" />
     <ClInclude Include="Game\Objects\Items\SpeedUpItem.h" />
     <ClInclude Include="Game\Scenes\Loading\LoadingScene.h" />
