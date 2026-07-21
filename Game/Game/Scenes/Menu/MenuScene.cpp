@@ -108,6 +108,9 @@ void AMenuScene::ShowMenuState(EMenuState NewState) {
         LobbyName = std::string(PlayerName) + "'s Lobby";
       };
       MainMenuWidget->OnCreateLobby = [this]() { ShowMenuState(EMenuState::OnlinePlay); };
+      MainMenuWidget->OnPractice = []() {
+        SceneManager::GetInstance().OpenLevelById(GameSceneIds::Practice);
+      };
       MainMenuWidget->OnQuitGame = []() { Application::QuitGame(); };
       ActiveWidget = MainMenuWidget;
       break;

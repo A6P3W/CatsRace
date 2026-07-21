@@ -23,6 +23,7 @@
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
+#include "Scenes/Practice/PracticeGameMode.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "SpriteComponent.h"
@@ -485,6 +486,10 @@ void APlayer::EndOverlap(AActor* OtherActor) {
 }
 
 void APlayer::BeginPlay() {
+  if (dynamic_cast<APracticeGameMode*>(GetWorld()->GetGameMode())) {
+    SetCanMove(true);
+  }
+
   if (bIsLocallyControlled) {
     m_sound = NewObject<MSoundComponent>(this);
     m_sound->RegisterComponent();

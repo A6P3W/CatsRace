@@ -23,6 +23,7 @@ class WMainMenuWidget : public AWidgetBase {
 
   std::function<void()> OnCreateLobby;
   std::function<void()> OnSearchLobby;
+  std::function<void()> OnPractice;
   std::function<void()> OnQuitGame;
   std::function<void(const std::string&)> OnUserNameChanged;
 
@@ -33,6 +34,7 @@ class WMainMenuWidget : public AWidgetBase {
   MUIVerticalBoxComponent* ButtonList = nullptr;
   UIBoxButtonComponent* CreateLobbyButton = nullptr;
   UIBoxButtonComponent* SearchLobbyButton = nullptr;
+  UIBoxButtonComponent* PracticeButton = nullptr;
   UIInputTextComponent* UserNameInput = nullptr;
   UIBoxButtonComponent* QuitGameButton = nullptr;
   UITextComponent* StatusText = nullptr;

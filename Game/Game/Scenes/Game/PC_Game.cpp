@@ -17,6 +17,7 @@
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
+#include "Scenes/Practice/PracticeGameMode.h"
 #include "SoundManager.h"
 #include "UIManager.h"
 #include "World.h"
@@ -31,17 +32,25 @@ void PC_Game::BeginPlay() {
     MainHUD = GetWorld()->SpawnActor<WMainHUD>();
     UIManager::GetInstance()->AddWidget(MainHUD);
 
-    CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
-    CountDownWidget->SetCountText(std::to_string(m_CountDown));
-    UIManager::GetInstance()->AddWidget(CountDownWidget);
+    if (dynamic_cast<APracticeGameMode*>(GetWorld()->GetGameMode())) {
+      RaceRunning = true;
+      SetInputMode(EInputMode::GameOnly);
+      if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
+        player->SetCanMove(true);
+      }
+    } else {
+      CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
+      CountDownWidget->SetCountText(std::to_string(m_CountDown));
+      UIManager::GetInstance()->AddWidget(CountDownWidget);
+
+      SetInputMode(EInputMode::UIOnly);
+
+      GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::RaceCountDown, 1.0f, true, 1.0f);
+    }
 
     ControlGuideWidget = GetWorld()->SpawnActor<WControlGuide>();
     ControlGuideWidget->SetGuideMode(EControlGuideMode::Game);
     UIManager::GetInstance()->AddWidget(ControlGuideWidget);
-
-    SetInputMode(EInputMode::UIOnly);
-
-    GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::RaceCountDown, 1.0f, true, 1.0f);
   }
 }
 
@@ -108,7 +117,11 @@ void PC_Game::TogglePause() {
     PauseMenu = GetWorld()->SpawnActor<WPauseMenu>();
     PauseMenu->OnResumePressed = [this]() { TogglePause(); };
     PauseMenu->OnRestartPressed = [this]() { RestartGame(); };
-    PauseMenu->OnTitlePressed = [this]() { ReturnToLobby(); };
+    if (dynamic_cast<APracticeGameMode*>(GetWorld()->GetGameMode())) {
+      PauseMenu->OnTitlePressed = [this]() { LeaveSession(); };
+    } else {
+      PauseMenu->OnTitlePressed = [this]() { ReturnToLobby(); };
+    }
     PauseMenu->OnLeavePressed = [this]() { LeaveSession(); };
 
     UIManager::GetInstance()->AddWidget(PauseMenu);
