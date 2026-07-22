@@ -26,11 +26,12 @@ struct FLevelRegistration {
 
 constexpr const char* LevelsArchiveFileName = "Levels.zip";
 
-constexpr std::array<FLevelRegistration, 4> LevelRegistrations = {{
+constexpr std::array<FLevelRegistration, 5> LevelRegistrations = {{
     {"Resources-EOS/Stage1/Stage1.BLevel", GameSceneIds::Game01},
     {"Resources-EOS/Stage2/Stage2.BLevel", GameSceneIds::Game02},
     {"Resources-EOS/Stage3/Stage3.BLevel", GameSceneIds::Game03},
     {"Resources-EOS/Lobby/LobbyScene.BLevel", GameSceneIds::Lobby},
+    {"Resources-EOS/Practice/PracticeScene.BLevel", GameSceneIds::Practice},
 }};
 
 constexpr float QuitDelaySeconds = 5.0f;
