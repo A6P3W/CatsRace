@@ -23,11 +23,7 @@ void SetupGame() {
   SM.SetGameInstance<GI_main>();
   SM.RegisterLevelPath(GameSceneIds::Loading, "Resources/LoadingScene.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Menu, "Resources/MenuScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Lobby, "Resources/LobbyScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Game01, "Resources/GameScene01.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Game02, "Resources/GameScene02.BLevel");
   SM.RegisterLevelPath(GameSceneIds::Clear, "Resources/ClearScene.BLevel");
-  SM.RegisterLevelPath(GameSceneIds::Game2, "Resources/GameScene2.BLevel");
   SM.SetStartupLevelPath("Resources/LoadingScene.BLevel");
   SetMouseDispFlag(1);
 }
