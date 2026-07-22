@@ -12,10 +12,15 @@ class ALoadingScene : public AGameModeBase {
 
   ALoadingScene();
   void BeginPlay() override;
+  void OnUpdate(float DeltaTime) override;
 
  private:
+  void StartLevelDownload();
+  void FailAndQuit(const std::string& Message);
   void SetStatusMessage(const std::string& Message);
 
   UITextComponent* StatusText = nullptr;
   char PlayerName[64] = "";
+  float QuitCountdown = -1.0f;
+  bool bFailed = false;
 };

@@ -2,18 +2,40 @@
 
 #include <DxLib.h>
 
+#include <array>
 #include <cstring>
 #include <memory>
 #include <string>
 
+#include "Application.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "EOSTitleStorageManager.h"
 #include "OnlinePlayManager.h"
 #include "PlayerController.h"
 #include "SceneManager.h"
 #include "SpriteComponent.h"
 #include "UITextComponent.h"
 #include "World.h"
+
+namespace {
+struct FLevelRegistration {
+  const char* LocalPath;
+  FNetworkSceneId SceneId;
+};
+
+constexpr const char* LevelsArchiveFileName = "Levels.zip";
+
+constexpr std::array<FLevelRegistration, 5> LevelRegistrations = {{
+    {"Resources-EOS/Stage1/Stage1.BLevel", GameSceneIds::Game01},
+    {"Resources-EOS/Stage2/Stage2.BLevel", GameSceneIds::Game02},
+    {"Resources-EOS/Stage3/Stage3.BLevel", GameSceneIds::Game03},
+    {"Resources-EOS/Lobby/LobbyScene.BLevel", GameSceneIds::Lobby},
+    {"Resources-EOS/Practice/PracticeScene.BLevel", GameSceneIds::Practice},
+}};
+
+constexpr float QuitDelaySeconds = 5.0f;
+}  // namespace
 
 REGISTER_GAME_MODE(ALoadingScene)
 
@@ -61,23 +83,68 @@ void ALoadingScene::BeginPlay() {
 
   OnlinePlayManager& onlinePlay = OnlinePlayManager::GetInstance();
   if (!onlinePlay.IsEOSInitialized()) {
-    SetStatusMessage("Online services are not initialized.");
+    FailAndQuit("ログイン失敗。5秒後にゲームを終了します。");
     return;
   }
 
   if (onlinePlay.IsLoggedIn()) {
-    SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
+    StartLevelDownload();
     return;
   }
 
-  SetStatusMessage("Logging in...");
+  SetStatusMessage("ログイン中...");
   onlinePlay.Login(PlayerName, [this](const FOnlinePlayResult& Result) {
     if (Result.Success) {
-      SceneManager::GetInstance().OpenLevelById(GameSceneIds::Menu);
+      StartLevelDownload();
     } else {
-      SetStatusMessage(Result.Message);
+      FailAndQuit("ログイン失敗。5秒後にゲームを終了します。");
     }
   });
+}
+
+void ALoadingScene::OnUpdate(float DeltaTime) {
+  AGameModeBase::OnUpdate(DeltaTime);
+  if (!bFailed) {
+    return;
+  }
+
+  QuitCountdown -= DeltaTime;
+  if (QuitCountdown <= 0.0f) {
+    bFailed = false;
+    Application::QuitGame();
+  }
+}
+
+void ALoadingScene::StartLevelDownload() {
+  SetStatusMessage("ゲームレベルをロード中...");
+
+  EOSTitleStorageManager::GetInstance().Download(
+      LevelsArchiveFileName, [this](const FTitleStorageDownloadResult& Result) {
+        if (bFailed) {
+          return;
+        }
+        if (!Result.Success) {
+          FailAndQuit("レベルロード失敗。5秒後にゲームを終了します。");
+          return;
+        }
+
+        SceneManager& SceneManagerInstance = SceneManager::GetInstance();
+        for (const FLevelRegistration& Level : LevelRegistrations) {
+          SceneManagerInstance.RegisterLevelPath(Level.SceneId, Level.LocalPath);
+        }
+        SetStatusMessage("ゲームレベルのロードが完了しました。");
+        SceneManagerInstance.OpenLevelById(GameSceneIds::Menu);
+      }
+  );
+}
+
+void ALoadingScene::FailAndQuit(const std::string& Message) {
+  if (bFailed) {
+    return;
+  }
+  bFailed = true;
+  QuitCountdown = QuitDelaySeconds;
+  SetStatusMessage(Message);
 }
 
 void ALoadingScene::SetStatusMessage(const std::string& Message) {

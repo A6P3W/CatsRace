@@ -105,6 +105,7 @@ WMainMenuWidget::WMainMenuWidget() {
   ButtonList->RegisterComponent();
 
   CreateLobbyButton = AddButton(this, ButtonList, "OnlinePlay");
+  PracticeButton = AddButton(this, ButtonList, "Practice");
 
   UserNameInput = NewObject<UIInputTextComponent>(this);
   UserNameInput->SetSize(InputBoxWidth, PlayerNameInputHeight);
@@ -149,6 +150,11 @@ void WMainMenuWidget::BeginPlay() {
   CreateLobbyButton->SetOnPressed([this]() {
     if (OnCreateLobby) {
       OnCreateLobby();
+    }
+  });
+  PracticeButton->SetOnPressed([this]() {
+    if (OnPractice) {
+      OnPractice();
     }
   });
   QuitGameButton->SetOnPressed([this]() {

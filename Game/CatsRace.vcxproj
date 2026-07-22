@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -37,6 +37,7 @@
     <ClCompile Include="Game\Scenes\Lobby\UI\WLeaveLobbyConfirmDialog.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\UI\WMapSelectDialog.cpp" />
     <ClCompile Include="Game\Scenes\Menu\MenuScene.cpp" />
+    <ClCompile Include="Game\Scenes\Practice\PracticeGameMode.cpp" />
     <ClCompile Include="Game\Scenes\Common\ImGuiHelper.cpp" />
     <ClCompile Include="Game\Core\GameMain.cpp" />
     <ClCompile Include="Game\Scenes\Game\GameSceneBase.cpp" />
@@ -83,6 +84,7 @@
     <ClInclude Include="Game\Scenes\Lobby\UI\WLeaveLobbyConfirmDialog.h" />
     <ClInclude Include="Game\Scenes\Lobby\UI\WMapSelectDialog.h" />
     <ClInclude Include="Game\Scenes\Menu\MenuScene.h" />
+    <ClInclude Include="Game\Scenes\Practice\PracticeGameMode.h" />
     <ClInclude Include="Game\Scenes\Common\ImGuiHelper.h" />
     <ClInclude Include="Game\Core\GameSceneIds.h" />
     <ClInclude Include="Game\Core\MapData.h" />
