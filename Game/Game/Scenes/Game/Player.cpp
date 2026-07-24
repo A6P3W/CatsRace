@@ -46,6 +46,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&CanMove);
   RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterReplicatedProperty(&m_PlayerName);
+  RegisterReplicatedProperty(&m_currentLap);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
@@ -496,7 +497,7 @@ void APlayer::BeginPlay() {
       int bgmHandle = sm->PlaySE("Resources/images/Neon_Velocity_3.mp3", true);
 
       if (bgmHandle != -1) {
-        sm->SetVolume(bgmHandle, 0.4f);
+        sm->SetVolume(bgmHandle, 0.3f);
       }
     }
   }
@@ -882,7 +883,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   m_lastPassedCheckpoint = -1;
   m_currentLap++;
   m_lapLineCooldown = 5.0f;
-
+  MarkReplicatedStateDirty();
   InvokeRPC(
       RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
   );
