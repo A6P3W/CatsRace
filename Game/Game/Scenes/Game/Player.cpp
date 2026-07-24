@@ -33,7 +33,8 @@ enum : FNetworkRPCId {
   RPC_ServerNotifyGoal = 2,
   RPC_ServerUseHeldItem = 3,
   RPC_ServerSyncDriftState = 4,
-  RPC_MulticastUpdateLap = 5
+  RPC_MulticastUpdateLap = 5,
+
 };
 }
 
@@ -52,7 +53,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
   RegisterRPC(RPC_ServerSyncDriftState, ENetRPCType::Server, this, &APlayer::Server_SyncDriftState);
   RegisterRPC(RPC_MulticastUpdateLap, ENetRPCType::Multicast, this, &APlayer::Multicast_UpdateLap);
-
   SetActorLocation(location);
   SetActorRotation(rotation);
   m_PlayerNameFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
@@ -817,22 +817,23 @@ void APlayer::GrantHeldItem() {
 }
 void APlayer::UseHeldItem() {
   M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
-  if (!bIsLocallyControlled) {
+
+  // 自身が操作していないプレイヤー、またはアイテムを所持していない場合は何もしない
+  if (!bIsLocallyControlled || !m_hasHeldItem) {
     return;
   }
-  if (!m_hasHeldItem) {
-    return;
-  }
-  if (!bIsLocallyControlled) {
-    return;
-  }
-  if (!m_hasHeldItem) {
-    return;
-  }
+
   if (bHasAuthority) {
+
     Server_UseHeldItem();
   } else {
+
     m_hasHeldItem = false;
+
+
+    ApplyHeldItemEffect();
+
+
     InvokeRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, ENetPacketReliability::Reliable);
   }
 }
@@ -850,11 +851,11 @@ void APlayer::ApplyHeldItemEffect() {
   }
   ApplyFOVEffect(0.7f, 2.0f, true);
   if (m_sound) {
-    m_sound->PlaySE("images/somekinoko", false);
+    // 拾った時に鳴らしていたSEを指定
+    m_sound->PlaySE("Resources/images/cat2d.mp3", false);
   }
   M_LOG("Held item used: speed boost applied");
 }
-
 void APlayer::RemoveSlowSource(ASlowFloor2* source) { m_slowSources.erase(source); }
 
 void APlayer::AddSlowSource(ASlowFloor2* source, float strength) {
