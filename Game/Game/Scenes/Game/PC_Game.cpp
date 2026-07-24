@@ -64,18 +64,14 @@ void PC_Game::OnUpdate(float DeltaTime) {
         MainHUD->UpdateTimerText(RaceTime);
       }
     }
-
-    // LAP表示はRaceRunning関係なく毎フレーム更新
+   
     if (MainHUD) {
       if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
         MainHUD->SetHeldItemVisible(player->HasHeldItem());
 
-        if (dynamic_cast<AGameScene2*>(GetWorld()->GetGameMode())) {
-          MainHUD->SetLapVisible(true);
-          MainHUD->UpdateLapText(player->GetCurrentLap(), 3);
-        } else {
-          MainHUD->SetLapVisible(false);
-        }
+   
+        MainHUD->SetLapVisible(true);
+        MainHUD->UpdateLapText(player->GetCurrentLap(), 3);
       }
     }
   }
