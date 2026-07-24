@@ -25,10 +25,7 @@
 #include "World.h"
 
 namespace {
-enum : FNetworkRPCId {
-  RPC_ServerSubmitLocalResult = 1,
-  RPC_ClientPostWinningScore = 2
-};
+enum : FNetworkRPCId { RPC_ServerSubmitLocalResult = 1 };
 
 std::string GetReplayLevelPath() {
   auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
@@ -48,12 +45,6 @@ PC_Clear::PC_Clear() {
       ENetRPCType::Server,
       this,
       &PC_Clear::Server_SubmitLocalResult
-  );
-  RegisterRPC(
-      RPC_ClientPostWinningScore,
-      ENetRPCType::Client,
-      this,
-      &PC_Clear::Client_PostWinningScore
   );
 }
 
@@ -93,10 +84,6 @@ void PC_Clear::BeginPlay() {
 }
 
 void PC_Clear::OnUpdate(float DeltaTime) {
-  if (GetWorld() && GetWorld()->IsServer()) {
-    NotifyWinningDeviceIfNeeded();
-  }
-
   if (bIsLocallyControlled) {
     if (MEnhancedInputComponent* input = GetInputComponent()) {
       if (InputMapper* mapper = GetInputMapper()) {
@@ -123,13 +110,20 @@ void PC_Clear::OnUpdate(float DeltaTime) {
   RefreshMultiplayerResults();
 }
 
-void PC_Clear::ExecutePostScore(const std::string& name, float score) {
+void PC_Clear::ExecutePostScore(const std::string& name) {
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   if (!gi) return;
 
   std::string map_id = gi->map_id;
   auto* LBM = GetWorld()->SpawnActor<LeaderBoardManager>();
-  LBM->PostScore(map_id, name, score);
+  LBM->PostScore(map_id, name, [this](bool bSuccess) {
+    if (!bSuccess) {
+      if (m_ClearHUD) {
+        m_ClearHUD->SetErrorText("Failed to Post Score");
+      }
+    }
+    FetchAndDisplay();
+  });
 }
 
 void PC_Clear::FetchAndDisplay() {
@@ -251,34 +245,6 @@ void PC_Clear::RefreshMultiplayerResults() {
     m_LastResultSignature = nextSignature;
     m_ClearHUD->SetMultiplayerResults(results);
   }
-}
-
-void PC_Clear::NotifyWinningDeviceIfNeeded() {
-  if (m_bWinnerNotified || !GetWorld() || !GetWorld()->IsServer()) {
-    return;
-  }
-
-  const auto states = GetResultStates();
-  if (states.empty() || !states.front() || !states.front()->IsFinished()) {
-    return;
-  }
-
-  const ALobbyPlayerState* winner = states.front();
-  if (winner->OwnerConnectionId != OwnerConnectionId) {
-    return;
-  }
-
-  m_bWinnerNotified = InvokeRPC(
-      RPC_ClientPostWinningScore,
-      ENetRPCType::Client,
-      ENetPacketReliability::Reliable,
-      winner->GetPlayerName(),
-      winner->GetFinishTime()
-  );
-}
-
-void PC_Clear::Client_PostWinningScore(std::string PlayerName, float FinishTime) {
-  ExecutePostScore(PlayerName, FinishTime);
 }
 
 void PC_Clear::SubmitLocalResultToServerIfNeeded() {
