@@ -13,6 +13,10 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Game" PREFIX "Game" FILES ${GAME_
 
 add_executable(Game WIN32 ${GAME_SOURCES})
 
+target_compile_definitions(Game PRIVATE
+  $<$<CONFIG:Release>:_RELEASE>
+)
+
 
 # インクルードパスの設定
 target_include_directories(Game PRIVATE

@@ -27,6 +27,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Actors\Gimmicks\DirectionalForceFieldActor.cpp" />
+    <ClCompile Include="Game\Actors\Gimmicks\RotatingBarActor.cpp" />
     <ClCompile Include="Game\Scenes\Clear\ClearScene.cpp" />
     <ClCompile Include="Game\Scenes\Clear\PC_Clear.cpp" />
     <ClCompile Include="Game\Scenes\Lobby\LobbyPlayerState.cpp" />
@@ -74,6 +76,9 @@
     <ClCompile Include="Game\Scenes\Game\GameScene2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Actors\Gimmicks\DirectionalForceFieldActor.h" />
+    <ClInclude Include="Game\Actors\Gimmicks\PulsingPushForceFieldActor.h" />
+    <ClInclude Include="Game\Actors\Gimmicks\RotatingBarActor.h" />
     <ClInclude Include="Game\Scenes\Clear\ClearScene.h" />
     <ClInclude Include="Game\Scenes\Clear\PC_Clear.h" />
     <ClInclude Include="Game\Scenes\Lobby\LobbyPlayerState.h" />
@@ -274,7 +279,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_RELEASE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -330,7 +335,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_RELEASE;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
