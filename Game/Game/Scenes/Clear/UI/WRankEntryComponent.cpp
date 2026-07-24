@@ -98,7 +98,6 @@ void WRankEntryComponent::OnRegister() {
 
     m_SpriteComponent = NewObject<MSpriteComponent>(owner);
     m_SpriteComponent->SetRenderSettings(GetFinalPriority(), RenderSpace::Screen);
-    m_SpriteComponent->SetRelativeLocation({-width * 0.5f, -height * 0.5f});
     m_SpriteComponent->SubmitBox(
         width, height, FColor{boxColor.R, boxColor.G, boxColor.B, 96}, true
     );
