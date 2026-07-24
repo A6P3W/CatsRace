@@ -55,6 +55,7 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
       m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
     }
   }
+
 }
 
 void AGameSceneBase::BeginPlay() {
