@@ -16,6 +16,7 @@ class ALoadingScene : public AGameModeBase {
 
  private:
   void StartLevelDownload();
+  void CompleteLevelLoading();
   void FailAndQuit(const std::string& Message);
   void SetStatusMessage(const std::string& Message);
 

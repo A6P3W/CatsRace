@@ -15,7 +15,7 @@ AInflow::AInflow() {
 
   if (auto* ForceField = GetForceFieldComponent()) {
     ForceField->SetForceType(EForceFieldType::Point);
-    ForceField->SetStrength(-2.5f);
+    ForceField->SetStrength(-1.5f);
     ForceField->SetActive(true);
   }
 

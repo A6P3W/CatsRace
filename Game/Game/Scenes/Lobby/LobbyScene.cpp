@@ -178,10 +178,10 @@ void ALobbyScene::StartGame() {
     return;
   }
   PendingStartLevelPath = SelectedLevelPath;
-  StartCountdownRemaining = 5.0f;
-  LastPublishedCountdownSeconds = 5;
+  StartCountdownRemaining = 3.0f;
+  LastPublishedCountdownSeconds = 3;
   if (auto* hostState = FindHostPlayerState()) {
-    hostState->SetStartCountdownSeconds(5);
+    hostState->SetStartCountdownSeconds(3);
   }
   if (OnlinePlayManager::GetInstance().IsInLobby()) {
     EOSLobbyManager::GetInstance().UpdateCurrentLobbyAttributes(

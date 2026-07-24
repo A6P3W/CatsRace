@@ -13,7 +13,7 @@
 WMapSelectDialog::WMapSelectDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
-  m_BgPanel->SetRelativeLocation({960.0f - 300.0f, 540.0f - 210.0f});
+  m_BgPanel->SetRelativeLocation({960.0f, 540.0f});
   m_BgPanel->SubmitBox(600, 420, FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 

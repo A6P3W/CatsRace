@@ -11,6 +11,7 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EOSTitleStorageManager.h"
+#include "EngineDefine.h"
 #include "OnlinePlayManager.h"
 #include "PlayerController.h"
 #include "SceneManager.h"
@@ -118,24 +119,33 @@ void ALoadingScene::OnUpdate(float DeltaTime) {
 void ALoadingScene::StartLevelDownload() {
   SetStatusMessage("ゲームレベルをロード中...");
 
-  EOSTitleStorageManager::GetInstance().Download(
-      LevelsArchiveFileName, [this](const FTitleStorageDownloadResult& Result) {
-        if (bFailed) {
-          return;
-        }
-        if (!Result.Success) {
-          FailAndQuit("レベルロード失敗。5秒後にゲームを終了します。");
-          return;
-        }
+  if constexpr (IsRelease) {
+    EOSTitleStorageManager::GetInstance().Download(
+        LevelsArchiveFileName, [this](const FTitleStorageDownloadResult& Result) {
+          if (bFailed) {
+            return;
+          }
+          if (!Result.Success) {
+            FailAndQuit("レベルロード失敗。5秒後にゲームを終了します。");
+            return;
+          }
 
-        SceneManager& SceneManagerInstance = SceneManager::GetInstance();
-        for (const FLevelRegistration& Level : LevelRegistrations) {
-          SceneManagerInstance.RegisterLevelPath(Level.SceneId, Level.LocalPath);
+          CompleteLevelLoading();
         }
-        SetStatusMessage("ゲームレベルのロードが完了しました。");
-        SceneManagerInstance.OpenLevelById(GameSceneIds::Menu);
-      }
-  );
+    );
+    return;
+  }
+
+  CompleteLevelLoading();
+}
+
+void ALoadingScene::CompleteLevelLoading() {
+  SceneManager& SceneManagerInstance = SceneManager::GetInstance();
+  for (const FLevelRegistration& Level : LevelRegistrations) {
+    SceneManagerInstance.RegisterLevelPath(Level.SceneId, Level.LocalPath);
+  }
+  SetStatusMessage("ゲームレベルのロードが完了しました。");
+  SceneManagerInstance.OpenLevelById(GameSceneIds::Menu);
 }
 
 void ALoadingScene::FailAndQuit(const std::string& Message) {
