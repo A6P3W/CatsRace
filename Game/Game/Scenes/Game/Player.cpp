@@ -891,7 +891,12 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
 }
 void APlayer::Multicast_UpdateLap(int newLap) {
   m_currentLap = std::min(newLap, TotalLaps);
-  M_LOG("Lap updated to {} (multicast)", m_currentLap);
+  M_LOG(
+      "Multicast_UpdateLap received: lap={}, isLocal={}, hasAuthority={}",
+      m_currentLap,
+      bIsLocallyControlled,
+      bHasAuthority
+  );
 }
 //{
 //	if (Scale > 0) {

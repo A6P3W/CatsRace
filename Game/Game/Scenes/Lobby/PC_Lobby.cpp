@@ -36,9 +36,14 @@ void PC_Lobby::BeginPlay() {
     ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
     UIManager::GetInstance()->AddWidget(ControlGuideWidget);
 
-    // SoundManager 経由で直接再生
-    if (auto* sm = GetWorld()->GetSoundManager()) {
-      sm->PlaySE("Resources/images/moving-v2.mp3", false);
+ if (auto* sm = GetWorld()->GetSoundManager()) {
+      // PlaySE (または PlayBGM) は再生中のハンドル(int)を返します
+      int bgmHandle = sm->PlaySE("Resources/images/Time_to_change_2.mp3", true);
+
+
+      if (bgmHandle != -1) {
+        sm->SetVolume(bgmHandle, 0.2f);
+      }
     }
   }
 }
