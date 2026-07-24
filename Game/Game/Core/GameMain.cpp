@@ -18,7 +18,7 @@
 #include "Scenes/Menu/MenuScene.h"
 void SetupGame() {
   EOSCoreManager::GetInstance().InitializeOnlineServices();
-  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::EOSP2P);
+  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::ENet);
   auto& SM = SceneManager::GetInstance();
   SM.SetGameInstance<GI_main>();
   SM.RegisterLevelPath(GameSceneIds::Loading, "Resources/LoadingScene.BLevel");
