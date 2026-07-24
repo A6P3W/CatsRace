@@ -15,7 +15,7 @@ constexpr float ButtonHeight = 48.0f;
 WLeaveLobbyConfirmDialog::WLeaveLobbyConfirmDialog() {
   m_BgPanel = NewObject<MSpriteComponent>(this);
   m_BgPanel->SetRenderSettings(0, RenderSpace::Screen);
-  m_BgPanel->SetRelativeLocation({960.0f - PanelWidth * 0.5f, 540.0f - PanelHeight * 0.5f});
+  m_BgPanel->SetRelativeLocation({960.0f, 540.0f});
   m_BgPanel->SubmitBox(static_cast<int>(PanelWidth), static_cast<int>(PanelHeight), FColor{15, 15, 20, 220}, true);
   m_BgPanel->RegisterComponent();
 

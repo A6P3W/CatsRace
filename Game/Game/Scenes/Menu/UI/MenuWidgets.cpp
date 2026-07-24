@@ -179,11 +179,11 @@ void WMainMenuWidget::SetStatusText(const std::string& Text) {
 WCreateLobbyWidget::WCreateLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Create Lobby");
-  titleText->SetColor(FColor{255, 255, 255});
+  titleText->SetColor(FColor{0, 0, 0});
   titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleLeft);
   titleText->SetPivot({0.5f, 0.5f});
-  titleText->SetAnchoredPosition({430.0f, 20.0f});
+  titleText->SetAnchoredPosition({430.0f, -30.0f});
   titleText->RegisterComponent();
 
   ControlList = NewObject<MUIVerticalBoxComponent>(this);
@@ -282,7 +282,7 @@ void WCreateLobbyWidget::SetStatusText(const std::string& Text) {
 WSearchLobbyWidget::WSearchLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Lobbies");
-  titleText->SetColor(FColor{255, 255, 255});
+  titleText->SetColor(FColor{0, 0, 0});
   titleText->SetFontSize(32);
   titleText->SetAnchor(EUIAnchor::MiddleRight);
   titleText->SetPivot({0.5f, 0.5f});
@@ -298,7 +298,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
 
   EmptyText = NewObject<UITextComponent>(this);
   EmptyText->SetText("No lobby search results.");
-  EmptyText->SetColor(FColor{136, 149, 166});
+  EmptyText->SetColor(FColor{0, 0, 0});
   EmptyText->SetFontSize(20);
   EmptyText->SetPivot({0.5f, 0.5f});
   ResultList->AddItem(EmptyText);
