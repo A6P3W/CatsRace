@@ -75,7 +75,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
 
   SetActorScale(FScale(0.4f));
   auto* col = NewObject<MCircleCollisionComponent>(this);
-  col->SetRadius(32.0f);
+  col->SetRadius(52.0f);
   col->AttachToComponent(GetRootComponent());
   col->SetCollisionType(ECollisionType::Block);
   col->SetStatic(false);

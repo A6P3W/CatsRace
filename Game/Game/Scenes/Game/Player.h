@@ -14,7 +14,7 @@ class MCameraComponent;
 class MNetMovementComponent;
 class MSpriteComponent;
 class MEasyShakeComponent;
-class MCircleCollisionComponent;
+class MRectangleCollisionComponent;
 class ASlowFloor2;  // ← 前方宣言をここに移動
 
 class APlayer : public APawn {
@@ -49,7 +49,7 @@ class APlayer : public APawn {
   MEasyShakeComponent* m_shake = nullptr;
   MNetMovementComponent* Movement = nullptr;
   MSpriteComponent* m_sprite = nullptr;
-  MCircleCollisionComponent* m_collision = nullptr;
+  MRectangleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
 
   bool bRotateCamera = true;

@@ -437,7 +437,7 @@ void WSearchLobbyWidget::RebuildNavigation() {
 WJoinLobbyDialog::WJoinLobbyDialog() {
   Panel = NewObject<MSpriteComponent>(this);
   Panel->SetRenderSettings(0, RenderSpace::Screen);
-  Panel->SetRelativeLocation({660.0f, 390.0f});
+  Panel->SetRelativeLocation({960.0f, 540.0f});
   Panel->SubmitBox(600.0f, 300.0f, FColor{15, 15, 20, 230}, true);
   Panel->RegisterComponent();
   LobbyNameText = NewObject<UITextComponent>(this);
