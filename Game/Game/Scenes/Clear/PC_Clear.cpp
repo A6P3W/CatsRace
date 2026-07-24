@@ -18,10 +18,6 @@
 #include "Log.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
-#include "Scenes/Clear/UI/WNameInputDialog.h"
-#include "Scenes/Clear/UI/WNameSelectDialog.h"
-#include "Scenes/Clear/UI/WOverwriteConfirmDialog.h"
-#include "Scenes/Clear/UI/WPostGameDialog.h"
 #include "Scenes/Game/GameScene01.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Services/LeaderBoardManager.h"
@@ -84,9 +80,6 @@ void PC_Clear::BeginPlay() {
   if (GetWorld()->IsStandalone()) {
     // Fetch and display leaderboard initially
     FetchAndDisplay();
-
-    // Start name registration flow
-    ShowNameFlow();
   }
 }
 
@@ -117,91 +110,6 @@ void PC_Clear::OnUpdate(float DeltaTime) {
   RefreshMultiplayerResults();
 }
 
-void PC_Clear::ShowNameFlow() {
-  auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi) return;
-
-  if (!gi->user_id.empty()) {
-    m_NameSelectDialog = GetWorld()->SpawnActor<WNameSelectDialog>();
-    m_NameSelectDialog->SetZOrderOffset(10);
-    m_NameSelectDialog->SetExistingName(gi->user_id);
-    m_NameSelectDialog->SetOnResult([this, gi](ENameSelectResult result) {
-      if (m_NameSelectDialog) {
-        m_NameSelectDialog->Destroy();
-        m_NameSelectDialog = nullptr;
-      }
-      if (result == ENameSelectResult::UseExisting) {
-        ExecutePostScore(gi->user_id);
-      } else if (result == ENameSelectResult::EnterNew) {
-        ShowNameInputDialog();
-      } else if (result == ENameSelectResult::Skip) {
-        ShowPostGameDialog();
-      }
-    });
-    UIManager::GetInstance()->AddWidget(m_NameSelectDialog);
-    UIManager::GetInstance()->SetFocusedWidget(m_NameSelectDialog);
-  } else {
-    ShowNameInputDialog();
-  }
-}
-
-void PC_Clear::ShowNameInputDialog() {
-  m_NameInputDialog = GetWorld()->SpawnActor<WNameInputDialog>();
-  m_NameInputDialog->SetZOrderOffset(10);
-  m_NameInputDialog->SetOnNameConfirmed([this](const std::string& name) {
-    if (m_NameInputDialog) {
-      m_NameInputDialog->Destroy();
-      m_NameInputDialog = nullptr;
-    }
-    CheckDuplicateAndPost(name);
-  });
-  m_NameInputDialog->SetOnCancelled([this]() {
-    if (m_NameInputDialog) {
-      m_NameInputDialog->Destroy();
-      m_NameInputDialog = nullptr;
-    }
-    ShowPostGameDialog();
-  });
-  UIManager::GetInstance()->AddWidget(m_NameInputDialog);
-  UIManager::GetInstance()->SetFocusedWidget(m_NameInputDialog);
-}
-
-void PC_Clear::CheckDuplicateAndPost(const std::string& name) {
-  bool isDuplicate = false;
-  for (const auto& existingId : m_FetchedUserIds) {
-    if (existingId == name) {
-      isDuplicate = true;
-      break;
-    }
-  }
-
-  if (isDuplicate) {
-    m_OverwriteDialog = GetWorld()->SpawnActor<WOverwriteConfirmDialog>();
-    m_OverwriteDialog->SetZOrderOffset(10);
-    m_OverwriteDialog->SetOnResult([this, name](EOverwriteResult result) {
-      if (m_OverwriteDialog) {
-        m_OverwriteDialog->Destroy();
-        m_OverwriteDialog = nullptr;
-      }
-      if (result == EOverwriteResult::Overwrite) {
-        if (auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-          gi->user_id = name;
-        }
-        ExecutePostScore(name);
-      } else if (result == EOverwriteResult::ReEnter) {
-        ShowNameInputDialog();
-      }
-    });
-    UIManager::GetInstance()->AddWidget(m_OverwriteDialog);
-    UIManager::GetInstance()->SetFocusedWidget(m_OverwriteDialog);
-  } else {
-    if (auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-      gi->user_id = name;
-    }
-    ExecutePostScore(name);
-  }
-}
-
 void PC_Clear::ExecutePostScore(const std::string& name) {
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   if (!gi) return;
@@ -215,7 +123,6 @@ void PC_Clear::ExecutePostScore(const std::string& name) {
       }
     }
     FetchAndDisplay();
-    ShowPostGameDialog();
   });
 }
 
@@ -242,24 +149,6 @@ void PC_Clear::FetchAndDisplay() {
         }
       }
   );
-}
-
-void PC_Clear::ShowPostGameDialog() {
-  m_PostGameDialog = GetWorld()->SpawnActor<WPostGameDialog>();
-  m_PostGameDialog->SetZOrderOffset(10);
-  m_PostGameDialog->SetOnResult([this](EPostGameResult result) {
-    if (m_PostGameDialog) {
-      m_PostGameDialog->Destroy();
-      m_PostGameDialog = nullptr;
-    }
-    if (result == EPostGameResult::PlayAgain) {
-      GetWorld()->ServerTravel(GetReplayLevelPath());
-    } else if (result == EPostGameResult::BackToTitle) {
-      GetWorld()->ServerTravel(GameSceneIds::Lobby);
-    }
-  });
-  UIManager::GetInstance()->AddWidget(m_PostGameDialog);
-  UIManager::GetInstance()->SetFocusedWidget(m_PostGameDialog);
 }
 
 std::vector<ALobbyPlayerState*> PC_Clear::GetResultStates() {

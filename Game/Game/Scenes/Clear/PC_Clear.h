@@ -5,10 +5,6 @@
 #include "PlayerController.h"
 
 class WClearHUD;
-class WNameSelectDialog;
-class WNameInputDialog;
-class WOverwriteConfirmDialog;
-class WPostGameDialog;
 class ALobbyPlayerState;
 
 class PC_Clear : public APlayerController {
@@ -23,12 +19,8 @@ class PC_Clear : public APlayerController {
   void BeginPlay() override;
 
  private:
-  void ShowNameFlow();
-  void ShowNameInputDialog();
-  void CheckDuplicateAndPost(const std::string& name);
   void ExecutePostScore(const std::string& name);
   void FetchAndDisplay();
-  void ShowPostGameDialog();
   void RefreshMultiplayerResults();
   void SubmitLocalResultToServerIfNeeded();
   void Server_SubmitLocalResult(float FinishTime);
@@ -42,8 +34,4 @@ class PC_Clear : public APlayerController {
   float DisplayReturnCountdownRemaining = 5.0f;
   int LastDisplayedReturnCountdown = -1;
   std::vector<std::string> m_FetchedUserIds;
-  WNameSelectDialog* m_NameSelectDialog = nullptr;
-  WNameInputDialog* m_NameInputDialog = nullptr;
-  WOverwriteConfirmDialog* m_OverwriteDialog = nullptr;
-  WPostGameDialog* m_PostGameDialog = nullptr;
 };

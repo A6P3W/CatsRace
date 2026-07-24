@@ -17,10 +17,6 @@
 #include "Services/LeaderBoardManager.h"
 #include "SpriteComponent.h"
 #include "UI/WClearHUD.h"
-#include "UI/WNameInputDialog.h"
-#include "UI/WNameSelectDialog.h"
-#include "UI/WOverwriteConfirmDialog.h"
-#include "UI/WPostGameDialog.h"
 #include "UIManager.h"
 #include "World.h"
 
