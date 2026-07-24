@@ -385,10 +385,7 @@ void APlayer::NotifyGoalReached() {
 
   if (bIsLocallyControlled) {
     if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-      if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-        gi->ClearTime = gameScene->GetRaceTime();
-        gi->map_id = gameScene->GetMapId();
-      }
+      gameScene->SaveLocalResult(gameScene->GetRaceTime());
     }
     InvokeRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, ENetPacketReliability::Reliable);
   }

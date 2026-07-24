@@ -19,9 +19,11 @@ class PC_Clear : public APlayerController {
   void BeginPlay() override;
 
  private:
-  void ExecutePostScore(const std::string& name);
+  void ExecutePostScore(const std::string& name, float score);
   void FetchAndDisplay();
   void RefreshMultiplayerResults();
+  void NotifyWinningDeviceIfNeeded();
+  void Client_PostWinningScore(std::string PlayerName, float FinishTime);
   void SubmitLocalResultToServerIfNeeded();
   void Server_SubmitLocalResult(float FinishTime);
 
@@ -30,6 +32,7 @@ class PC_Clear : public APlayerController {
   WClearHUD* m_ClearHUD = nullptr;
   std::string m_LastResultSignature;
   bool m_bSubmittedLocalResult = false;
+  bool m_bWinnerNotified = false;
   float m_ResultSubmitRetryCooldown = 0.0f;
   float DisplayReturnCountdownRemaining = 5.0f;
   int LastDisplayedReturnCountdown = -1;

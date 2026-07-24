@@ -18,6 +18,7 @@
 
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "Core/MapData.h"
 #include "Ghost/GhostData.h"
 #include "Ghost/GhostPlaybackComponent.h"
 #include "Ghost/GhostPlayer.h"
@@ -43,6 +44,8 @@ AGameSceneBase::AGameSceneBase(
 }
 
 void AGameSceneBase::OnUpdate(float DeltaTime) {
+  InitializeGhostForCurrentMap();
+
   if (ResultTravelDelay >= 0.0f && GetWorld()->IsServer()) {
     ResultTravelDelay -= DeltaTime;
     if (ResultTravelDelay <= 0.0f) {
@@ -59,10 +62,6 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
 }
 
 void AGameSceneBase::BeginPlay() {
-  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->ClearTime = -1.0f;
-  }
-
   AGameModeBase::BeginPlay();
 
 
@@ -82,8 +81,6 @@ void AGameSceneBase::BeginPlay() {
   }
 
   SpawnActor<ASampleA>();
-  LoadTopGhost();
-  M_LOG("Game scene initialized: {}", MapId);
 
   if (GetWorld()->IsServer()) {
     BeginTravelWait();
@@ -109,7 +106,7 @@ void AGameSceneBase::OnPlayerSpawned(
     player->SetRotateCamera(gi->bRotateCamera);
   }
 
-  if (ConnectionId == 0) {
+  if (player->bIsLocallyControlled) {
     m_GhostRecorder = NewObject<MGhostRecorderComponent>(player);
     m_GhostRecorder->RegisterComponent();
   }
@@ -145,6 +142,30 @@ void AGameSceneBase::OnPlayerSpawned(
       gi->multiplayer_results.push_back(result);
     }
   }
+}
+
+void AGameSceneBase::InitializeGhostForCurrentMap() {
+  if (bGhostLoadStarted) {
+    return;
+  }
+
+  const std::string& currentLevelPath = SceneManager::GetInstance().GetCurrentLevelPath();
+  if (!FindMapInfo(currentLevelPath)) {
+    return;
+  }
+
+  MapId = currentLevelPath;
+  bGhostLoadStarted = true;
+
+  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    gi->ClearTime = -1.0f;
+    gi->map_id = MapId;
+    gi->last_level_path = MapId;
+    gi->LastGhostData.clear();
+  }
+
+  M_LOG("Game scene initialized: {}", MapId);
+  LoadTopGhost();
 }
 
 void AGameSceneBase::LoadTopGhost() {
@@ -199,6 +220,48 @@ void AGameSceneBase::RaceFinish() {
   }
 }
 
+void AGameSceneBase::StartLocalRace() {
+  InitializeGhostForCurrentMap();
+
+  if (!GetWorld() || GetWorld()->IsServer()) {
+    return;
+  }
+
+  RaceTime = 0.0f;
+  RaceRunning = true;
+
+  if (!m_GhostRecorder && GetWorld()->GetActorManager()) {
+    for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
+      auto* player = dynamic_cast<APlayer*>(actorPtr.get());
+      if (!player || !player->bIsLocallyControlled || player->IsPendingDestroy()) {
+        continue;
+      }
+
+      m_GhostRecorder = NewObject<MGhostRecorderComponent>(player);
+      m_GhostRecorder->RegisterComponent();
+      break;
+    }
+  }
+
+  if (m_GhostRecorder) {
+    m_GhostRecorder->StartRecording();
+  }
+}
+
+void AGameSceneBase::SaveLocalResult(float FinishTime) {
+  InitializeGhostForCurrentMap();
+
+  if (m_GhostRecorder) {
+    m_GhostRecorder->StopRecording();
+  }
+
+  if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    gi->ClearTime = FinishTime;
+    gi->map_id = MapId;
+    gi->LastGhostData = m_GhostRecorder ? m_GhostRecorder->GetSerializedData() : "";
+  }
+}
+
 APlayerController* AGameSceneBase::OnClientConnected(FNetworkConnectionId ConnectionId) {
   return AGameModeBase::OnClientConnected(ConnectionId);
 }
@@ -225,9 +288,6 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
   }
 
   SaveResult(Player->OwnerConnectionId, RaceTime);
-  if (Player->OwnerConnectionId == 0 && m_GhostRecorder) {
-    m_GhostRecorder->StopRecording();
-  }
 
   if (AreAllPlayersFinished()) {
     TravelToClear();
@@ -240,11 +300,11 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
 }
 
 void AGameSceneBase::SaveResult(FNetworkConnectionId ConnectionId, float FinishTime) {
+  if (ConnectionId == 0) {
+    SaveLocalResult(FinishTime);
+  }
+
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->ClearTime = FinishTime;
-    gi->map_id = MapId;
-    gi->LastGhostData =
-        (ConnectionId == 0 && m_GhostRecorder) ? m_GhostRecorder->GetSerializedData() : "";
     auto existing = std::find_if(
         gi->multiplayer_results.begin(),
         gi->multiplayer_results.end(),

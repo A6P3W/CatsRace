@@ -24,6 +24,7 @@ class LeaderBoardManager : public AActor {
   void PostScore(
       const std::string map_id,
       const std::string user_id,
+      float score,
       std::function<void(bool)> callback = nullptr
   );
   void FetchGhostData(

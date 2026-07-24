@@ -30,6 +30,9 @@ class AGameSceneBase : public AGameModeBase {
   float GetRaceTime() const { return RaceTime; }
   const std::string& GetMapId() const { return MapId; }
   void RaceFinish();
+  void InitializeGhostForCurrentMap();
+  void StartLocalRace();
+  void SaveLocalResult(float FinishTime);
   void NotifyPlayerFinished(APlayer* Player);
   virtual void RestartGame();
   virtual void ReturnToLobby();
@@ -57,6 +60,7 @@ class AGameSceneBase : public AGameModeBase {
   bool RaceRunning = false;
   bool bPaused = false;
   bool bResultTravelRequested = false;
+  bool bGhostLoadStarted = false;
   float ResultTravelDelay = -1.0f;
   std::string MapId;
   std::string LevelFileName;

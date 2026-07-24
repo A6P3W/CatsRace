@@ -1,6 +1,7 @@
 ﻿#include "LeaderBoardManager.h"
 
 #include <DxLib.h>
+#include <EOSAuthManager.h>
 #include <HttpManager.h>
 #include <Log.h>
 
@@ -66,16 +67,19 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
 }
 
 void LeaderBoardManager::PostScore(
-    const std::string map_id, const std::string user_id, std::function<void(bool)> callback
+    const std::string map_id,
+    const std::string user_id,
+    float score,
+    std::function<void(bool)> callback
 ) {
   auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  float score = gi ? gi->ClearTime : 0.0f;
 
   nlohmann::json j;
   j["map_id"] = map_id;
   j["user_id"] = user_id;
   j["score"] = score;
   j["ghost_data"] = gi ? gi->LastGhostData : "";
+  j["eos_id"] = EOSAuthManager::GetInstance().GetLocalUserIdString();
 
   HttpManager::GetInstance().PostJson(
       this, PostScoreUrl, j.dump(), [this, callback](const HttpResponse& res) {
@@ -85,7 +89,12 @@ void LeaderBoardManager::PostScore(
             callback(true);
           }
         } else {
-          M_LOG("Failed to post score: {}", res.ErrorMessage);
+          M_LOG(
+              "Failed to post score: status={}, error={}, body={}",
+              res.StatusCode,
+              res.ErrorMessage,
+              res.Body
+          );
           if (callback) {
             callback(false);
           }

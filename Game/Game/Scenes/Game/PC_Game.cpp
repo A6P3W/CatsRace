@@ -29,6 +29,10 @@ void PC_Game::BeginPlay() {
   APlayerController::BeginPlay();
 
   if (bIsLocallyControlled) {
+    if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+      gameScene->InitializeGhostForCurrentMap();
+    }
+
     MainHUD = GetWorld()->SpawnActor<WMainHUD>();
     UIManager::GetInstance()->AddWidget(MainHUD);
 
@@ -58,6 +62,10 @@ void PC_Game::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
 
   if (bIsLocallyControlled) {
+    if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+      gameScene->InitializeGhostForCurrentMap();
+    }
+
     if (RaceRunning) {
       RaceTime += DeltaTime;
       if (MainHUD) {
@@ -89,6 +97,9 @@ void PC_Game::RaceCountDown() {
       CountDownWidget->SetCountText("Go!");
     }
     RaceRunning = true;
+    if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+      gameScene->StartLocalRace();
+    }
     SetInputMode(EInputMode::GameOnly);
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
   } else {
