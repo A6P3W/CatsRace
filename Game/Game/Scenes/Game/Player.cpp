@@ -495,6 +495,13 @@ void APlayer::BeginPlay() {
     m_sound->RegisterComponent();
     m_engineIdleHandle = m_sound->PlaySE("Resources/images/cat5.mp3", true);
     m_engineRunHandle = m_sound->PlaySE("Resources/images/moving-v2.mp3", true);
+    if (auto* sm = GetWorld()->GetSoundManager()) {
+      int bgmHandle = sm->PlaySE("Resources/images/Neon_Velocity_3.mp3", true);
+
+      if (bgmHandle != -1) {
+        sm->SetVolume(bgmHandle, 0.4f);
+      }
+    }
   }
 }
 
