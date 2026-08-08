@@ -7,7 +7,7 @@ REGISTER_ACTOR(ASampleA)
 ASampleA::ASampleA(FVector2D location, FRotator rotation) : AActor() {
   SetActorLocation(location);
   int handle =
-      ResourceManager::GetInstance().LoadResourceGraph("BaseFile/texture_Checker_64px.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Engine/texture_Checker_64px.png");
   auto* sprite = NewObject<MSpriteComponent>(this);
   sprite->SetRenderSettings(0, RenderSpace::World);
   sprite->SubmitGraph(handle);
