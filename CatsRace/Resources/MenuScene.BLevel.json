@@ -1,0 +1,22 @@
+{
+  "actors": [
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources/images/CatsRace.png"
+      },
+      "transform": {
+        "location": {
+          "x": -2.52294921875,
+          "y": 0.22594833374023438
+        },
+        "rotation": 0.0,
+        "scale": 1.4500000476837158
+      }
+    }
+  ],
+  "meta": {
+    "game_mode": "AMenuScene"
+  }
+}

@@ -38,7 +38,7 @@ void PC_Lobby::BeginPlay() {
 
  if (auto* sm = GetWorld()->GetSoundManager()) {
       // PlaySE (または PlayBGM) は再生中のハンドル(int)を返します
-      int bgmHandle = sm->PlaySE("Resources/images/Time_to_change_2.mp3", true);
+      int bgmHandle = sm->PlaySE("/Game/images/Time_to_change_2.mp3", true);
 
 
       if (bgmHandle != -1) {

@@ -58,15 +58,15 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   m_PlayerNameFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
   m_walkAnimHandles[0] =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_1.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_1.png");
   m_walkAnimHandles[1] =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_2.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_2.png");
   m_walkAnimHandles[2] =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_3.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_3.png");
   m_walkAnimHandles[3] =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_4.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_4.png");
   m_walkAnimHandles[4] =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_5.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_5.png");
 
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(50, RenderSpace::World);
@@ -493,10 +493,10 @@ void APlayer::BeginPlay() {
   if (bIsLocallyControlled) {
     m_sound = NewObject<MSoundComponent>(this);
     m_sound->RegisterComponent();
-    m_engineIdleHandle = m_sound->PlaySE("Resources/images/cat5.mp3", true);
-    m_engineRunHandle = m_sound->PlaySE("Resources/images/moving-v2.mp3", true);
+    m_engineIdleHandle = m_sound->PlaySE("/Game/images/cat5.mp3", true);
+    m_engineRunHandle = m_sound->PlaySE("/Game/images/moving-v2.mp3", true);
     if (auto* sm = GetWorld()->GetSoundManager()) {
-      int bgmHandle = sm->PlaySE("Resources/images/Neon_Velocity_3.mp3", true);
+      int bgmHandle = sm->PlaySE("/Game/images/Neon_Velocity_3.mp3", true);
 
       if (bgmHandle != -1) {
         sm->SetVolume(bgmHandle, 0.3f);
@@ -854,7 +854,7 @@ void APlayer::ApplyHeldItemEffect() {
   ApplyFOVEffect(0.7f, 2.0f, true);
   if (m_sound) {
     // 拾った時に鳴らしていたSEを指定
-    m_sound->PlaySE("Resources/images/cat2d.mp3", false);
+    m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   }
   M_LOG("Held item used: speed boost applied");
 }

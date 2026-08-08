@@ -15,7 +15,7 @@ SpeedUpItem::SpeedUpItem() {
   collision->SetCollisionType(ECollisionType::Overlap);
   collision->RegisterComponent();
 
-  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedfloa.png");
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/speedfloa.png");
   auto* sprite = NewObject<MSpriteComponent>(this);
   sprite->SetRenderSettings(0, RenderSpace::World);
   sprite->SubmitGraph(handle, FScale(0.1f), 255);

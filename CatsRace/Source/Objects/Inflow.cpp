@@ -26,7 +26,7 @@ AInflow::AInflow() {
 
   InflowSprite->SetRenderSettings(0, RenderSpace::World);
   InflowSprite->SubmitGraph(
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/Inflow.png"),
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/Inflow.png"),
       FScale(1.0f),
       100
   );

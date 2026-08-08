@@ -20,7 +20,7 @@ WMainHUD::WMainHUD() {
   m_ItemIcon = NewObject<MSpriteComponent>(this);
   m_ItemIcon->SetRenderSettings(10, RenderSpace::Screen);
   m_ItemIcon->SetRelativeLocation({80.0f, 900.0f});
-  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/speedup2.png");
   m_ItemIcon->SubmitGraph(handle, FScale(0.3f), 200);
   m_ItemIcon->SetVisibility(false);
   m_ItemIcon->RegisterComponent();

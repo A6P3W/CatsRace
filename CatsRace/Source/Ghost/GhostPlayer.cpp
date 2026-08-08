@@ -14,7 +14,7 @@ AGhostPlayer::AGhostPlayer(FVector2D location, FRotator rotation) {
   m_UserIdFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
   const int handle =
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/images/cat_walk_1.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_1.png");
   m_SpriteComponent = NewObject<MSpriteComponent>(this);
   m_SpriteComponent->SetRenderSettings(0, RenderSpace::World);
   if (handle != -1) {

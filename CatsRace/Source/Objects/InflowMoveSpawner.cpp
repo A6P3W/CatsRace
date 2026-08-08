@@ -27,7 +27,7 @@ AInflowMoveSpawner::AInflowMoveSpawner() {
 
   DirectionSprite->SetRenderSettings(0, RenderSpace::World);
   DirectionSprite->SubmitGraph(
-      ResourceManager::GetInstance().LoadResourceGraph("Resources/.Engine/arrow-up.png")
+      ResourceManager::GetInstance().LoadResourceGraph("/Engine/Images/arrow-up.png")
   );
   DirectionSprite->AttachToComponent(GetRootComponent());
   DirectionSprite->RegisterComponent();

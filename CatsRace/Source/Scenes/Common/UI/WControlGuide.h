@@ -32,8 +32,8 @@ class WControlGuide : public AWidgetBase {
   int HandlePadGame = -1;
   int HandlePadUI = -1;
 
-  const std::string PathKbGame = "Resources/images/Guide/KeyboardGameGuide.png";
-  const std::string PathKbUI = "Resources/images/Guide/KeyboardUIGuide.png";
-  const std::string PathPadGame = "Resources/images/Guide/PadGameGuide.png";
-  const std::string PathPadUI = "Resources/images/Guide/PadUIGuide.png";
+  const std::string PathKbGame = "/Game/images/Guide/KeyboardGameGuide.png";
+  const std::string PathKbUI = "/Game/images/Guide/KeyboardUIGuide.png";
+  const std::string PathPadGame = "/Game/images/Guide/PadGameGuide.png";
+  const std::string PathPadUI = "/Game/images/Guide/PadUIGuide.png";
 };

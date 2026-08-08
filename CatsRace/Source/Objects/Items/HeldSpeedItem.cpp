@@ -33,7 +33,7 @@ AHeldSpeedItem::AHeldSpeedItem() {
   m_collision->RegisterComponent();
 
   // ビジュアル
-  int handle = ResourceManager::GetInstance().LoadResourceGraph("Resources/images/speedup2.png");
+  int handle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/speedup2.png");
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(0, RenderSpace::World);
   m_sprite->AttachToComponent(GetRootComponent());
@@ -64,7 +64,7 @@ void AHeldSpeedItem::BeginOverlap(AActor* OtherActor) {
   player->GrantHeldItem();
 
   if (m_sound) {
-    m_sound->PlaySE("Resources/images/cat2d.mp3", false);
+    m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   }
 
   M_LOG("HeldSpeedItem: granted to player (conn={})", player->OwnerConnectionId);
