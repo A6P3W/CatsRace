@@ -1,6 +1,5 @@
 #include "ClearScene.h"
 
-#include <DxLib.h>
 #include <KeyboardDevice.h>
 #include <Pawn.h>
 

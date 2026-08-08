@@ -1,6 +1,5 @@
 #include "Objects/SampleA.h"
 
-#include "Dxlib.h"
 #include "ResourceManager.h"
 #include "SpriteComponent.h"
 #include "UMath.h"

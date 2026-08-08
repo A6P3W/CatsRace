@@ -1,6 +1,5 @@
 #include "Scenes/Loading/LoadingScene.h"
 
-#include <DxLib.h>
 
 #include <array>
 #include <cstring>

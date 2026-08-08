@@ -1,12 +1,12 @@
 #define NOMINMAX
 #include "Player.h"
 
-#include <DxLib.h>
 #include <EasyShakeComponent.h>
 #include <EnhancedInputComponent.h>
 #include <PlayerController.h>
 
 #include <algorithm>
+#include <chrono>
 #include <random>
 
 #include "ActorManager.h"
@@ -112,9 +112,8 @@ void APlayer::Draw() {
 
   auto& renderSystem = RenderSystem::GetInstance();
   FVector2D labelPos = renderSystem.WorldToScreen(GetActorLocation());
-  const int textWidth = GetDrawStringWidthToHandle(
-      m_PlayerName.c_str(), static_cast<int>(m_PlayerName.length()), m_PlayerNameFontHandle
-  );
+  const int textWidth =
+      ResourceManager::GetInstance().GetTextWidth(m_PlayerName, m_PlayerNameFontHandle);
   labelPos.X -= textWidth * 0.5f;
   labelPos.Y -= 72.0f;
 
@@ -127,7 +126,7 @@ void APlayer::Draw() {
       2
   );
   renderSystem.SubmitText(
-      labelPos, m_PlayerName, m_PlayerNameFontHandle, FColor::White, RenderSpace::Screen, 3
+      labelPos, m_PlayerName, m_PlayerNameFontHandle, FColor{255, 255, 255}, RenderSpace::Screen, 3
   );
 }
 
@@ -299,7 +298,7 @@ void APlayer::OnUpdate(float DeltaTime) {
         {GaugeX, GaugeY},
         {GaugeWidth, GaugeHeight},
         FRotator(0.0f),
-        FColor::White,
+        FColor{255, 255, 255},
         0,
         RenderSpace::Screen,
         252
@@ -523,7 +522,10 @@ void APlayer::DrawSpeedLines(float speed) {
   std::uniform_real_distribution<float> distY(0.0f, 1080.0f);
   std::uniform_real_distribution<float> distLen(0.05f, 0.25f);  // 中心方向に何割進むか
 
-  rng.seed(static_cast<uint32_t>(GetNowCount()));
+  const auto now = std::chrono::steady_clock::now().time_since_epoch();
+  rng.seed(static_cast<uint32_t>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(now).count()
+  ));
 
   for (int i = 0; i < lineCount; ++i) {
     // 始点を画面端付近に配置（端20%の帯の中）

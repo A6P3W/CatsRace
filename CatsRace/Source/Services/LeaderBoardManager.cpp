@@ -1,6 +1,5 @@
 #include "LeaderBoardManager.h"
 
-#include <DxLib.h>
 #include <HttpManager.h>
 #include <Log.h>
 
@@ -15,22 +14,6 @@
 namespace {
 std::unordered_map<std::string, std::unordered_map<std::string, std::string>> GhostDataCache;
 
-std::string ConvertUtf8ToSjis(const std::string& utf8Str) {
-  if (utf8Str.empty()) return "";
-
-  size_t bufferSize = utf8Str.size() * 2 + 1;
-  std::vector<char> buffer(bufferSize, 0);
-
-  int result = ConvertStringCharCodeFormat(
-      DX_CHARCODEFORMAT_UTF8, utf8Str.c_str(), DX_CHARCODEFORMAT_SHIFTJIS, buffer.data()
-  );
-
-  if (result == -1) {
-    return utf8Str;
-  }
-
-  return std::string(buffer.data());
-}
 }  // namespace
 
 void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCallBack callback) {
@@ -50,9 +33,9 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
               std::string utf8_user_id = rank["user_id"].get<std::string>();
               std::string utf8_delta = rank.value("delta_timestamp", "");
 
-              entry.user_id = ConvertUtf8ToSjis(utf8_user_id);
+              entry.user_id = utf8_user_id;
               entry.score = rank["score"].get<float>();
-              entry.delta_timestamp = ConvertUtf8ToSjis(utf8_delta);
+              entry.delta_timestamp = utf8_delta;
               LB.push_back(entry);
             }
             callback(true, LB);

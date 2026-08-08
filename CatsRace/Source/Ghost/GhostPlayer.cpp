@@ -1,7 +1,5 @@
 #include "Ghost/GhostPlayer.h"
 
-#include <DxLib.h>
-
 #include "Ghost/GhostPlaybackComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
@@ -38,9 +36,7 @@ void AGhostPlayer::Draw() {
 
   auto& renderSystem = RenderSystem::GetInstance();
   FVector2D labelPos = renderSystem.WorldToScreen(GetActorLocation());
-  const int textWidth = GetDrawStringWidthToHandle(
-      m_UserId.c_str(), static_cast<int>(m_UserId.length()), m_UserIdFontHandle
-  );
+  const int textWidth = ResourceManager::GetInstance().GetTextWidth(m_UserId, m_UserIdFontHandle);
   labelPos.X -= textWidth * 0.5f;
   labelPos.Y -= 72.0f;
 
@@ -53,7 +49,7 @@ void AGhostPlayer::Draw() {
       2
   );
   renderSystem.SubmitText(
-      labelPos, m_UserId, m_UserIdFontHandle, FColor::White, RenderSpace::Screen, 3
+      labelPos, m_UserId, m_UserIdFontHandle, FColor{255, 255, 255}, RenderSpace::Screen, 3
   );
 }
 

@@ -1,6 +1,5 @@
 #include "Scenes/Lobby/UI/WLobbyHUD.h"
 
-#include <DxLib.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>
 #include <UIVerticalBoxComponent.h>
@@ -92,7 +91,7 @@ UIBoxButtonComponent* AddBoxButton(
       Owner,
       buttonPtr,
       Label,
-      FColor::White,
+      FColor{255, 255, 255},
       22,
       {Width, Height},
       EUIAnchor::MiddleCenter,
@@ -135,7 +134,7 @@ void WLobbyHUD::BeginPlay() {
       this,
       nullptr,
       "Selected Map: -",
-      FColor::White,
+      FColor{255, 255, 255},
       24,
       {360.0f, 34.0f},
       EUIAnchor::MiddleCenter,
@@ -187,7 +186,7 @@ void WLobbyHUD::BeginPlay() {
   );
 
   StartCountdownText = AddText(
-      this, nullptr, "", FColor::White, 28, {420.0f, 40.0f},
+      this, nullptr, "", FColor{255, 255, 255}, 28, {420.0f, 40.0f},
       EUIAnchor::BottomCenter, {0.5f, 1.0f}, {0.0f, -216.0f}
   );
   StartCountdownText->SetVisibility(false);
@@ -311,7 +310,7 @@ void WLobbyHUD::UpdatePlayerList() {
         this,
         rowRootPtr,
         "Player",
-        FColor::White,
+        FColor{255, 255, 255},
         20,
         {132.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
@@ -323,7 +322,7 @@ void WLobbyHUD::UpdatePlayerList() {
         this,
         rowRootPtr,
         "Player",
-        FColor::White,
+        FColor{255, 255, 255},
         20,
         {216.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
@@ -353,7 +352,7 @@ void WLobbyHUD::UpdatePlayerList() {
 
     if (row.StatusText) {
       row.StatusText->SetText(bIsHost ? "Host" : "Player");
-      row.StatusText->SetColor(FColor::White);
+      row.StatusText->SetColor(FColor{255, 255, 255});
     }
     if (row.NameText) {
       row.NameText->SetText(playerName);
@@ -459,4 +458,3 @@ void WLobbyHUD::FocusMapSelectButton() {
     SetFocusedButton(m_MapSelectButton);
   }
 }
-

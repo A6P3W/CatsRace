@@ -31,10 +31,7 @@ add_dependencies(${BROCCOLI_PROJECT_NAME} BroccoliBootstrap)
 
 if(MSVC)
   broccoli_apply_common_msvc_options(${BROCCOLI_PROJECT_NAME})
-  target_link_options(${BROCCOLI_PROJECT_NAME} PRIVATE
-    $<$<CONFIG:Debug>:/DELAYLOAD:BroccoliEngine.dll>
-  )
-  target_link_libraries(${BROCCOLI_PROJECT_NAME} PRIVATE winmm $<$<CONFIG:Debug>:delayimp>)
+  target_link_libraries(${BROCCOLI_PROJECT_NAME} PRIVATE winmm)
   set_property(TARGET ${BROCCOLI_PROJECT_NAME} PROPERTY
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<OR:$<CONFIG:Debug>,$<CONFIG:Editor>>:Debug>DLL")
 endif()

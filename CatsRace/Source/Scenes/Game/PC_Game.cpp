@@ -1,7 +1,5 @@
 #include "PC_Game.h"
 
-#include <DxLib.h>
-
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
 #include "GamePadDevice.h"
@@ -173,12 +171,12 @@ void PC_Game::SetupInputMappings() {
   Mapper->RemoveMapping(InputAction::Interact);
 
   if (kb) {
-    Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_W, "", 1.0f);
-    Mapper->AddMapping(InputActionLower::MoveY, kb, KEY_INPUT_S, "", -1.0f);
-    Mapper->AddMapping(InputAction::Interact, kb, KEY_INPUT_F);
-    Mapper->AddMapping(InputAction::Pause, kb, KEY_INPUT_ESCAPE);
-    Mapper->AddMapping("DRIFT", kb, KEY_INPUT_SPACE);
-    Mapper->AddMapping("USE_ITEM", kb, KEY_INPUT_E);
+    Mapper->AddMapping(InputActionLower::MoveY, kb, EKey::W, "", 1.0f);
+    Mapper->AddMapping(InputActionLower::MoveY, kb, EKey::S, "", -1.0f);
+    Mapper->AddMapping(InputAction::Interact, kb, EKey::F);
+    Mapper->AddMapping(InputAction::Pause, kb, EKey::Escape);
+    Mapper->AddMapping("DRIFT", kb, EKey::Space);
+    Mapper->AddMapping("USE_ITEM", kb, EKey::E);
   }
   if (pad) {
     // ゲームプレイ中の MoveY には左スティックをバインドせず、トリガーのみで操作させる
@@ -189,8 +187,8 @@ void PC_Game::SetupInputMappings() {
         InputActionLower::MoveY, pad, static_cast<int>(AxisID::LeftTrigger), -1.0f
     );
 
-    Mapper->AddMapping(InputAction::Interact, pad, PAD_INPUT_4);
-    Mapper->AddMapping("DRIFT", pad, PAD_INPUT_1);
-    Mapper->AddMapping("USE_ITEM", pad, PAD_INPUT_3);
+    Mapper->AddMapping(InputAction::Interact, pad, EGamepadButton::North);
+    Mapper->AddMapping("DRIFT", pad, EGamepadButton::South);
+    Mapper->AddMapping("USE_ITEM", pad, EGamepadButton::West);
   }
 }

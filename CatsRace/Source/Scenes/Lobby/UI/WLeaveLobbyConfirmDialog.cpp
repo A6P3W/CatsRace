@@ -1,6 +1,5 @@
 #include "Scenes/Lobby/UI/WLeaveLobbyConfirmDialog.h"
 
-#include <DxLib.h>
 #include <SpriteComponent.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>
@@ -21,7 +20,7 @@ WLeaveLobbyConfirmDialog::WLeaveLobbyConfirmDialog() {
 
   m_MessageText = NewObject<UITextComponent>(this);
   m_MessageText->SetText("ロビーを退出しますか？");
-  m_MessageText->SetColor(FColor::White);
+  m_MessageText->SetColor(FColor{255, 255, 255});
   m_MessageText->SetFontSize(28);
   m_MessageText->SetAnchor(EUIAnchor::MiddleCenter);
   m_MessageText->SetPivot({0.5f, 0.5f});
@@ -38,7 +37,7 @@ WLeaveLobbyConfirmDialog::WLeaveLobbyConfirmDialog() {
 
   auto* yesText = NewObject<UITextComponent>(this);
   yesText->SetText("YES");
-  yesText->SetColor(FColor::White);
+  yesText->SetColor(FColor{255, 255, 255});
   yesText->SetFontSize(22);
   yesText->AttachToComponent(m_YesButton);
   yesText->SetAnchor(EUIAnchor::MiddleCenter);
@@ -56,7 +55,7 @@ WLeaveLobbyConfirmDialog::WLeaveLobbyConfirmDialog() {
 
   auto* noText = NewObject<UITextComponent>(this);
   noText->SetText("NO");
-  noText->SetColor(FColor::White);
+  noText->SetColor(FColor{255, 255, 255});
   noText->SetFontSize(22);
   noText->AttachToComponent(m_NoButton);
   noText->SetAnchor(EUIAnchor::MiddleCenter);

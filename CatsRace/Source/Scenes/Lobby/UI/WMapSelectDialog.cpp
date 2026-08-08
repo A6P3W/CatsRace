@@ -1,6 +1,5 @@
 #include "Scenes/Lobby/UI/WMapSelectDialog.h"
 
-#include <DxLib.h>
 #include <SpriteComponent.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>

@@ -1,6 +1,5 @@
 #include "Scenes/Clear/PC_Clear.h"
 
-#include <DxLib.h>
 #include <EnhancedInputComponent.h>
 #include <KeyboardDevice.h>
 #include <NetworkManager.h>
@@ -343,4 +342,3 @@ void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
       FinishTime
   );
 }
-

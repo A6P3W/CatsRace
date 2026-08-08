@@ -1,6 +1,5 @@
 #include "WPauseMenu.h"
 
-#include <DxLib.h>
 #include <SpriteComponent.h>
 #include <UIBoxButton.h>
 #include <UITextComponent.h>

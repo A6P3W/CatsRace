@@ -1,7 +1,6 @@
 #include "WRankEntryComponent.h"
 
 #include <Actor.h>
-#include <DxLib.h>
 #include <SpriteComponent.h>
 #include <UITextComponent.h>
 
@@ -36,7 +35,7 @@ void WRankEntryComponent::OnRegister() {
   if (auto* owner = GetOwner()) {
     const float width = GetWidgetSize().X;
     const float height = GetWidgetSize().Y;
-    const FColor textColor = m_bLocalPlayer ? FColor{255, 232, 92} : FColor::White;
+    const FColor textColor = m_bLocalPlayer ? FColor{255, 232, 92} : FColor{255, 255, 255};
     const FColor boxColor = m_bLocalPlayer ? FColor{54, 64, 88} : FColor{32, 36, 44};
 
     // 1. 順位テキストの生成

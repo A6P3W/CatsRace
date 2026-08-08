@@ -1,7 +1,6 @@
 #include "Scenes/Menu/UI/MenuWidgets.h"
 
 #include <Application.h>
-#include <DxLib.h>
 #include <EnhancedInputComponent.h>
 #include <SpriteComponent.h>
 #include <UIBoxButton.h>
@@ -444,7 +443,7 @@ WJoinLobbyDialog::WJoinLobbyDialog() {
   LobbyNameText->SetAnchor(EUIAnchor::MiddleCenter);
   LobbyNameText->SetAnchoredPosition({0.0f, -60.0f});
   LobbyNameText->SetFontSize(28);
-  LobbyNameText->SetColor(FColor::White);
+  LobbyNameText->SetColor(FColor{255, 255, 255});
   LobbyNameText->RegisterComponent();
   JoinButton = AddButton(this, nullptr, "参加", 200.0f, 52.0f);
   JoinButton->SetAnchor(EUIAnchor::MiddleCenter);
