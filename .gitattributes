@@ -4,7 +4,7 @@
 * text=auto
 
 # CatsRace is migrated using the BroccoliEngine source convention.
-/CatsRace/** text eol=lf
+/CatsRace/** text=auto eol=lf
 
 ###############################################################################
 # Set default behavior for command prompt diff.
