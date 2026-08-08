@@ -1,4 +1,4 @@
-#include "SpeedDown.h"
+﻿#include "SpeedDown.h"
 
 #include "Log.h"
 #include "MovementComponent.h"
@@ -44,7 +44,7 @@ void ASlowFloor::BeginOverlap(AActor* OtherActor) {
   // プレイヤーならFOVを狭めてSEを鳴らす
   if (auto* player = dynamic_cast<APlayer*>(OtherActor)) {
     player->ApplyFOVEffect(1.4f, 3.0f, false);
-    if (m_sound) m_sound->PlaySE("images/cat19.mp3", false);
+    if (m_sound) m_sound->PlaySE("/Game/images/cat19.mp3", false);
   }
 
   auto movements = OtherActor->GetComponents<MMovementComponent>();

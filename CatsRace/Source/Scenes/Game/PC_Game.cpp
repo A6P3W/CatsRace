@@ -1,4 +1,4 @@
-#include "PC_Game.h"
+﻿#include "PC_Game.h"
 
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
@@ -89,7 +89,7 @@ void PC_Game::RaceCountDown() {
     if (CountDownWidget) {
       CountDownWidget->SetCountText(std::to_string(m_CountDown));
     }
-    GetWorld()->GetSoundManager()->PlaySE("soundreality-pop-423717.mp3", false);
+    GetWorld()->GetSoundManager()->PlaySE("/Game/soundreality-pop-423717.mp3", false);
   }
 }
 

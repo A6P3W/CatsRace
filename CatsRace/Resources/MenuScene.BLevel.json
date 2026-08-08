@@ -4,7 +4,7 @@
       "class": "ASpriteActor",
       "instance_name": "",
       "properties": {
-        "ImagePath": "Resources/images/CatsRace.png"
+        "ImagePath": "/Game/images/CatsRace.png"
       },
       "transform": {
         "location": {
