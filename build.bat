@@ -4,9 +4,14 @@ setlocal
 set "CONFIG=%~1"
 if "%CONFIG%"=="" set "CONFIG=Debug"
 
-if /i "%CONFIG%"=="Debug" set "BUILD_PRESET=debug"
-if /i "%CONFIG%"=="Editor" set "BUILD_PRESET=editor"
-if /i "%CONFIG%"=="Release" set "BUILD_PRESET=release"
+rem The project presets are intentionally hidden base presets.  Invoke the
+rem visible local presets, which inherit the shared Windows x64 settings.
+if /i "%CONFIG%"=="Debug" set "CONFIGURE_PRESET=windows-x64-local"
+if /i "%CONFIG%"=="Debug" set "BUILD_PRESET=debug-local"
+if /i "%CONFIG%"=="Editor" set "CONFIGURE_PRESET=windows-x64-local"
+if /i "%CONFIG%"=="Editor" set "BUILD_PRESET=editor-local"
+if /i "%CONFIG%"=="Release" set "CONFIGURE_PRESET=windows-x64-local"
+if /i "%CONFIG%"=="Release" set "BUILD_PRESET=release-local"
 if not defined BUILD_PRESET (
   echo [error] Unsupported configuration: %CONFIG%
   exit /b 1
@@ -34,7 +39,7 @@ if not exist "%CMAKE_COMMAND%" (
 )
 
 :configure
-"%CMAKE_COMMAND%" --preset windows-x64
+"%CMAKE_COMMAND%" --preset %CONFIGURE_PRESET%
 if errorlevel 1 exit /b %errorlevel%
 
 "%CMAKE_COMMAND%" --build --preset %BUILD_PRESET%

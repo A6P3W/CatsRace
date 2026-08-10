@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 4.2)
 
 if(NOT TARGET Broccoli::Engine)
   message(FATAL_ERROR "Game requires the Broccoli::Engine target")
@@ -40,7 +40,6 @@ set_target_properties(${BROCCOLI_PROJECT_NAME} PROPERTIES
   OUTPUT_NAME "${BROCCOLI_PROJECT_NAME}-game"
   RUNTIME_OUTPUT_DIRECTORY "${BROCCOLI_OUTPUT_ROOT}/Bin/x64/$<CONFIG>"
   PDB_OUTPUT_DIRECTORY "${BROCCOLI_OUTPUT_ROOT}/Bin/x64/$<CONFIG>"
-  VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${BROCCOLI_PROJECT_NAME}>"
 )
 
 find_program(BROCCOLI_UV_EXECUTABLE uv REQUIRED)
