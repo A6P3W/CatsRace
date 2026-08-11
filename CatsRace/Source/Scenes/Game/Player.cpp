@@ -23,9 +23,9 @@
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
-#include "Scenes/Practice/PracticeGameMode.h"
 #include "SceneManager.h"
 #include "Scenes/Game/GameSceneBase.h"
+#include "Scenes/Practice/PracticeGameMode.h"
 #include "SpriteComponent.h"
 namespace {
 enum : FNetworkRPCId {
@@ -47,6 +47,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&CanMove);
   RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterReplicatedProperty(&m_PlayerName);
+  RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
   RegisterReplicatedProperty(&m_currentLap);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
@@ -58,19 +59,20 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   m_PlayerNameFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
   m_walkAnimHandles[0] =
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_1.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_1_bw.png");
   m_walkAnimHandles[1] =
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_2.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_2_bw.png");
   m_walkAnimHandles[2] =
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_3.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_3_bw.png");
   m_walkAnimHandles[3] =
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_4.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_4_bw.png");
   m_walkAnimHandles[4] =
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_5.png");
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_5_bw.png");
 
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(50, RenderSpace::World);
   m_sprite->SubmitGraph(m_walkAnimHandles[0]);
+  ApplyPlayerColor();
   m_sprite->AttachToComponent(GetRootComponent());
   m_sprite->RegisterComponent();
 
@@ -137,6 +139,37 @@ void APlayer::SetPlayerName(const std::string& PlayerName) {
 
   m_PlayerName = PlayerName;
   MarkReplicatedStateDirty();
+}
+
+void APlayer::SetPlayerColorIndex(uint8_t InColorIndex) {
+  if (PlayerColorIndex == InColorIndex) {
+    return;
+  }
+
+  PlayerColorIndex = InColorIndex;
+  ApplyPlayerColor();
+  MarkReplicatedStateDirty();
+}
+
+void APlayer::ApplyPlayerColor() {
+  if (!m_sprite) {
+    return;
+  }
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, PlayerColorPalette.size() - 1);
+  m_sprite->SetTint(PlayerColorPalette[dis(gen)]);
+
+  if (PlayerColorIndex < PlayerColorPalette.size()) {
+    m_sprite->SetTint(PlayerColorPalette[PlayerColorIndex]);
+    return;
+  }
+}
+
+void APlayer::OnRepPlayerColorIndex(uint8_t OldColorIndex) {
+  (void)OldColorIndex;
+  ApplyPlayerColor();
 }
 
 void APlayer::OnUpdate(float DeltaTime) {
@@ -523,9 +556,9 @@ void APlayer::DrawSpeedLines(float speed) {
   std::uniform_real_distribution<float> distLen(0.05f, 0.25f);  // 中心方向に何割進むか
 
   const auto now = std::chrono::steady_clock::now().time_since_epoch();
-  rng.seed(static_cast<uint32_t>(
-      std::chrono::duration_cast<std::chrono::milliseconds>(now).count()
-  ));
+  rng.seed(
+      static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now).count())
+  );
 
   for (int i = 0; i < lineCount; ++i) {
     // 始点を画面端付近に配置（端20%の帯の中）
@@ -826,15 +859,11 @@ void APlayer::UseHeldItem() {
   }
 
   if (bHasAuthority) {
-
     Server_UseHeldItem();
   } else {
-
     m_hasHeldItem = false;
 
-
     ApplyHeldItemEffect();
-
 
     InvokeRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, ENetPacketReliability::Reliable);
   }

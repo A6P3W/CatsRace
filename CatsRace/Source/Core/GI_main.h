@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Core/MapData.h"
+#include "Core/PlayerColorPalette.h"
 
 namespace PlayerNameDefaults {
 inline std::string Generate() {
@@ -36,6 +37,7 @@ class GI_main : public GameInstance {
   struct FMultiplayerResult {
     FNetworkConnectionId ConnectionId = 0;
     std::string PlayerName = "Player";
+    uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
     bool bFinished = false;
     float FinishTime = 0.0f;
   };
