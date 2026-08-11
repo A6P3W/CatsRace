@@ -92,7 +92,7 @@ UIBoxButtonComponent* AddBoxButton(
       buttonPtr,
       Label,
       FColor{255, 255, 255},
-      22,
+      33,
       {Width, Height},
       EUIAnchor::MiddleCenter,
       {0.5f, 0.5f},
@@ -135,7 +135,7 @@ void WLobbyHUD::BeginPlay() {
       nullptr,
       "Selected Map: -",
       FColor{255, 255, 255},
-      24,
+      36,
       {360.0f, 34.0f},
       EUIAnchor::MiddleCenter,
       {0.5f, 0.5f},
@@ -186,7 +186,7 @@ void WLobbyHUD::BeginPlay() {
   );
 
   StartCountdownText = AddText(
-      this, nullptr, "", FColor{255, 255, 255}, 28, {420.0f, 40.0f},
+      this, nullptr, "", FColor{255, 255, 255}, 42, {420.0f, 40.0f},
       EUIAnchor::BottomCenter, {0.5f, 1.0f}, {0.0f, -216.0f}
   );
   StartCountdownText->SetVisibility(false);
@@ -311,7 +311,7 @@ void WLobbyHUD::UpdatePlayerList() {
         rowRootPtr,
         "Player",
         FColor{255, 255, 255},
-        20,
+        30,
         {132.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
         {0.0f, 0.5f},
@@ -323,7 +323,7 @@ void WLobbyHUD::UpdatePlayerList() {
         rowRootPtr,
         "Player",
         FColor{255, 255, 255},
-        20,
+        30,
         {216.0f, PlayerRowHeight},
         EUIAnchor::MiddleLeft,
         {0.0f, 0.5f},

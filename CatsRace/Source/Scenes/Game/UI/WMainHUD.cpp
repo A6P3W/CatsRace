@@ -12,7 +12,7 @@ WMainHUD::WMainHUD() {
   m_TimerText = NewObject<UITextComponent>(this);
   m_TimerText->SetText("Time: 0.00");
   m_TimerText->SetColor(FColor{0, 255, 136});
-  m_TimerText->SetFontSize(24);
+  m_TimerText->SetFontSize(36);
   m_TimerText->SetAnchor(EUIAnchor::TopLeft);
   m_TimerText->SetAnchoredPosition({100.0f, 100.0f});
   m_TimerText->RegisterComponent();
@@ -26,7 +26,7 @@ WMainHUD::WMainHUD() {
   m_ItemIcon->RegisterComponent();
   m_ItemText = NewObject<UITextComponent>(this);
   m_ItemText->SetColor(FColor{255, 255, 255});
-  m_ItemText->SetFontSize(22);
+  m_ItemText->SetFontSize(33);
   m_ItemText->SetAnchor(EUIAnchor::BottomLeft);
   m_ItemText->SetPivot({0.0f, 1.0f});
   m_ItemText->SetAnchoredPosition({55.0f, -20.0f});
@@ -36,7 +36,7 @@ WMainHUD::WMainHUD() {
   m_LapText = NewObject<UITextComponent>(this);
   m_LapText->SetText("LAP 1 / 3");
   m_LapText->SetColor(FColor{255, 255, 255});
-  m_LapText->SetFontSize(28);
+  m_LapText->SetFontSize(42);
   m_LapText->SetAnchor(EUIAnchor::TopRight);
   m_LapText->SetAnchoredPosition({-120.0f, 60.0f});
   m_LapText->RegisterComponent();

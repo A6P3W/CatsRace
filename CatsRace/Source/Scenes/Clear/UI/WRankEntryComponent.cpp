@@ -46,7 +46,7 @@ void WRankEntryComponent::OnRegister() {
     m_RankTextComponent = NewObject<UITextComponent>(owner);
     m_RankTextComponent->SetText(rankStr);
     m_RankTextComponent->SetColor(textColor);
-    m_RankTextComponent->SetFontSize(24);
+    m_RankTextComponent->SetFontSize(36);
     m_RankTextComponent->AttachToComponent(this);
     m_RankTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
     m_RankTextComponent->SetPivot({0.0f, 0.5f});
@@ -57,7 +57,7 @@ void WRankEntryComponent::OnRegister() {
     m_NameTextComponent = NewObject<UITextComponent>(owner);
     m_NameTextComponent->SetText(m_UserId);
     m_NameTextComponent->SetColor(textColor);
-    m_NameTextComponent->SetFontSize(24);
+    m_NameTextComponent->SetFontSize(36);
     m_NameTextComponent->AttachToComponent(this);
     m_NameTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
     m_NameTextComponent->SetPivot({0.0f, 0.5f});
@@ -70,7 +70,7 @@ void WRankEntryComponent::OnRegister() {
       m_TimeTextComponent = NewObject<UITextComponent>(owner);
       m_TimeTextComponent->SetText(timeStr);
       m_TimeTextComponent->SetColor(textColor);
-      m_TimeTextComponent->SetFontSize(20);
+      m_TimeTextComponent->SetFontSize(30);
       m_TimeTextComponent->AttachToComponent(this);
       m_TimeTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
       m_TimeTextComponent->SetPivot({1.0f, 0.5f});
@@ -88,7 +88,7 @@ void WRankEntryComponent::OnRegister() {
     m_ScoreTextComponent = NewObject<UITextComponent>(owner);
     m_ScoreTextComponent->SetText(oss.str());
     m_ScoreTextComponent->SetColor(textColor);
-    m_ScoreTextComponent->SetFontSize(24);
+    m_ScoreTextComponent->SetFontSize(36);
     m_ScoreTextComponent->AttachToComponent(this);
     m_ScoreTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
     m_ScoreTextComponent->SetPivot({1.0f, 0.5f});

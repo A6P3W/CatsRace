@@ -36,7 +36,7 @@ WPauseMenu::WPauseMenu() {
   m_TxtTitle = NewObject<UITextComponent>(this);
   m_TxtTitle->SetText("PAUSE");
   m_TxtTitle->SetColor(FColor{255, 255, 255});
-  m_TxtTitle->SetFontSize(64);
+  m_TxtTitle->SetFontSize(96);
   m_TxtTitle->SetAnchor(EUIAnchor::MiddleCenter);
   m_TxtTitle->SetPivot({0.5f, 0.5f});
   m_TxtTitle->SetAnchoredPosition({0.0f, -250.0f});
@@ -112,7 +112,7 @@ UIBoxButtonComponent* WPauseMenu::AddMenuButton(const std::string& Label) {
   auto* text = NewObject<UITextComponent>(this);
   text->SetText(Label);
   text->SetColor(FColor{255, 255, 255});
-  text->SetFontSize(24);
+  text->SetFontSize(36);
   text->AttachToComponent(buttonPtr);
   text->SetAnchor(EUIAnchor::MiddleCenter);
   text->SetPivot({0.5f, 0.5f});
