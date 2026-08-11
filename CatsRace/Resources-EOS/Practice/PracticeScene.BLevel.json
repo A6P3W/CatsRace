@@ -1,0 +1,70 @@
+{
+  "actors": [
+    {
+      "class": "ADefaultRectangleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -907.99560546875,
+          "y": 1215.5650634765625
+        },
+        "rotation": 0.0,
+        "scale": 53.4154167175293
+      }
+    },
+    {
+      "class": "ADefaultRectangleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 4365.84716796875,
+          "y": -3691.970458984375
+        },
+        "rotation": 0.0,
+        "scale": 53.4154167175293
+      }
+    },
+    {
+      "class": "ADefaultRectangleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -5600.21484375,
+          "y": -3010.084228515625
+        },
+        "rotation": 0.0,
+        "scale": 53.4154167175293
+      }
+    },
+    {
+      "class": "ADefaultRectangleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -777.44970703125,
+          "y": -5846.939453125
+        },
+        "rotation": 0.0,
+        "scale": 53.4154167175293
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Stage3/Stage3_Preview.png"
+      },
+      "transform": {
+        "location": {
+          "x": -799.0687255859375,
+          "y": -2514.444580078125
+        },
+        "rotation": 0.0,
+        "scale": 10.521007537841797
+      }
+    }
+  ],
+  "meta": {
+    "game_mode": "APracticeGameMode"
+  }
+}

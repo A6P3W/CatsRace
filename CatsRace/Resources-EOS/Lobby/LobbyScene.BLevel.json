@@ -1,0 +1,760 @@
+{
+  "actors": [
+    {
+      "class": "AMapPreviewActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 500.09771728515625,
+          "y": 1.5241622924804688
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultCircleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 954.1888427734375,
+          "y": -532.8062744140625
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultCircleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 948.9130249023438,
+          "y": 538.1822509765625
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultCircleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -971.6896362304688,
+          "y": 537.6619262695312
+        },
+        "rotation": 0.0,
+        "scale": 0.2772839665412903
+      }
+    },
+    {
+      "class": "ADefaultCircleCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -962.6870727539062,
+          "y": -536.3234252929688
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Warning.png"
+      },
+      "transform": {
+        "location": {
+          "x": -573.6028442382812,
+          "y": 117.3927001953125
+        },
+        "rotation": 0.0,
+        "scale": 1.496934175491333
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/GameGuide.png"
+      },
+      "transform": {
+        "location": {
+          "x": -0.13189697265625,
+          "y": 0.169219970703125
+        },
+        "rotation": 0.0,
+        "scale": 0.9200000166893005
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Tips1.png"
+      },
+      "transform": {
+        "location": {
+          "x": -296.28009033203125,
+          "y": 424.92303466796875
+        },
+        "rotation": 0.0,
+        "scale": 0.29622381925582886
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Tips2.png"
+      },
+      "transform": {
+        "location": {
+          "x": 693.1115112304688,
+          "y": 397.4888916015625
+        },
+        "rotation": 0.0,
+        "scale": 0.3842656910419464
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Tips3.png"
+      },
+      "transform": {
+        "location": {
+          "x": -733.5184326171875,
+          "y": -521.407470703125
+        },
+        "rotation": 0.0,
+        "scale": 0.6878323554992676
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/version-auto.png"
+      },
+      "transform": {
+        "location": {
+          "x": 849.3233642578125,
+          "y": 519.7240600585938
+        },
+        "rotation": 0.0,
+        "scale": 0.18400000035762787
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Tips4.png"
+      },
+      "transform": {
+        "location": {
+          "x": 99.96882629394531,
+          "y": -370.42169189453125
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/BroccoliEngine.png"
+      },
+      "transform": {
+        "location": {
+          "x": 966.0237426757812,
+          "y": -511.7081298828125
+        },
+        "rotation": -63.5,
+        "scale": 0.49000000953674316
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/Warning2.png"
+      },
+      "transform": {
+        "location": {
+          "x": -835.8507080078125,
+          "y": 227.11526489257812
+        },
+        "rotation": 0.0,
+        "scale": 0.8327566385269165
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/youtube-qr.png"
+      },
+      "transform": {
+        "location": {
+          "x": 298.57196044921875,
+          "y": 402.099853515625
+        },
+        "rotation": 0.0,
+        "scale": 1.3245095014572144
+      }
+    },
+    {
+      "class": "AInflowMoveSpawner",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 2039.91455078125,
+          "y": 3.8441009521484375
+        },
+        "rotation": -93.5,
+        "scale": 1.0814120769500732
+      }
+    },
+    {
+      "class": "APlayer",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -245.71316528320312,
+          "y": -88.9979248046875
+        },
+        "rotation": 22.0,
+        "scale": 0.5534194111824036
+      }
+    },
+    {
+      "class": "APlayer",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -286.4902648925781,
+          "y": 19.149959564208984
+        },
+        "rotation": 5.5,
+        "scale": 0.5348733067512512
+      }
+    },
+    {
+      "class": "APlayer",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -160.61318969726562,
+          "y": -165.2333221435547
+        },
+        "rotation": 58.0,
+        "scale": 0.5624675750732422
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "",
+      "properties": {
+        "ImagePath": "/Game/images/images.png"
+      },
+      "transform": {
+        "location": {
+          "x": 64.54714965820312,
+          "y": -209.5562286376953
+        },
+        "rotation": 84.5,
+        "scale": 0.7076813578605652
+      }
+    },
+    {
+      "class": "APlayer",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -63.102813720703125,
+          "y": -241.46873474121094
+        },
+        "rotation": 67.0,
+        "scale": 0.5795267224311829
+      }
+    },
+    {
+      "class": "APlayer",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -251.03195190429688,
+          "y": 102.47702026367188
+        },
+        "rotation": 14.5,
+        "scale": 0.5348733067512512
+      }
+    },
+    {
+      "class": "ADefaultLineCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1129.326171875,
+          "y": -722.4293823242188
+        },
+        "rotation": 0.0,
+        "scale": 23.268089294433594
+      }
+    },
+    {
+      "class": "ADefaultLineCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1137.34716796875,
+          "y": 672.3013916015625
+        },
+        "rotation": 0.0,
+        "scale": 23.268089294433594
+      }
+    },
+    {
+      "class": "ADefaultLineCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 929.7305297851562,
+          "y": -713.064453125
+        },
+        "rotation": 90.0,
+        "scale": 27.071380615234375
+      }
+    },
+    {
+      "class": "ADefaultLineCollisionActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1115.260986328125,
+          "y": -781.0345458984375
+        },
+        "rotation": 90.0,
+        "scale": 27.071380615234375
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -906.707763671875,
+          "y": 481.5229187011719
+        },
+        "rotation": -37.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -772.8987426757812,
+          "y": 329.2574768066406
+        },
+        "rotation": 0.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -579.1063842773438,
+          "y": 298.4967956542969
+        },
+        "rotation": -23.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -412.4740905761719,
+          "y": 238.54197692871094
+        },
+        "rotation": -30.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -242.17257690429688,
+          "y": 234.17526245117188
+        },
+        "rotation": -35.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -73.32662963867188,
+          "y": 133.7410430908203
+        },
+        "rotation": -48.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 364.7994384765625,
+          "y": -449.94195556640625
+        },
+        "rotation": -48.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 449.222412109375,
+          "y": -623.1546020507812
+        },
+        "rotation": -90.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -131.54937744140625,
+          "y": -729.4111328125
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -328.0511169433594,
+          "y": -732.322265625
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -509.9971923828125,
+          "y": -726.5
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -699.2210693359375,
+          "y": -714.85546875
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -882.6226806640625,
+          "y": -714.85546875
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1047.1019287109375,
+          "y": -693.0219116210938
+        },
+        "rotation": -264.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1055.8353271484375,
+          "y": -516.8981323242188
+        },
+        "rotation": -272.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1057.2908935546875,
+          "y": -332.04095458984375
+        },
+        "rotation": -247.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1068.9354248046875,
+          "y": -195.21749877929688
+        },
+        "rotation": -261.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1102.4134521484375,
+          "y": -7.449150085449219
+        },
+        "rotation": -247.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1128.613525390625,
+          "y": 149.75228881835938
+        },
+        "rotation": -247.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1137.346923828125,
+          "y": 333.1539306640625
+        },
+        "rotation": -247.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1048.5574951171875,
+          "y": 602.43408203125
+        },
+        "rotation": -37.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": -1130.0693359375,
+          "y": 442.3215637207031
+        },
+        "rotation": -247.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 82.41920471191406,
+          "y": 15.839996337890625
+        },
+        "rotation": -48.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 227.97605895996094,
+          "y": -116.61672973632812
+        },
+        "rotation": -48.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 369.16619873046875,
+          "y": -256.351318359375
+        },
+        "rotation": -79.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 60.58561706542969,
+          "y": -735.2333984375
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 245.44281005859375,
+          "y": -732.322265625
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 421.56658935546875,
+          "y": -733.77783203125
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 590.4573364257812,
+          "y": -723.2947387695312
+        },
+        "rotation": -183.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 614.6907958984375,
+          "y": -555.4679565429688
+        },
+        "rotation": -81.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 759.6287841796875,
+          "y": -665.1005249023438
+        },
+        "rotation": -165.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 872.977783203125,
+          "y": -629.795166015625
+        },
+        "rotation": -165.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 768.919677734375,
+          "y": -497.8643798828125
+        },
+        "rotation": -81.5,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ADefaultDirectionalForceFieldActor",
+      "instance_name": "",
+      "transform": {
+        "location": {
+          "x": 557.0872192382812,
+          "y": -466.27532958984375
+        },
+        "rotation": -81.5,
+        "scale": 1.0
+      }
+    }
+  ],
+  "meta": {
+    "game_mode": "ALobbyScene"
+  }
+}

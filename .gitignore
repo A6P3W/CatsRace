@@ -367,14 +367,17 @@ Log.txt
 
 .codex/
 /.antigravitycli
-/Game/imgui.ini
-/Game/vcpkg_installed/
 *..repoignore
 
 # CMake & vcpkg
 *build/
 /vcpkg_installed/
 /CatsRace.code-workspace
-/Game/Game/PrivateConfig
-/Game/.repomixignore
-/Game/Resources/.Engine
+
+# BroccoliEngine template project
+/build/
+/Bin/
+/Publish/
+/CMakeUserPresets.json
+/CatsRace/Config/
+/CatsRace/imgui.ini
