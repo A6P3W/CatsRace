@@ -1,5 +1,7 @@
 #include "GameSceneBase.h"
 
+#include "Actors/HostServerTravelActor.h"
+
 #include <EnhancedInputComponent.h>
 #include <NetworkManager.h>
 #include <PlayerController.h>
@@ -64,6 +66,8 @@ void AGameSceneBase::BeginPlay() {
   }
 
   AGameModeBase::BeginPlay();
+
+  AHostServerTravelActor::SpawnForListenServer(*GetWorld());
 
 
    if (GetWorld()->IsServer()) {

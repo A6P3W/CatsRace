@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "ActorManager.h"
+#include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
 #include "EOSLobbyManager.h"
@@ -35,6 +36,7 @@ ALobbyScene::ALobbyScene() {
 void ALobbyScene::BeginPlay() {
   AGameModeBase::BeginPlay();
 
+  AHostServerTravelActor::SpawnForListenServer(*GetWorld());
 
   if (GetWorld()->IsServer()) {
     EnsureHostPlayerState();

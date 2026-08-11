@@ -1,5 +1,7 @@
 #include "ClearScene.h"
 
+#include "Actors/HostServerTravelActor.h"
+
 #include <KeyboardDevice.h>
 #include <Pawn.h>
 
@@ -24,6 +26,7 @@ AClearScene::AClearScene() { SetDefaultPlayerControllerClass("PC_Clear"); }
 
 void AClearScene::BeginPlay() {
   AGameModeBase::BeginPlay();
+  AHostServerTravelActor::SpawnForListenServer(*GetWorld());
 
   if (GetWorld()->IsServer()) {
     SpawnResultStatesFromGameInstance();
