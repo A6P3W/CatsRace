@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "GameModeBase.h"
+#include "Core/PlayerColorPalette.h"
 #include "NetworkTypes.h"
 #include "SoundComponent.h"
 
@@ -30,6 +31,7 @@ class ALobbyScene : public AGameModeBase {
   ALobbyPlayerState* FindHostPlayerState();
   ALobbyPlayerState* FindPlayerState(FNetworkConnectionId ConnectionId);
   ALobbyPlayerState* SpawnPlayerState(FNetworkConnectionId ConnectionId);
+  uint8_t AllocatePlayerColorIndex();
   void EnsureHostPlayerState();
   void SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States);
   void StartGame();
@@ -40,6 +42,7 @@ class ALobbyScene : public AGameModeBase {
   std::string PendingStartLevelPath;
 
   int MaxPlayers = 4;
+  uint8_t NextPlayerColorIndex = 0;
   std::string SelectedLevelPath;
   PC_Lobby* m_LobbyPlayerController = nullptr;
 };

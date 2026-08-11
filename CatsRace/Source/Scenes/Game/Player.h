@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "Actor.h"
+#include "Core/PlayerColorPalette.h"
 #include "SoundComponent.h"
 #include "UMath.h"
 
@@ -43,12 +44,14 @@ class APlayer : public APawn {
   void SetRotateCamera(bool bInRotateCamera) { bRotateCamera = bInRotateCamera; }
   bool IsRotateCamera() const { return bRotateCamera; }
   void SetPlayerName(const std::string& PlayerName);
+  void SetPlayerColorIndex(uint8_t InColorIndex);
 
  private:
   MCameraComponent* m_camera = nullptr;
   MEasyShakeComponent* m_shake = nullptr;
   MNetMovementComponent* Movement = nullptr;
   MSpriteComponent* m_sprite = nullptr;
+  uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
   MRectangleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
 
@@ -89,6 +92,8 @@ class APlayer : public APawn {
   bool CanMove = false;
   bool m_hasHeldItem = false;
   void Server_UseHeldItem();
+  void ApplyPlayerColor();
+  void OnRepPlayerColorIndex(uint8_t OldColorIndex);
   void ApplyHeldItemEffect();
   FShakeHandle m_crashshake;
   // ---- スピードダウン管理 ----

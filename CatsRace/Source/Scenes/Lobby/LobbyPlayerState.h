@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "Actor.h"
+#include "Core/PlayerColorPalette.h"
 
 class ALobbyPlayerState : public AActor {
  public:
@@ -18,6 +19,7 @@ class ALobbyPlayerState : public AActor {
   ALobbyPlayerState(const FVector2D& Location, FRotator Rotation);
 
   void SetPlayerName(const std::string& Name);
+  void SetPlayerColorIndex(uint8_t InColorIndex);
   void SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers);
   void SetFinishResult(bool bInFinished, float InFinishTime);
   void SetStartCountdownSeconds(int InStartCountdownSeconds);
@@ -26,6 +28,7 @@ class ALobbyPlayerState : public AActor {
   void RemoveOnSelectedMapChanged(FCallbackHandle Handle);
 
   const std::string& GetPlayerName() const { return PlayerName; }
+  uint8_t GetPlayerColorIndex() const { return PlayerColorIndex; }
   const std::string& GetSelectedLevelPath() const { return SelectedLevelPath; }
   int GetMaxPlayers() const { return MaxPlayers; }
   bool IsFinished() const { return bFinished; }
@@ -42,6 +45,7 @@ class ALobbyPlayerState : public AActor {
   void BroadcastOnSelectedMapChanged();
 
   std::string PlayerName = "Player";
+  uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
   std::string SelectedLevelPath;
   int MaxPlayers = 4;
   bool bFinished = false;
