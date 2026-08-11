@@ -135,6 +135,7 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
   state->bReplicates = true;
   state->bHasAuthority = true;
   state->bIsLocallyControlled = ConnectionId == 0;
+  state->SetPlayerColorIndex(AllocatePlayerColorIndex());
 
   std::string defaultName = "Player " + std::to_string(ConnectionId == 0 ? 1 : ConnectionId + 1);
   if (ConnectionId == 0) {
@@ -156,6 +157,34 @@ ALobbyPlayerState* ALobbyScene::SpawnPlayerState(FNetworkConnectionId Connection
   return state;
 }
 
+uint8_t ALobbyScene::AllocatePlayerColorIndex() {
+  std::array<bool, PlayerColorPalette.size()> usedColors{};
+  for (const auto* state : GetPlayerStates()) {
+    if (!state) {
+      continue;
+    }
+
+    const uint8_t colorIndex = state->GetPlayerColorIndex();
+    if (colorIndex < usedColors.size()) {
+      usedColors[colorIndex] = true;
+    }
+  }
+
+  for (size_t offset = 0; offset < PlayerColorPalette.size(); ++offset) {
+    const uint8_t colorIndex = static_cast<uint8_t>(
+        (NextPlayerColorIndex + offset) % PlayerColorPalette.size()
+    );
+    if (!usedColors[colorIndex]) {
+      NextPlayerColorIndex = static_cast<uint8_t>(
+          (colorIndex + 1) % PlayerColorPalette.size()
+      );
+      return colorIndex;
+    }
+  }
+
+  return InvalidPlayerColorIndex;
+}
+
 void ALobbyScene::EnsureHostPlayerState() { SpawnPlayerState(0); }
 
 void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States) {
@@ -167,6 +196,7 @@ void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerS
       GI_main::FMultiplayerResult result;
       result.ConnectionId = state->OwnerConnectionId;
       result.PlayerName = state->GetPlayerName();
+      result.PlayerColorIndex = state->GetPlayerColorIndex();
       result.bFinished = false;
       result.FinishTime = 0.0f;
       gi->multiplayer_results.push_back(result);

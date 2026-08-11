@@ -127,11 +127,12 @@ void AGameSceneBase::OnPlayerSpawned(
           return result.ConnectionId == ConnectionId;
         }
     );
-    player->SetPlayerName(
-        playerResult != gi->multiplayer_results.end()
-            ? playerResult->PlayerName
-            : ("Player " + std::to_string(ConnectionId + 1))
-    );
+    if (playerResult != gi->multiplayer_results.end()) {
+      player->SetPlayerName(playerResult->PlayerName);
+      player->SetPlayerColorIndex(playerResult->PlayerColorIndex);
+    } else {
+      player->SetPlayerName("Player " + std::to_string(ConnectionId + 1));
+    }
 
     auto existing = std::find_if(
         gi->multiplayer_results.begin(),

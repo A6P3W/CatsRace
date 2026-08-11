@@ -29,6 +29,7 @@ ALobbyPlayerState::ALobbyPlayerState() {
   bReplicates = true;
   SelectedLevelPath = GetDefaultLevelPath();
   RegisterReplicatedProperty(&PlayerName);
+  RegisterReplicatedProperty(&PlayerColorIndex);
   RegisterReplicatedProperty(
       &SelectedLevelPath, this, &ALobbyPlayerState::OnRepSelectedLevelPath
   );
@@ -64,6 +65,15 @@ void ALobbyPlayerState::SetPlayerName(const std::string& Name) {
   }
 
   InvokeRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name);
+}
+
+void ALobbyPlayerState::SetPlayerColorIndex(uint8_t InColorIndex) {
+  if (PlayerColorIndex == InColorIndex) {
+    return;
+  }
+
+  PlayerColorIndex = InColorIndex;
+  MarkReplicatedStateDirty();
 }
 
 void ALobbyPlayerState::SetLobbyOptions(
