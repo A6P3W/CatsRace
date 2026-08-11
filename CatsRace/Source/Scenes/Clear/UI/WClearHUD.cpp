@@ -34,7 +34,7 @@ UIBoxButtonComponent* AddActionButton(
   auto* label = NewObject<UITextComponent>(Owner);
   label->SetText(Label);
   label->SetColor(FColor{255, 255, 255});
-  label->SetFontSize(22);
+  label->SetFontSize(33);
   label->AttachToComponent(buttonPtr);
   label->SetWidgetSize({ActionButtonWidth, ActionButtonHeight});
   label->SetAnchor(EUIAnchor::MiddleCenter);
@@ -50,7 +50,7 @@ WClearHUD::WClearHUD() {
   m_ClearTimeText = NewObject<UITextComponent>(this);
   m_ClearTimeText->SetText("Clear Time: --.--");
   m_ClearTimeText->SetColor(FColor{255, 255, 0});
-  m_ClearTimeText->SetFontSize(36);
+  m_ClearTimeText->SetFontSize(54);
   m_ClearTimeText->SetAnchor(EUIAnchor::TopCenter);
   m_ClearTimeText->SetPivot({0.5f, 0.5f});
   m_ClearTimeText->SetAnchoredPosition({0.0f, 150.0f});
@@ -68,7 +68,7 @@ WClearHUD::WClearHUD() {
   m_LoadingText = NewObject<UITextComponent>(this);
   m_LoadingText->SetText("Waiting for results...");
   m_LoadingText->SetColor(FColor{136, 136, 136});
-  m_LoadingText->SetFontSize(24);
+  m_LoadingText->SetFontSize(36);
   m_LoadingText->SetAnchor(EUIAnchor::TopCenter);
   m_LoadingText->SetPivot({0.5f, 0.5f});
   m_LoadingText->SetAnchoredPosition({0.0f, 240.0f});
@@ -77,7 +77,7 @@ WClearHUD::WClearHUD() {
   ReturnCountdownText = NewObject<UITextComponent>(this);
   ReturnCountdownText->SetText("");
   ReturnCountdownText->SetColor(FColor{221, 221, 221});
-  ReturnCountdownText->SetFontSize(24);
+  ReturnCountdownText->SetFontSize(36);
   ReturnCountdownText->SetAnchor(EUIAnchor::BottomCenter);
   ReturnCountdownText->SetPivot({0.5f, 1.0f});
   ReturnCountdownText->SetAnchoredPosition({0.0f, -90.0f});
@@ -97,7 +97,7 @@ WClearHUD::WClearHUD() {
   m_WaitingHostText = NewObject<UITextComponent>(this);
   m_WaitingHostText->SetText("Waiting for host.");
   m_WaitingHostText->SetColor(FColor{221, 221, 221});
-  m_WaitingHostText->SetFontSize(24);
+  m_WaitingHostText->SetFontSize(36);
   m_WaitingHostText->SetAnchor(EUIAnchor::BottomCenter);
   m_WaitingHostText->SetPivot({0.5f, 1.0f});
   m_WaitingHostText->SetAnchoredPosition({0.0f, -90.0f});

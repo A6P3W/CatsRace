@@ -22,7 +22,7 @@ constexpr FColor InputNormalColor{102, 102, 102};
 constexpr FColor InputHoveredColor{136, 136, 136};
 constexpr FColor InputEditingColor{74, 111, 159};
 constexpr FColor InputLabelColor{255, 255, 255};
-constexpr int InputLabelFontSize = 20;
+constexpr int InputLabelFontSize = 30;
 constexpr float InputLabelOffsetY = -28.0f;
 constexpr float InputTextOffsetY = 7.0f;
 constexpr float InputActionHintOffsetY = -18.0f;
@@ -59,7 +59,7 @@ UIBoxButtonComponent* AddButton(
   auto* text = NewObject<UITextComponent>(Owner);
   text->SetText(Label);
   text->SetColor(TextColor);
-  text->SetFontSize(24);
+  text->SetFontSize(36);
   text->AttachToComponent(buttonPtr);
   text->SetAnchor(EUIAnchor::MiddleCenter);
   text->SetPivot({0.5f, 0.5f});
@@ -123,7 +123,7 @@ WMainMenuWidget::WMainMenuWidget() {
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
   StatusText->SetColor(FColor{0, 0, 0});
-  StatusText->SetFontSize(20);
+  StatusText->SetFontSize(30);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
@@ -179,7 +179,7 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Create Lobby");
   titleText->SetColor(FColor{0, 0, 0});
-  titleText->SetFontSize(32);
+  titleText->SetFontSize(48);
   titleText->SetAnchor(EUIAnchor::MiddleLeft);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({430.0f, -30.0f});
@@ -211,7 +211,7 @@ WCreateLobbyWidget::WCreateLobbyWidget() {
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
   StatusText->SetColor(FColor{0, 0, 0});
-  StatusText->SetFontSize(20);
+  StatusText->SetFontSize(30);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
@@ -282,7 +282,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Lobbies");
   titleText->SetColor(FColor{0, 0, 0});
-  titleText->SetFontSize(32);
+  titleText->SetFontSize(48);
   titleText->SetAnchor(EUIAnchor::MiddleRight);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({-430.0f, -180.0f});
@@ -298,7 +298,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
   EmptyText = NewObject<UITextComponent>(this);
   EmptyText->SetText("No lobby search results.");
   EmptyText->SetColor(FColor{0, 0, 0});
-  EmptyText->SetFontSize(20);
+  EmptyText->SetFontSize(30);
   EmptyText->SetPivot({0.5f, 0.5f});
   ResultList->AddItem(EmptyText);
   EmptyText->RegisterComponent();
@@ -306,7 +306,7 @@ WSearchLobbyWidget::WSearchLobbyWidget() {
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("");
   StatusText->SetColor(FColor{0, 0, 0});
-  StatusText->SetFontSize(20);
+  StatusText->SetFontSize(30);
   StatusText->SetAnchor(EUIAnchor::BottomCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, -56.0f});
@@ -442,7 +442,7 @@ WJoinLobbyDialog::WJoinLobbyDialog() {
   LobbyNameText = NewObject<UITextComponent>(this);
   LobbyNameText->SetAnchor(EUIAnchor::MiddleCenter);
   LobbyNameText->SetAnchoredPosition({0.0f, -60.0f});
-  LobbyNameText->SetFontSize(28);
+  LobbyNameText->SetFontSize(42);
   LobbyNameText->SetColor(FColor{255, 255, 255});
   LobbyNameText->RegisterComponent();
   JoinButton = AddButton(this, nullptr, "参加", 200.0f, 52.0f);

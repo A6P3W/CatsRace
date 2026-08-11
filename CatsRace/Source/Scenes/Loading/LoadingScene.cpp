@@ -51,7 +51,7 @@ ALoadingScene::ALoadingScene() {
   auto* titleText = NewObject<UITextComponent>(this);
   titleText->SetText("Connecting to Online Services...");
   titleText->SetColor(FColor{255, 255, 255});
-  titleText->SetFontSize(32);
+  titleText->SetFontSize(48);
   titleText->SetAnchor(EUIAnchor::MiddleCenter);
   titleText->SetPivot({0.5f, 0.5f});
   titleText->SetAnchoredPosition({0.0f, -36.0f});
@@ -60,7 +60,7 @@ ALoadingScene::ALoadingScene() {
   StatusText = NewObject<UITextComponent>(this);
   StatusText->SetText("Logging in...");
   StatusText->SetColor(FColor{184, 199, 217});
-  StatusText->SetFontSize(22);
+  StatusText->SetFontSize(33);
   StatusText->SetAnchor(EUIAnchor::MiddleCenter);
   StatusText->SetPivot({0.5f, 0.5f});
   StatusText->SetAnchoredPosition({0.0f, 24.0f});

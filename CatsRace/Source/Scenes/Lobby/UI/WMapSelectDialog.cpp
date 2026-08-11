@@ -19,7 +19,7 @@ WMapSelectDialog::WMapSelectDialog() {
   m_TitleText = NewObject<UITextComponent>(this);
   m_TitleText->SetText("Select Map");
   m_TitleText->SetColor(FColor{255, 255, 255});
-  m_TitleText->SetFontSize(30);
+  m_TitleText->SetFontSize(45);
   m_TitleText->SetAnchor(EUIAnchor::MiddleCenter);
   m_TitleText->SetPivot({0.5f, 0.5f});
   m_TitleText->SetAnchoredPosition({0.0f, -150.0f});
@@ -46,7 +46,7 @@ WMapSelectDialog::WMapSelectDialog() {
     auto* text = NewObject<UITextComponent>(this);
     text->SetText(mapInfo.DisplayName);
     text->SetColor(FColor{255, 255, 255});
-    text->SetFontSize(22);
+    text->SetFontSize(33);
     text->AttachToComponent(buttonPtr);
     text->SetAnchor(EUIAnchor::MiddleCenter);
     text->SetPivot({0.5f, 0.5f});
@@ -65,7 +65,7 @@ WMapSelectDialog::WMapSelectDialog() {
   m_TxtCancel = NewObject<UITextComponent>(this);
   m_TxtCancel->SetText("Cancel");
   m_TxtCancel->SetColor(FColor{255, 255, 255});
-  m_TxtCancel->SetFontSize(20);
+  m_TxtCancel->SetFontSize(30);
   m_TxtCancel->AttachToComponent(m_BtnCancel);
   m_TxtCancel->SetAnchor(EUIAnchor::MiddleCenter);
   m_TxtCancel->SetPivot({0.5f, 0.5f});
