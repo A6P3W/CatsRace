@@ -1,4 +1,4 @@
-﻿#include "SpeedDown.h"
+#include "SpeedDown.h"
 
 #include "Log.h"
 #include "MovementComponent.h"

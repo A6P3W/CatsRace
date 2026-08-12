@@ -45,6 +45,7 @@ class APlayer : public APawn {
   bool IsRotateCamera() const { return bRotateCamera; }
   void SetPlayerName(const std::string& PlayerName);
   void SetPlayerColorIndex(uint8_t InColorIndex);
+  uint8_t GetPlayerColorIndex() const { return PlayerColorIndex; }
 
  private:
   MCameraComponent* m_camera = nullptr;

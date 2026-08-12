@@ -1,10 +1,11 @@
-﻿#include "SpeedUpItem.h"
+#include "SpeedUpItem.h"
 
 #include <SpriteComponent.h>
-#include "RectangleCollisionComponent.h" 
+
 #include "CircleCollisionComponent.h"
 #include "Log.h"
 #include "MovementComponent.h"
+#include "RectangleCollisionComponent.h"
 #include "Scenes/Game/Player.h"
 #include "SoundComponent.h"
 REGISTER_ACTOR(SpeedUpItem);
@@ -36,9 +37,8 @@ void SpeedUpItem::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
-    player->GetComponents<MMovementComponent>()[0]->AddLocalForce({0, -25.0f});
-    player->ApplyFOVEffect(0.7f, 2.0f, true);
-    if (m_sound) m_sound->PlaySE("/Game/images/cat2d.mp3", false);
-    M_LOG("Speed Up!");
-  
+  player->GetComponents<MMovementComponent>()[0]->AddLocalForce({0, -25.0f});
+  player->ApplyFOVEffect(0.7f, 2.0f, true);
+  if (m_sound) m_sound->PlaySE("/Game/images/cat2d.mp3", false);
+  M_LOG("Speed Up!");
 }
