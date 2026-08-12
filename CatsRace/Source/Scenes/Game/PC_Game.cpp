@@ -1,4 +1,4 @@
-﻿#include "PC_Game.h"
+#include "PC_Game.h"
 
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
@@ -12,6 +12,7 @@
 #include "Scenes/Game/GameScene2.h"
 #include "Scenes/Game/GameSceneBase.h"
 #include "Scenes/Game/Player.h"
+#include "Scenes/Game/PlayerDirectionIndicator.h"
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
@@ -29,12 +30,16 @@ void PC_Game::BeginPlay() {
   if (bIsLocallyControlled) {
     MainHUD = GetWorld()->SpawnActor<WMainHUD>();
     UIManager::GetInstance()->AddWidget(MainHUD);
+    PlayerDirectionIndicator = GetWorld()->SpawnActor<APlayerDirectionIndicator>();
 
     if (dynamic_cast<APracticeGameMode*>(GetWorld()->GetGameMode())) {
       RaceRunning = true;
       SetInputMode(EInputMode::GameOnly);
       if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
         player->SetCanMove(true);
+        if (PlayerDirectionIndicator) {
+          PlayerDirectionIndicator->InitializePlayers(player);
+        }
       }
     } else {
       CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
@@ -62,12 +67,11 @@ void PC_Game::OnUpdate(float DeltaTime) {
         MainHUD->UpdateTimerText(RaceTime);
       }
     }
-   
+
     if (MainHUD) {
       if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
         MainHUD->SetHeldItemVisible(player->HasHeldItem());
 
-   
         MainHUD->SetLapVisible(true);
         MainHUD->UpdateLapText(player->GetCurrentLap(), 3);
       }
@@ -84,6 +88,9 @@ void PC_Game::RaceCountDown() {
     }
     RaceRunning = true;
     SetInputMode(EInputMode::GameOnly);
+    if (PlayerDirectionIndicator) {
+      PlayerDirectionIndicator->InitializePlayers(dynamic_cast<APlayer*>(GetPawn()));
+    }
     GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
   } else {
     if (CountDownWidget) {

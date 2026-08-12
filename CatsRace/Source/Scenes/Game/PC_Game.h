@@ -9,6 +9,7 @@ class WMainHUD;
 class WCountDown;
 class WControlGuide;
 class WPauseMenu;
+class APlayerDirectionIndicator;
 
 class PC_Game : public APlayerController {
  public:
@@ -36,6 +37,7 @@ class PC_Game : public APlayerController {
   WCountDown* CountDownWidget = nullptr;
   WControlGuide* ControlGuideWidget = nullptr;
   WPauseMenu* PauseMenu = nullptr;
+  APlayerDirectionIndicator* PlayerDirectionIndicator = nullptr;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;
