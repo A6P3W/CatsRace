@@ -337,6 +337,7 @@ void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
   }
 
   M_LOG(
+      Log,
       "Clear result accepted: connection={}, time={}",
       connectionId,
       FinishTime

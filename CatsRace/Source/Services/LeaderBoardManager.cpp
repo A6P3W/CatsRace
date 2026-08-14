@@ -24,7 +24,7 @@ void LeaderBoardManager::FetchLeaderBoard(std::string map_id, FetchLeaderBoardCa
         std::vector<FLeaderBoardEntry> LB;
         if (res.bSuccess) {
           try {
-            M_LOG("{}", res.Body);
+            M_LOG(Log, "{}", res.Body);
             auto body = nlohmann::json::parse(res.Body);
             nlohmann::json data = body["data"];
 
@@ -63,12 +63,12 @@ void LeaderBoardManager::PostScore(
   HttpManager::GetInstance().PostJson(
       this, PostScoreUrl, j.dump(), [this, callback](const HttpResponse& res) {
         if (res.bSuccess) {
-          M_LOG("Score posted successfully: {}", res.Body);
+          M_LOG(Log, "Score posted successfully: {}", res.Body);
           if (callback) {
             callback(true);
           }
         } else {
-          M_LOG("Failed to post score: {}", res.ErrorMessage);
+          M_LOG(Error, "Failed to post score: {}", res.ErrorMessage);
           if (callback) {
             callback(false);
           }
@@ -135,7 +135,7 @@ void LeaderBoardManager::FetchGhostData(
             return;
           }
         } catch (const nlohmann::json::exception& e) {
-          M_LOG("Failed to parse ghost data response: {}", e.what());
+          M_LOG(Error, "Failed to parse ghost data response: {}", e.what());
         }
 
         callback(false, ghostDataById);

@@ -87,7 +87,7 @@ void AGameSceneBase::BeginPlay() {
 
   SpawnActor<ASampleA>();
   LoadTopGhost();
-  M_LOG("Game scene initialized: {}", MapId);
+  M_LOG(Log, "Game scene initialized: {}", MapId);
 
   if (GetWorld()->IsServer()) {
     BeginTravelWait();
@@ -158,7 +158,7 @@ void AGameSceneBase::LoadTopGhost() {
   lbm->FetchLeaderBoard(
       mapId, [this, lbm, mapId](bool bSuccess, const std::vector<FLeaderBoardEntry>& entries) {
         if (!bSuccess || entries.empty()) {
-          M_LOG("Top ghost skipped: leaderboard is empty or unavailable");
+          M_LOG(Log, "Top ghost skipped: leaderboard is empty or unavailable");
           return;
         }
 
@@ -173,13 +173,13 @@ void AGameSceneBase::LoadTopGhost() {
               auto ghostDataIt = ghostDataById.find(topUserId);
               if (!bGhostSuccess || ghostDataIt == ghostDataById.end() ||
                   ghostDataIt->second.empty()) {
-                M_LOG("Top ghost skipped: ghost data is empty for {}", topUserId);
+                M_LOG(Log, "Top ghost skipped: ghost data is empty for {}", topUserId);
                 return;
               }
 
               auto frames = GhostDataSerializer::Deserialize(ghostDataIt->second);
               if (frames.empty()) {
-                M_LOG("Top ghost skipped: failed to parse ghost data for {}", topUserId);
+                M_LOG(Warning, "Top ghost skipped: failed to parse ghost data for {}", topUserId);
                 return;
               }
 
@@ -191,7 +191,7 @@ void AGameSceneBase::LoadTopGhost() {
               if (m_GhostPlayer->GetPlaybackComponent()) {
                 m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
               }
-              M_LOG("Top ghost loaded: {} frames from {}", frames.size(), topUserId);
+              M_LOG(Log, "Top ghost loaded: {} frames from {}", frames.size(), topUserId);
             }
         );
       }
@@ -306,7 +306,7 @@ void AGameSceneBase::RaceCountDown() {
 }
 
 void AGameSceneBase::RaceStart() {
-  M_LOG("start", 0);
+  M_LOG(Log, "start", 0);
 
   RaceRunning = true;
   if (m_GhostRecorder) {

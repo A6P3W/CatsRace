@@ -67,13 +67,13 @@ void AHeldSpeedItem::BeginOverlap(AActor* OtherActor) {
     m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   }
 
-  M_LOG("HeldSpeedItem: granted to player (conn={})", player->OwnerConnectionId);
+  M_LOG(Log, "HeldSpeedItem: granted to player (conn={})", player->OwnerConnectionId);
   if (m_onPickedUp) m_onPickedUp();
   Destroy();
 }
 
 void AHeldSpeedItem::Multicast_HideAndDestroy() {
-  M_LOG("HeldSpeedItem: Multicast_HideAndDestroy executed.");
+  M_LOG(Log, "HeldSpeedItem: Multicast_HideAndDestroy executed.");
 
 
   if (GetWorld()) {
@@ -85,7 +85,7 @@ void AHeldSpeedItem::Multicast_HideAndDestroy() {
 
 // タイマー完了時に呼ばれる破棄関数
 void AHeldSpeedItem::TriggerDestroy() {
-  M_LOG("HeldSpeedItem: TriggerDestroy called safely.");
+  M_LOG(Log, "HeldSpeedItem: TriggerDestroy called safely.");
 
   // サーバー側でこれが呼ばれると、エンジンの基本機能（bReplicates=true）によって
   // クライアント側のアクターも自動的に破棄パケットが飛び、消滅します。

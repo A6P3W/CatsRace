@@ -449,7 +449,7 @@ void APlayer::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
-  M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
+  M_LOG(Log, "Player BeginOverlap with " + OtherActor->GetActorClassName());
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
     return;
   }
@@ -501,7 +501,7 @@ void APlayer::EndOverlap(AActor* OtherActor) {
   if (!OtherActor || OtherActor->IsPendingDestroy()) {
     return;
   }
-  M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
+  M_LOG(Log, "Player EndOverlap with " + OtherActor->GetActorClassName());
 
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
     return;
@@ -651,7 +651,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
       m_isDrifting = true;
       m_driftGauge = 0.0f;
       m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
-      M_LOG("Drift Start", 0);
+      M_LOG(Log, "Drift Start", 0);
     }
 
     // ドリフト中は固定方向のステア入力のみ受け付ける
@@ -674,7 +674,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
       if (boostRatio > 0.2f) {
         float boostForce = DriftBoostForce * boostRatio;
         Movement->AddLocalForce({0.0f, -boostForce});
-        M_LOG("Drift Boost! ratio={}", boostRatio);
+        M_LOG(Log, "Drift Boost! ratio={}", boostRatio);
       }
       m_driftGauge = 0.0f;
     }
@@ -851,7 +851,7 @@ void APlayer::GrantHeldItem() {
   MarkReplicatedStateDirty();
 }
 void APlayer::UseHeldItem() {
-  M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
+  M_LOG(Log, "UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
 
   // 自身が操作していないプレイヤー、またはアイテムを所持していない場合は何もしない
   if (!bIsLocallyControlled || !m_hasHeldItem) {
@@ -885,7 +885,7 @@ void APlayer::ApplyHeldItemEffect() {
     // 拾った時に鳴らしていたSEを指定
     m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   }
-  M_LOG("Held item used: speed boost applied");
+  M_LOG(Log, "Held item used: speed boost applied");
 }
 void APlayer::RemoveSlowSource(ASlowFloor2* source) { m_slowSources.erase(source); }
 
@@ -898,6 +898,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   if (!bHasAuthority) return;
 
   M_LOG(
+      Log,
       "LapLine: lap={}, cooldown={}, lastCP={}, totalCP={}",
       m_currentLap,
       m_lapLineCooldown,
@@ -911,7 +912,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   // }
 
   if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
-    M_LOG("LapLine: ignored by checkpoint incomplete");
+    M_LOG(Log, "LapLine: ignored by checkpoint incomplete");
     return;
   }
 
@@ -923,7 +924,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
       RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
   );
 
-  M_LOG("Lap {} / {} completed!", m_currentLap, TotalLaps);
+  M_LOG(Log, "Lap {} / {} completed!", m_currentLap, TotalLaps);
 
   if (m_currentLap >= TotalLaps) {
     NotifyGoalReached();
@@ -932,6 +933,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
 void APlayer::Multicast_UpdateLap(int newLap) {
   m_currentLap = std::min(newLap, TotalLaps);
   M_LOG(
+      Log,
       "Multicast_UpdateLap received: lap={}, isLocal={}, hasAuthority={}",
       m_currentLap,
       bIsLocallyControlled,
