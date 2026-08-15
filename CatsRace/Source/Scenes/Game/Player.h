@@ -122,7 +122,6 @@ class APlayer : public APawn {
   static constexpr float SkidFadeDuration = 0.5f;
   static constexpr float SkidReleaseDuration = 0.2f;
   static constexpr float SkidMarkScale = 0.5f;
-  static constexpr float SkidMinSpeed = 0.1f;
   static constexpr int SkidMarkMaxAlpha = 160;
 
   struct FDriftParticle {
@@ -150,7 +149,7 @@ class APlayer : public APawn {
   void OnWheel(const FInputActionValue& Value);
   void BeginPlay();
   void DrawSpeedLines(float speed);
-  void UpdateDriftEffect(float DeltaTime, float speed);
+  void UpdateDriftEffect(float DeltaTime);
   void DrawDriftEffect();
   void BeginSkidReleaseTrail();
   void SpawnSkidMark(const FVector2D& Location);

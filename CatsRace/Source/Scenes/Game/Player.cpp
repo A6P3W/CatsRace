@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <random>
 
 #include "ActorManager.h"
@@ -48,6 +49,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterReplicatedProperty(&m_PlayerName);
   RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
+  RegisterReplicatedProperty(&m_driftGauge);
   RegisterReplicatedProperty(&m_currentLap);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
@@ -228,7 +230,7 @@ void APlayer::OnUpdate(float DeltaTime) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
 
-  UpdateDriftEffect(DeltaTime, speed);
+  UpdateDriftEffect(DeltaTime);
   DrawDriftEffect();
   // ---- アニメーション ----
   if (m_sprite) {
@@ -711,17 +713,20 @@ void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLine
 
   m_isSpeedUp = showSpeedLines;
 }
-void APlayer::UpdateDriftEffect(float DeltaTime, float speed) {
+void APlayer::UpdateDriftEffect(float DeltaTime) {
   // ----- タイヤ痕の生成 -----
   const FVector2D currentLocation = GetActorLocation();
   if (!bHasPreviousSkidLocation) {
     m_prevLocation = currentLocation;
     bHasPreviousSkidLocation = true;
-  } else if (speed > SkidMinSpeed) {
+  } else {
     const FVector2D movedVector = currentLocation - m_prevLocation;
     float remainingDistance = movedVector.Size();
     if (remainingDistance > 0.0f) {
       const float interval = m_isDrifting ? SkidDistanceInterval * 0.5f : SkidDistanceInterval;
+      if (SkidDistance >= interval) {
+        SkidDistance = std::fmod(SkidDistance, interval);
+      }
       FVector2D segmentStart = m_prevLocation;
       const FVector2D direction = movedVector / remainingDistance;
       while (SkidDistance + remainingDistance >= interval) {
@@ -733,9 +738,9 @@ void APlayer::UpdateDriftEffect(float DeltaTime, float speed) {
         SkidDistance = 0.0f;
       }
       SkidDistance += remainingDistance;
+    } else {
+      SkidDistance = 0.0f;
     }
-  } else {
-    SkidDistance = 0.0f;
   }
   m_prevLocation = currentLocation;
 
