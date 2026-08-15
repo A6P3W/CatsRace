@@ -22,7 +22,7 @@ namespace {
 void SetupGame() {
   ImGui::SetCurrentContext(static_cast<ImGuiContext*>(Application::GetImGuiContext()));
   EOSCoreManager::GetInstance().InitializeOnlineServices();
-  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::EOSP2P);
+  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::ENet);
 
   auto& sceneManager = SceneManager::GetInstance();
   sceneManager.SetGameInstance<GI_main>();
