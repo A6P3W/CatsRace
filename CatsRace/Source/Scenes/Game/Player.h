@@ -101,7 +101,7 @@ class APlayer : public APawn {
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
   int m_currentLap = 0;                                   // 完了した周回数（0始まり）
   int m_lastPassedCheckpoint = -1;                        // 最後に通過したチェックポイント番号
-  static constexpr int TotalLaps = 3;                     // 総周回数
+  static constexpr int TotalLaps = 2;                     // 総周回数
   struct FSkidMark {
     FVector2D Location;
     FRotator Rotation;

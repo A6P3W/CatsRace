@@ -11,5 +11,6 @@ constexpr FNetworkSceneId Game02 = 11;
 constexpr FNetworkSceneId Game03 = 12;
 constexpr FNetworkSceneId Clear = 100;
 constexpr FNetworkSceneId Game2 = 110;
+constexpr FNetworkSceneId Game3 = 111;
 constexpr FNetworkSceneId Practice = 20;
 }  // namespace GameSceneIds
