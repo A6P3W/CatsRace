@@ -13,7 +13,6 @@ class WCountDown;
 class WMainHUD;
 class WPauseMenu;
 class MGhostRecorderComponent;
-class AGhostPlayer;
 class APlayer;
 class APlayerController;
 
@@ -43,7 +42,6 @@ class AGameSceneBase : public AGameModeBase {
   void RaceCountDown();
   void RaceStart();
   void ClearCountDown();
-  void SpawnRaceGhosts();
   void SaveResult(FNetworkConnectionId ConnectionId, float FinishTime);
   bool AreAllPlayersFinished() const;
   void TravelToClear();
@@ -53,7 +51,6 @@ class AGameSceneBase : public AGameModeBase {
   FTimerHandle CountHandle;
 
   std::unordered_map<FNetworkConnectionId, MGhostRecorderComponent*> GhostRecorders;
-  std::vector<AGhostPlayer*> GhostPlayers;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;

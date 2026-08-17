@@ -1,11 +1,16 @@
 #include "PC_Game.h"
 
+#include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
 #include "GamePadDevice.h"
+#include "Ghost/GhostData.h"
+#include "Ghost/GhostPlaybackComponent.h"
+#include "Ghost/GhostPlayer.h"
 #include "InputManager.h"
 #include "InputMapper.h"
 #include "KeyboardDevice.h"
+#include "Log.h"
 #include "NetworkManager.h"
 #include "SceneManager.h"
 #include "Scenes/Common/UI/WControlGuide.h"
@@ -42,6 +47,7 @@ void PC_Game::BeginPlay() {
         }
       }
     } else {
+      SpawnRaceGhosts();
       CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
       CountDownWidget->SetCountText(std::to_string(m_CountDown));
       UIManager::GetInstance()->AddWidget(CountDownWidget);
@@ -63,6 +69,11 @@ void PC_Game::OnUpdate(float DeltaTime) {
   if (bIsLocallyControlled) {
     if (RaceRunning) {
       RaceTime += DeltaTime;
+      for (AGhostPlayer* GhostPlayer : GhostPlayers) {
+        if (GhostPlayer && GhostPlayer->GetPlaybackComponent()) {
+          GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
+        }
+      }
       if (MainHUD) {
         MainHUD->UpdateTimerText(RaceTime);
       }
@@ -78,6 +89,33 @@ void PC_Game::OnUpdate(float DeltaTime) {
     }
   }
 }
+
+void PC_Game::SpawnRaceGhosts() {
+  auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!GameInstance) {
+    return;
+  }
+
+  for (const FRaceGhostData& Ghost : GameInstance->RaceGhosts) {
+    const auto Frames = GhostDataSerializer::Deserialize(Ghost.GhostData);
+    if (Frames.empty()) {
+      M_LOG(Warning, "Race ghost skipped: failed to parse data for {}", Ghost.UserId);
+      continue;
+    }
+
+    auto* GhostPlayer = GetWorld()->SpawnActor<AGhostPlayer>();
+    if (!GhostPlayer) {
+      continue;
+    }
+    GhostPlayer->SetUserId(Ghost.PlayerName.empty() ? Ghost.UserId : Ghost.PlayerName);
+    GhostPlayer->SetGhostData(Frames);
+    GhostPlayers.push_back(GhostPlayer);
+  }
+  M_LOG(
+      Log, "Spawned {} local race ghosts for connection {}", GhostPlayers.size(), OwnerConnectionId
+  );
+}
+
 void PC_Game::RaceCountDown() {
   m_CountDown--;
 

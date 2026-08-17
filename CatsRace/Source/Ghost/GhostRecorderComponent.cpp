@@ -14,7 +14,22 @@ void MGhostRecorderComponent::StartRecording() {
   CaptureFrame();
 }
 
-void MGhostRecorderComponent::StopRecording() { m_bRecording = false; }
+void MGhostRecorderComponent::StopRecording() {
+  if (!m_bRecording) {
+    return;
+  }
+
+  CaptureFrame();
+  if (m_Frames.size() >= 2) {
+    const FGhostFrame& FinalFrame = m_Frames.back();
+    const FGhostFrame& PreviousFrame = m_Frames[m_Frames.size() - 2];
+    if (FinalFrame.X == PreviousFrame.X && FinalFrame.Y == PreviousFrame.Y &&
+        FinalFrame.Rot == PreviousFrame.Rot) {
+      m_Frames.pop_back();
+    }
+  }
+  m_bRecording = false;
+}
 
 std::string MGhostRecorderComponent::GetSerializedData() const {
   return GhostDataSerializer::Serialize(m_Frames);

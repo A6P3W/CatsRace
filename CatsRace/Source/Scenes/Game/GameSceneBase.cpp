@@ -20,9 +20,6 @@
 #include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
-#include "Ghost/GhostData.h"
-#include "Ghost/GhostPlaybackComponent.h"
-#include "Ghost/GhostPlayer.h"
 #include "Ghost/GhostRecorderComponent.h"
 #include "Log.h"
 #include "Objects/Items/HeldSpeedItem.h"
@@ -50,11 +47,6 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
   }
   if (RaceRunning) {
     RaceTime += DeltaTime;
-    for (AGhostPlayer* GhostPlayer : GhostPlayers) {
-      if (GhostPlayer && GhostPlayer->GetPlaybackComponent()) {
-        GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
-      }
-    }
   }
 }
 
@@ -90,7 +82,6 @@ void AGameSceneBase::BeginPlay() {
   }
 
   SpawnActor<ASampleA>();
-  SpawnRaceGhosts();
   M_LOG(Log, "Game scene initialized: {}", MapId);
 
   if (GetWorld()->IsServer()) {
@@ -155,28 +146,6 @@ void AGameSceneBase::OnPlayerSpawned(
       gi->multiplayer_results.push_back(result);
     }
   }
-}
-
-void AGameSceneBase::SpawnRaceGhosts() {
-  auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!GameInstance) {
-    return;
-  }
-  for (const FRaceGhostData& Ghost : GameInstance->RaceGhosts) {
-    const auto Frames = GhostDataSerializer::Deserialize(Ghost.GhostData);
-    if (Frames.empty()) {
-      M_LOG(Warning, "Race ghost skipped: failed to parse data for {}", Ghost.UserId);
-      continue;
-    }
-    auto* GhostPlayer = GetWorld()->SpawnActor<AGhostPlayer>();
-    if (!GhostPlayer) {
-      continue;
-    }
-    GhostPlayer->SetUserId(Ghost.PlayerName.empty() ? Ghost.UserId : Ghost.PlayerName);
-    GhostPlayer->SetGhostData(Frames);
-    GhostPlayers.push_back(GhostPlayer);
-  }
-  M_LOG(Log, "Spawned {} local race ghosts", GhostPlayers.size());
 }
 
 void AGameSceneBase::RaceFinish() {
