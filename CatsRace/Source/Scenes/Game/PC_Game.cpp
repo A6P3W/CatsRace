@@ -73,7 +73,7 @@ void PC_Game::OnUpdate(float DeltaTime) {
         MainHUD->SetHeldItemVisible(player->HasHeldItem());
 
         MainHUD->SetLapVisible(true);
-        MainHUD->UpdateLapText(player->GetCurrentLap(), 3);
+        MainHUD->UpdateLapText(player->GetCurrentLap(), 2);
       }
     }
   }

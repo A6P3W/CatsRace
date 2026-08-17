@@ -4678,21 +4678,6 @@
       }
     },
     {
-      "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_5",
-      "properties": {
-        "ImagePath": ""
-      },
-      "transform": {
-        "location": {
-          "x": -2637.081787109375,
-          "y": -840.102294921875
-        },
-        "rotation": 0.0,
-        "scale": 1.0
-      }
-    },
-    {
       "class": "APlayerStart",
       "instance_name": "APlayerStart_1",
       "transform": {

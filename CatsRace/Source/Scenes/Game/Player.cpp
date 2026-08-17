@@ -362,9 +362,9 @@ void APlayer::OnPossessedBy(APlayerController* NewController) {
 }
 
 void APlayer::SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) {
-  PlayerInputComponent->BindAction(
-      InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed
-  );
+  //PlayerInputComponent->BindAction(
+  //    InputAction::Interact, ETriggerEvent::Started, this, &APlayer::OnRestartPressed
+  //);
   PlayerInputComponent->BindAction(
       InputAction::Move, ETriggerEvent::Triggered, this, &APlayer::OnMove
   );
@@ -435,13 +435,13 @@ void APlayer::NotifyGoalReached() {
     InvokeRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, ENetPacketReliability::Reliable);
   }
 }
-void APlayer::OnRestartPressed() {
-  if (!bIsLocallyControlled) return;
-  if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
-    gameScene->RestartGame();
-  }
-}
-
+//void APlayer::OnRestartPressed() {
+//  if (!bIsLocallyControlled) return;
+//  if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
+ //   gameScene->RestartGame();
+ // }
+//}
+//
 void APlayer::OnWheel(const FInputActionValue& Value) {
   float fov = m_camera->GetFOV();
   m_camera->SetFOV(fov *= 1 + Value.Axis1D * 0.1);
