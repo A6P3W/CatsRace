@@ -4,7 +4,10 @@
 
 #include <utility>
 
+#include "ActorManager.h"
+#include "Core/PlayerColorPalette.h"
 #include "PathResolver.h"
+#include "Scenes/Game/Player.h"
 #include "World.h"
 
 REGISTER_ACTOR(AHostServerTravelActor)
@@ -29,6 +32,7 @@ void AHostServerTravelActor::Draw() {
   }
 
   ImGui::Begin("Server Travel");
+  InitializePlayerEntries();
   if (SelectedLevelPath.empty()) {
     ImGui::TextUnformatted("Level: Not selected");
   } else {
@@ -36,7 +40,10 @@ void AHostServerTravelActor::Draw() {
   }
 
   const bool bSubmitted = ImGui::InputText(
-      "Level path", LevelPathInput.data(), LevelPathInput.size(), ImGuiInputTextFlags_EnterReturnsTrue
+      "Level path",
+      LevelPathInput.data(),
+      LevelPathInput.size(),
+      ImGuiInputTextFlags_EnterReturnsTrue
   );
   ImGui::SameLine();
   if (ImGui::Button("Set Level") || bSubmitted) {
@@ -48,7 +55,64 @@ void AHostServerTravelActor::Draw() {
   }
 
   ImGui::Text("Status: %s", StatusText.c_str());
+
+  ImGui::Separator();
+  ImGui::TextUnformatted("Player Speed");
+  for (const FPlayerSpeedEntry& Entry : PlayerEntries) {
+    APlayer* Player = Entry.Player;
+    if (!Player || Player->IsPendingDestroy()) {
+      continue;
+    }
+
+    FColor PlayerColor = FColor::White;
+    const uint8_t ColorIndex = Player->GetPlayerColorIndex();
+    if (ColorIndex < PlayerColorPalette.size()) {
+      PlayerColor = PlayerColorPalette[ColorIndex];
+    }
+    const ImVec4 TextColor{
+        PlayerColor.R / 255.0f,
+        PlayerColor.G / 255.0f,
+        PlayerColor.B / 255.0f,
+        PlayerColor.A / 255.0f,
+    };
+
+    ImGui::PushID(Player);
+    ImGui::PushStyleColor(ImGuiCol_Text, TextColor);
+    ImGui::TextUnformatted(Player->GetPlayerName().c_str());
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+
+    float Multiplier = Player->GetSpeedMultiplier();
+    if (ImGui::SliderFloat(
+            "##SpeedMultiplier",
+            &Multiplier,
+            APlayer::MinSpeedMultiplier,
+            APlayer::MaxSpeedMultiplier,
+            "%.2fx"
+        )) {
+      Player->SetSpeedMultiplier(Multiplier);
+    }
+    ImGui::PopID();
+  }
   ImGui::End();
+}
+
+void AHostServerTravelActor::InitializePlayerEntries() {
+  World* CurrentWorld = GetWorld();
+  if (bPlayerEntriesInitialized || !CurrentWorld || !CurrentWorld->GetActorManager()) {
+    return;
+  }
+
+  for (const auto& ActorPtr : CurrentWorld->GetActorManager()->GetAllActors()) {
+    APlayer* Player = ActorPtr ? dynamic_cast<APlayer*>(ActorPtr.get()) : nullptr;
+    if (!Player || Player->IsPendingDestroy()) {
+      continue;
+    }
+
+    PlayerEntries.push_back({Player});
+  }
+
+  bPlayerEntriesInitialized = true;
 }
 
 void AHostServerTravelActor::SetLevelPathFromInput() {
@@ -81,7 +145,7 @@ void AHostServerTravelActor::ExecuteServerTravel() {
   }
 
   StatusText = CurrentWorld->ServerTravel(SelectedLevelPath) ? "ServerTravel queued."
-                                                               : "ServerTravel failed.";
+                                                             : "ServerTravel failed.";
 }
 
 bool AHostServerTravelActor::NormalizeSelectedLevelPath(

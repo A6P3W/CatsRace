@@ -2,10 +2,12 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 #include "Actor.h"
 
 class World;
+class APlayer;
 
 class AHostServerTravelActor : public AActor {
  public:
@@ -15,9 +17,14 @@ class AHostServerTravelActor : public AActor {
 
   static void SpawnForListenServer(World& InWorld);
 
- void Draw() override;
+  void Draw() override;
 
  private:
+  struct FPlayerSpeedEntry {
+    APlayer* Player = nullptr;
+  };
+
+  void InitializePlayerEntries();
   void SetLevelPathFromInput();
   void ExecuteServerTravel();
   bool NormalizeSelectedLevelPath(const std::string& InputPath, std::string& OutLevelPath) const;
@@ -25,4 +32,6 @@ class AHostServerTravelActor : public AActor {
   std::array<char, 1024> LevelPathInput{};
   std::string SelectedLevelPath;
   std::string StatusText;
+  std::vector<FPlayerSpeedEntry> PlayerEntries;
+  bool bPlayerEntriesInitialized = false;
 };
