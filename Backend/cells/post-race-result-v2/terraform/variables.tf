@@ -11,25 +11,26 @@ variable "region" {
 }
 
 variable "memory_size" {
+  description = "Available memory for the Cloud Function"
   type        = string
   default     = "512Mi"
-  description = "Available memory for the Cloud Function"
 }
 
 variable "runtime" {
+  description = "The runtime environment for the Cloud Function"
   type        = string
   default     = "python312"
-  description = "The runtime environment for the Cloud Function"
 }
 
 variable "function_name" {
   description = "Cloud Function name"
   type        = string
-  default     = "template"
+  default     = "post-race-result-v2"
 }
 
 variable "bucket_name" {
-  description = "The name of the GCS bucket to store function source"
+  description = "GCS bucket used for function source archives"
   type        = string
   default     = "tfsource-catsrace"
 }
+

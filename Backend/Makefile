@@ -10,13 +10,13 @@ all: help
 
 help:
 	@echo "Usage: make [run|tfinit|tfplan|tfapply|deploy] TARGET_DIR=./cells/example"
-	@echo '       make local CELLS="sample-1 sample-2" [PROXY_PORT=8080]'
+	@echo '       make local CELLS="get-race-ghosts-v2 post-race-result-v2 get-world-ranking-v2" [PROXY_PORT=8080]'
 	@echo "       make local-all [PROXY_PORT=8080]"
 	@echo "       make local-clean"
 
 local:
 ifeq ($(strip $(CELLS)),)
-	$(error CELLS is required. Example: make local CELLS="sample-1 sample-2")
+	$(error CELLS is required. Example: make local CELLS="get-race-ghosts-v2 post-race-result-v2 get-world-ranking-v2")
 endif
 	$(PYTHON) local.py --cells $(CELLS) --proxy-port $(PROXY_PORT)
 

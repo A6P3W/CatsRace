@@ -1,19 +1,19 @@
 terraform {
   backend "gcs" {
     bucket = "tfstate-catsrace-1a747116"
-    prefix = "cells/template"
+    prefix = "cells/get-race-ghosts-v2"
   }
 
   required_version = ">= 1.6.0"
 
   required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 5.0"
-    }
     archive = {
       source  = "hashicorp/archive"
       version = "~> 2.4"
+    }
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
     }
   }
 }
@@ -34,21 +34,12 @@ data "archive_file" "function_zip" {
 }
 
 resource "google_storage_bucket_object" "function_source" {
-  # Incorporate the file hash to ensure Cloud Functions detects changes
   name   = "${var.function_name}-${data.archive_file.function_zip.output_md5}.zip"
   bucket = data.google_storage_bucket.source_bucket.name
   source = data.archive_file.function_zip.output_path
 }
 
-resource "google_cloud_run_service_iam_member" "public_access" {
-  location = google_cloudfunctions2_function.hello.location
-  service  = google_cloudfunctions2_function.hello.name
-
-  role   = "roles/run.invoker"
-  member = "allUsers"
-}
-
-resource "google_cloudfunctions2_function" "hello" {
+resource "google_cloudfunctions2_function" "function" {
   name     = var.function_name
   location = var.region
 
@@ -76,3 +67,11 @@ resource "google_cloudfunctions2_function" "hello" {
     }
   }
 }
+
+resource "google_cloud_run_service_iam_member" "public_access" {
+  location = google_cloudfunctions2_function.function.location
+  service  = google_cloudfunctions2_function.function.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+

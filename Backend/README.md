@@ -33,7 +33,7 @@ terraform apply
 指定した cell を Functions Framework で同時に起動し、Caddy 経由（`http://localhost:8080/<cell-name>`）で公開します。
 ローカルデバッグ時も Firestore は GCP 実環境に接続されます。
 
-> 現時点では `cells/` に新API 3セルは未作成で、`sample-1`、`sample-2`、`template` が存在します。以下の新API起動コマンドは、3セル作成後に使用します。
+`cells/` にはランキング・ゴースト V2 API の3セルと、セル追加用の `template` があります。
 
 ```sh
 # 新API 3セルの同時ローカル起動

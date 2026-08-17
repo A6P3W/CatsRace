@@ -80,7 +80,8 @@ def resolve_cells(
         cell_names = list(requested_cells or [])
         if not cell_names:
             raise LocalRunError(
-                'CELLS is required. Example: make local CELLS="sample-1 sample-2"'
+                "CELLS is required. Example: make local CELLS=\"get-race-ghosts-v2 "
+                "post-race-result-v2 get-world-ranking-v2\""
             )
 
     seen: set[str] = set()
