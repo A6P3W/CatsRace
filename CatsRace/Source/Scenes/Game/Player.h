@@ -44,8 +44,15 @@ class APlayer : public APawn {
   void SetRotateCamera(bool bInRotateCamera) { bRotateCamera = bInRotateCamera; }
   bool IsRotateCamera() const { return bRotateCamera; }
   void SetPlayerName(const std::string& PlayerName);
+  const std::string& GetPlayerName() const { return m_PlayerName; }
   void SetPlayerColorIndex(uint8_t InColorIndex);
   uint8_t GetPlayerColorIndex() const { return PlayerColorIndex; }
+  void SetSpeedMultiplier(float InMultiplier);
+  float GetSpeedMultiplier() const { return SpeedMultiplier; }
+
+  static constexpr float MinSpeedMultiplier = 0.8f;
+  static constexpr float MaxSpeedMultiplier = 2.0f;
+  static constexpr float DefaultSpeedMultiplier = 1.0f;
 
  private:
   MCameraComponent* m_camera = nullptr;
@@ -62,11 +69,12 @@ class APlayer : public APawn {
   float m_slider = 0.0f;
   bool m_isSpeedUp = false;
   float m_lapLineCooldown = 0.0f;
-  const float MaxSpeed = 70.0f;
-  const float MaxReverseSpeed = 20.0f;
-  const float AccelForce = 3.5f;
-  const float ReverseForce = 2.0f;
-  const float MaxSteer = 5.5f;
+  float SpeedMultiplier = DefaultSpeedMultiplier;
+  static constexpr float BaseMaxSpeed = 10.0f;
+  static constexpr float BaseMaxReverseSpeed = 20.0f;
+  static constexpr float AccelForce = 3.5f;
+  static constexpr float ReverseForce = 2.0f;
+  static constexpr float BaseMaxSteer = 2.5f;
   const float DriftSpeedDecay = 0.95f;
   float m_moveAnimTime = 5.5f;
   int m_walkAnimFrame = 0;

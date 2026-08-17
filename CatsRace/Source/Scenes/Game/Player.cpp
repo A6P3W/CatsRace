@@ -51,6 +51,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
   RegisterReplicatedProperty(&m_driftGauge);
   RegisterReplicatedProperty(&m_currentLap);
+  RegisterReplicatedProperty(&SpeedMultiplier);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
   RegisterRPC(RPC_ServerUseHeldItem, ENetRPCType::Server, this, &APlayer::Server_UseHeldItem);
@@ -144,6 +145,16 @@ void APlayer::SetPlayerName(const std::string& PlayerName) {
   MarkReplicatedStateDirty();
 }
 
+void APlayer::SetSpeedMultiplier(float InMultiplier) {
+  const float NewMultiplier = std::clamp(InMultiplier, MinSpeedMultiplier, MaxSpeedMultiplier);
+  if (SpeedMultiplier == NewMultiplier) {
+    return;
+  }
+
+  SpeedMultiplier = NewMultiplier;
+  MarkReplicatedStateDirty();
+}
+
 void APlayer::SetPlayerColorIndex(uint8_t InColorIndex) {
   if (PlayerColorIndex == InColorIndex) {
     return;
@@ -176,10 +187,8 @@ void APlayer::OnRepPlayerColorIndex(uint8_t OldColorIndex) {
 }
 
 void APlayer::OnUpdate(float DeltaTime) {
-  const float MaxSpeed = 10.0f;
-  const float AccelForce = 3.5f;
-  const float BrakeForce = 6.0f;
-  const float MaxSteer = 2.5f;
+  const float EffectiveMaxSpeed = BaseMaxSpeed * SpeedMultiplier;
+  const float EffectiveMaxReverseSpeed = BaseMaxReverseSpeed * SpeedMultiplier;
 
   FVector2D v = Movement->GetVelocity();
   float speed = std::sqrt(v.SizeSquared());
@@ -196,11 +205,11 @@ void APlayer::OnUpdate(float DeltaTime) {
       Movement->SetWorldVelocity(Movement->GetVelocity() * decayPerFrame);
     }
     if (m_accelInput > 0.0f) {
-      float speedRatio = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+      float speedRatio = std::clamp(speed / EffectiveMaxSpeed, 0.0f, 1.0f);
       float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
       Movement->AddLocalForce({0.0f, -force});
     } else if (m_accelInput < 0.0f) {
-      float speedRatio = std::clamp(speed / MaxReverseSpeed, 0.0f, 1.0f);
+      float speedRatio = std::clamp(speed / EffectiveMaxReverseSpeed, 0.0f, 1.0f);
       float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
       Movement->AddLocalForce({0.0f, force});
     }
@@ -222,7 +231,7 @@ void APlayer::OnUpdate(float DeltaTime) {
       );
     }
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
-    float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
+    float steerAngle = BaseMaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
 
@@ -281,7 +290,7 @@ void APlayer::OnUpdate(float DeltaTime) {
 
   // ---- 走行音 ----
   if (m_sound) {
-    float t = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
+    float t = std::clamp(speed / EffectiveMaxSpeed, 0.0f, 1.0f);
     m_sound->SetVolume(m_engineIdleHandle, 1.0f - t);  // 速いほど小さく
     m_sound->SetVolume(m_engineRunHandle, t);          // 速いほど大きく
   }
@@ -438,8 +447,8 @@ void APlayer::NotifyGoalReached() {
 //void APlayer::OnRestartPressed() {
 //  if (!bIsLocallyControlled) return;
 //  if (auto* gameScene = dynamic_cast<AGameSceneBase*>(GetWorld()->GetGameMode())) {
- //   gameScene->RestartGame();
- // }
+//   gameScene->RestartGame();
+// }
 //}
 //
 void APlayer::OnWheel(const FInputActionValue& Value) {
