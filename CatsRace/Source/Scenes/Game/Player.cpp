@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <random>
 
 #include "ActorManager.h"
@@ -48,6 +49,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterReplicatedProperty(&m_PlayerName);
   RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
+  RegisterReplicatedProperty(&m_driftGauge);
   RegisterReplicatedProperty(&m_currentLap);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
@@ -68,6 +70,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
       ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_4_bw.png");
   m_walkAnimHandles[4] =
       ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_5_bw.png");
+  PawPrintHandle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/paw-print.png");
 
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(50, RenderSpace::World);
@@ -156,15 +159,15 @@ void APlayer::ApplyPlayerColor() {
     return;
   }
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, PlayerColorPalette.size() - 1);
-  m_sprite->SetTint(PlayerColorPalette[dis(gen)]);
-
   if (PlayerColorIndex < PlayerColorPalette.size()) {
-    m_sprite->SetTint(PlayerColorPalette[PlayerColorIndex]);
-    return;
+    CurrentPlayerColor = PlayerColorPalette[PlayerColorIndex];
+  } else {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, PlayerColorPalette.size() - 1);
+    CurrentPlayerColor = PlayerColorPalette[dis(gen)];
   }
+  m_sprite->SetTint(CurrentPlayerColor);
 }
 
 void APlayer::OnRepPlayerColorIndex(uint8_t OldColorIndex) {
@@ -206,16 +209,18 @@ void APlayer::OnUpdate(float DeltaTime) {
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     UpdateDrift(DeltaTime, speed);
     if (!bHasAuthority) {
+      const float driftGaugeRatio = m_isDrifting
+                                        ? std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f)
+                                        : SkidReleaseGaugeRatio;
       InvokeRPC(
           RPC_ServerSyncDriftState,
           ENetRPCType::Server,
           ENetPacketReliability::Unreliable,
           m_isDrifting,
-          m_driftDirection
+          m_driftDirection,
+          driftGaugeRatio
       );
     }
-    UpdateDriftEffect(DeltaTime);
-    DrawDriftEffect();
     float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
     float steerAngle = MaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
@@ -401,9 +406,13 @@ void APlayer::OnMove(const FInputActionValue& Value) {
 
 void APlayer::Server_SetDrift(bool bDriftHeld) { m_driftKeyPressed = bDriftHeld; }
 
-void APlayer::Server_SyncDriftState(bool bDrifting, float driftDirection) {
+void APlayer::Server_SyncDriftState(bool bDrifting, float driftDirection, float driftGaugeRatio) {
+  if (m_isDrifting && !bDrifting) {
+    BeginSkidReleaseTrail();
+  }
   m_isDrifting = bDrifting;
   m_driftDirection = driftDirection;
+  m_driftGauge = std::clamp(driftGaugeRatio, 0.0f, 1.0f) * MaxDriftGauge;
 }
 
 void APlayer::Server_NotifyGoal() { NotifyGoalReached(); }
@@ -449,7 +458,7 @@ void APlayer::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
-  M_LOG("Player BeginOverlap with " + OtherActor->GetActorClassName());
+  M_LOG(Log, "Player BeginOverlap with " + OtherActor->GetActorClassName());
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
     return;
   }
@@ -501,7 +510,7 @@ void APlayer::EndOverlap(AActor* OtherActor) {
   if (!OtherActor || OtherActor->IsPendingDestroy()) {
     return;
   }
-  M_LOG("Player EndOverlap with " + OtherActor->GetActorClassName());
+  M_LOG(Log, "Player EndOverlap with " + OtherActor->GetActorClassName());
 
   if (dynamic_cast<ASlowFloor2*>(OtherActor)) {
     return;
@@ -602,15 +611,15 @@ void APlayer::DrawSpeedLines(float speed) {
 }
 void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
   // ドリフト開始条件と継続条件を分離
-  bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
+  bool bCanStartDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
                         (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
 
   bool bWantsDrift = bCanStartDrift;
   if (m_isDrifting) {
     float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
     // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
-    bWantsDrift =
-        m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    bWantsDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.1f) &&
+                  (currentDir == m_driftDirection);
   }
 
   if (bWantsDrift) {
@@ -627,6 +636,7 @@ void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
       }
     }
   } else {
+    BeginSkidReleaseTrail();
     m_isDrifting = false;
     m_driftGauge = 0.0f;
   }
@@ -634,15 +644,15 @@ void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
 
 void APlayer::UpdateDrift(float DeltaTime, float speed) {
   // ドリフト開始条件と継続条件を分離
-  bool bCanStartDrift = m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
+  bool bCanStartDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
                         (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
 
   bool bWantsDrift = bCanStartDrift;
   if (m_isDrifting) {
     float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
     // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
-    bWantsDrift =
-        m_driftKeyPressed && (std::abs(m_slider) > 0.1f) && (currentDir == m_driftDirection);
+    bWantsDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.1f) &&
+                  (currentDir == m_driftDirection);
   }
 
   if (bWantsDrift) {
@@ -651,7 +661,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
       m_isDrifting = true;
       m_driftGauge = 0.0f;
       m_driftDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
-      M_LOG("Drift Start", 0);
+      M_LOG(Log, "Drift Start", 0);
     }
 
     // ドリフト中は固定方向のステア入力のみ受け付ける
@@ -669,12 +679,14 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
     Movement->SetWorldVelocity(Movement->GetVelocity() * decay);
   } else {
     if (m_isDrifting) {
+      BeginSkidReleaseTrail();
       // ドリフト終了 → ブースト
       float boostRatio = m_driftGauge / MaxDriftGauge;
       if (boostRatio > 0.2f) {
         float boostForce = DriftBoostForce * boostRatio;
         Movement->AddLocalForce({0.0f, -boostForce});
-        M_LOG("Drift Boost! ratio={}", boostRatio);
+        M_LOG(Log, "Drift Boost! ratio={}", boostRatio);
+        ApplyFOVEffect(0.9f, 0.5f, true);
       }
       m_driftGauge = 0.0f;
     }
@@ -682,6 +694,15 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
     m_isDrifting = false;
   }
 }
+void APlayer::BeginSkidReleaseTrail() {
+  if (!m_isDrifting) {
+    return;
+  }
+
+  SkidReleaseGaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+  SkidReleaseTimer = SkidReleaseDuration;
+}
+
 void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines) {
   if (!bIsLocallyControlled && !(bHasAuthority && OwnerConnectionId == 0)) return;
   m_fovBase = 1.0f;
@@ -694,19 +715,42 @@ void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLine
 }
 void APlayer::UpdateDriftEffect(float DeltaTime) {
   // ----- タイヤ痕の生成 -----
-  if (m_isDrifting) {
-    m_skidTimer += DeltaTime;
-    if (m_skidTimer >= SkidInterval) {
-      m_skidTimer = 0.0f;
-      SpawnSkidMark();
-    }
+  const FVector2D currentLocation = GetActorLocation();
+  if (!bHasPreviousSkidLocation) {
+    m_prevLocation = currentLocation;
+    bHasPreviousSkidLocation = true;
   } else {
-    m_skidTimer = 0.0f;
+    const FVector2D movedVector = currentLocation - m_prevLocation;
+    float remainingDistance = movedVector.Size();
+    if (remainingDistance > 0.0f) {
+      const float interval = m_isDrifting ? SkidDistanceInterval * 0.5f : SkidDistanceInterval;
+      if (SkidDistance >= interval) {
+        SkidDistance = std::fmod(SkidDistance, interval);
+      }
+      FVector2D segmentStart = m_prevLocation;
+      const FVector2D direction = movedVector / remainingDistance;
+      while (SkidDistance + remainingDistance >= interval) {
+        const float distanceToMark = interval - SkidDistance;
+        const FVector2D markLocation = segmentStart + direction * distanceToMark;
+        SpawnSkidMark(markLocation);
+        segmentStart = markLocation;
+        remainingDistance -= distanceToMark;
+        SkidDistance = 0.0f;
+      }
+      SkidDistance += remainingDistance;
+    } else {
+      SkidDistance = 0.0f;
+    }
   }
+  m_prevLocation = currentLocation;
 
   // タイヤ痕フェードアウト＆削除
   for (auto& mark : m_skidMarks) {
-    mark.Alpha -= SkidFadeSpeed * DeltaTime;
+    mark.Age += DeltaTime;
+    if (mark.Age > SkidVisibleDuration) {
+      mark.Alpha =
+          std::clamp(1.0f - (mark.Age - SkidVisibleDuration) / SkidFadeDuration, 0.0f, 0.75f);
+    }
   }
   m_skidMarks.erase(
       std::remove_if(
@@ -744,20 +788,23 @@ void APlayer::UpdateDriftEffect(float DeltaTime) {
   );
 }
 
-void APlayer::SpawnSkidMark() {
+void APlayer::SpawnSkidMark(const FVector2D& Location) {
   if (m_skidMarks.size() >= 300) {
     m_skidMarks.erase(m_skidMarks.begin());
   }
-  // 左右タイヤそれぞれ1つずつ生成
-  const float TireOffset = 18.0f;
-  for (int side : {-1, 1}) {
-    FVector2D offset = FVector2D(TireOffset * side, 10.0f).RotateVector(GetActorRotation());
-    FSkidMark mark;
-    mark.Location = GetActorLocation() + offset;
-    mark.Rotation = GetActorRotation();
-    mark.Alpha = 1.0f;
-    m_skidMarks.push_back(mark);
-  }
+
+  // 左右の足跡を交互に1つずつ生成
+  const float TireOffset = 6.0f;
+  FVector2D offset =
+      FVector2D(TireOffset * NextSkidMarkSide, 10.0f).RotateVector(GetActorRotation());
+  m_skidMarks.push_back({
+      Location + offset,
+      GetActorRotation(),
+      1.0f,
+      0.0f,
+      CurrentPlayerColor,
+  });
+  NextSkidMarkSide *= -1;
 }
 
 void APlayer::SpawnDriftParticles() {
@@ -772,7 +819,7 @@ void APlayer::SpawnDriftParticles() {
   FVector2D base = GetActorLocation();
 
   // 煙 2つ
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < 1; ++i) {
     float a = UMath::DegToRad(distAngle(rng));
     float s = distSmoke(rng);
     float life = distLife(rng);
@@ -804,19 +851,32 @@ void APlayer::SpawnDriftParticles() {
 
 void APlayer::DrawDriftEffect() {
   auto& rs = RenderSystem::GetInstance();
+  const float gaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+
+  FColor driftColor{255, 204, 0, 100};
+  if (gaugeRatio > 0.9f) {
+    driftColor = FColor{255, 68, 68, 255};
+  } else if (gaugeRatio > 0.2f) {
+    driftColor = FColor{68, 204, 255, 100};
+  }
 
   // ----- タイヤ痕 -----
   for (const auto& mark : m_skidMarks) {
-    int alpha = static_cast<int>(mark.Alpha * 160.0f);
-    FVector2D topLeft = FVector2D(-3.0f, -10.0f).RotateVector(mark.Rotation);
-    rs.SubmitBox(
-        mark.Location + topLeft,
-        {6.0f, 20.0f},
+    int alpha = static_cast<int>(mark.Alpha * SkidMarkMaxAlpha);
+    FColor markColor = mark.Color;
+
+    if (PawPrintHandle == -1) {
+      continue;
+    }
+    rs.SubmitGraph(
+        mark.Location,
+        PawPrintHandle,
+        FScale(SkidMarkScale),
         mark.Rotation,
-        FColor{17, 17, 17, static_cast<uint8_t>(alpha)},
-        true,
         RenderSpace::World,
-        -1
+        2,
+        alpha,
+        markColor
     );
   }
 
@@ -826,10 +886,15 @@ void APlayer::DrawDriftEffect() {
     int alpha = static_cast<int>(lifeRatio * 190.0f);
 
     if (p.IsSpark) {
+      FColor sparkColor{255, 204, 0, static_cast<uint8_t>(alpha)};
+      if (gaugeRatio > 0.9f) {
+        sparkColor = FColor{255, 68, 68, static_cast<uint8_t>(alpha)};
+      } else if (gaugeRatio > 0.2f) {
+        sparkColor = FColor{68, 204, 255, static_cast<uint8_t>(alpha)};
+      }
+
       FVector2D tip = p.Location + p.Velocity * 0.025f;
-      rs.SubmitLine(
-          p.Location, tip, FColor{255, 204, 0, static_cast<uint8_t>(alpha)}, RenderSpace::World, 3
-      );
+      rs.SubmitLine(p.Location, tip, sparkColor, RenderSpace::World, 3);
     } else {
       rs.SubmitCircle(
           p.Location,
@@ -851,7 +916,7 @@ void APlayer::GrantHeldItem() {
   MarkReplicatedStateDirty();
 }
 void APlayer::UseHeldItem() {
-  M_LOG("UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
+  M_LOG(Log, "UseHeldItem called. hasItem={}, isLocal={}", m_hasHeldItem, bIsLocallyControlled);
 
   // 自身が操作していないプレイヤー、またはアイテムを所持していない場合は何もしない
   if (!bIsLocallyControlled || !m_hasHeldItem) {
@@ -885,7 +950,7 @@ void APlayer::ApplyHeldItemEffect() {
     // 拾った時に鳴らしていたSEを指定
     m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   }
-  M_LOG("Held item used: speed boost applied");
+  M_LOG(Log, "Held item used: speed boost applied");
 }
 void APlayer::RemoveSlowSource(ASlowFloor2* source) { m_slowSources.erase(source); }
 
@@ -898,6 +963,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   if (!bHasAuthority) return;
 
   M_LOG(
+      Log,
       "LapLine: lap={}, cooldown={}, lastCP={}, totalCP={}",
       m_currentLap,
       m_lapLineCooldown,
@@ -911,7 +977,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   // }
 
   if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
-    M_LOG("LapLine: ignored by checkpoint incomplete");
+    M_LOG(Log, "LapLine: ignored by checkpoint incomplete");
     return;
   }
 
@@ -923,7 +989,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
       RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
   );
 
-  M_LOG("Lap {} / {} completed!", m_currentLap, TotalLaps);
+  M_LOG(Log, "Lap {} / {} completed!", m_currentLap, TotalLaps);
 
   if (m_currentLap >= TotalLaps) {
     NotifyGoalReached();
@@ -932,6 +998,7 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
 void APlayer::Multicast_UpdateLap(int newLap) {
   m_currentLap = std::min(newLap, TotalLaps);
   M_LOG(
+      Log,
       "Multicast_UpdateLap received: lap={}, isLocal={}, hasAuthority={}",
       m_currentLap,
       bIsLocallyControlled,

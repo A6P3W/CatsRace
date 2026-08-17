@@ -22,7 +22,7 @@ ASlowFloor2::ASlowFloor2(float width, float height, float slowStrength)
   m_sound = NewObject<MSoundComponent>(this);
   m_sound->RegisterComponent();
 
-  M_LOG("[SlowFloor2] Spawned. size=({}, {}), strength={}", m_width, m_height, m_slowStrength);
+  M_LOG(Log, "[SlowFloor2] Spawned. size=({}, {}), strength={}", m_width, m_height, m_slowStrength);
 }
 
 void ASlowFloor2::SetSize(float width, float height) {

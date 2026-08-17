@@ -55,6 +55,6 @@ void ALapCheckpoint::BeginOverlap(AActor* OtherActor) {
     // 通常チェックポイント：番号が進んでいる場合のみ更新
     if (player->GetLastPassedCheckpoint() >= m_index) return;
     player->SetLastPassedCheckpoint(m_index);
-    M_LOG("Checkpoint {} passed (conn={})", m_index, player->OwnerConnectionId);
+    M_LOG(Log, "Checkpoint {} passed (conn={})", m_index, player->OwnerConnectionId);
   }
 }

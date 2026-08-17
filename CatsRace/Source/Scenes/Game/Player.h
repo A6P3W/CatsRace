@@ -53,6 +53,7 @@ class APlayer : public APawn {
   MNetMovementComponent* Movement = nullptr;
   MSpriteComponent* m_sprite = nullptr;
   uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
+  FColor CurrentPlayerColor = FColor::White;
   MRectangleCollisionComponent* m_collision = nullptr;
   std::array<int, 5> m_walkAnimHandles{};
 
@@ -106,11 +107,22 @@ class APlayer : public APawn {
     FVector2D Location;
     FRotator Rotation;
     float Alpha;
+    float Age;
+    FColor Color;
   };
   std::vector<FSkidMark> m_skidMarks;
-  float m_skidTimer = 0.0f;
-  static constexpr float SkidInterval = 0.03f;
-  static constexpr float SkidFadeSpeed = 0.4f;
+  float SkidDistance = 0.0f;
+  bool bHasPreviousSkidLocation = false;
+  float SkidReleaseTimer = 0.0f;
+  float SkidReleaseGaugeRatio = 0.0f;
+  int NextSkidMarkSide = -1;
+  int PawPrintHandle = -1;
+  static constexpr float SkidDistanceInterval = 44.0f;
+  static constexpr float SkidVisibleDuration = 5.0f;
+  static constexpr float SkidFadeDuration = 0.5f;
+  static constexpr float SkidReleaseDuration = 0.2f;
+  static constexpr float SkidMarkScale = 0.5f;
+  static constexpr int SkidMarkMaxAlpha = 160;
 
   struct FDriftParticle {
     FVector2D Location;
@@ -130,7 +142,7 @@ class APlayer : public APawn {
   void UpdateLocalDriftVisual(float DeltaTime, float speed);
   void OnMove(const FInputActionValue& Value);
   void Server_SetDrift(bool bDriftHeld);
-  void Server_SyncDriftState(bool bDrifting, float driftDirection);
+  void Server_SyncDriftState(bool bDrifting, float driftDirection, float driftGaugeRatio);
   void Server_NotifyGoal();
   bool IsDriftInputPressed();
   void OnRestartPressed();
@@ -139,7 +151,8 @@ class APlayer : public APawn {
   void DrawSpeedLines(float speed);
   void UpdateDriftEffect(float DeltaTime);
   void DrawDriftEffect();
-  void SpawnSkidMark();
+  void BeginSkidReleaseTrail();
+  void SpawnSkidMark(const FVector2D& Location);
   void SpawnDriftParticles();
   void BeginOverlap(AActor* OtherActor) override;
   void EndOverlap(AActor* OtherActor) override;

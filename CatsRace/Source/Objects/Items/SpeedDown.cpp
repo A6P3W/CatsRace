@@ -29,7 +29,7 @@ ASlowFloor::ASlowFloor(float width, float height, float slowStrength)
   m_sound = NewObject<MSoundComponent>(this);
   m_sound->RegisterComponent();
 
-  M_LOG("[SlowFloor] Spawned. size=({}, {}), strength={}", m_width, m_height, m_slowStrength);
+  M_LOG(Log, "[SlowFloor] Spawned. size=({}, {}), strength={}", m_width, m_height, m_slowStrength);
 }
 
 void ASlowFloor::SetSize(float width, float height) {
@@ -50,7 +50,7 @@ void ASlowFloor::BeginOverlap(AActor* OtherActor) {
   auto movements = OtherActor->GetComponents<MMovementComponent>();
   for (auto* move : movements) {
     m_overlappingMovements.insert(move);
-    M_LOG("[SlowFloor] BeginOverlap: {}", OtherActor->GetActorClassName());
+    M_LOG(Log, "[SlowFloor] BeginOverlap: {}", OtherActor->GetActorClassName());
   }
 }
 
@@ -59,7 +59,7 @@ void ASlowFloor::EndOverlap(AActor* OtherActor) {
   auto movements = OtherActor->GetComponents<MMovementComponent>();
   for (auto* move : movements) {
     m_overlappingMovements.erase(move);
-    M_LOG("[SlowFloor] EndOverlap: {}", OtherActor->GetActorClassName());
+    M_LOG(Log, "[SlowFloor] EndOverlap: {}", OtherActor->GetActorClassName());
   }
 }
 
