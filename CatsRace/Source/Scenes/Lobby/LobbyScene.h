@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
+#include <unordered_set>
 #include <vector>
 
-#include "GameModeBase.h"
 #include "Core/PlayerColorPalette.h"
+#include "GameModeBase.h"
 #include "NetworkTypes.h"
 #include "SoundComponent.h"
 
@@ -24,8 +25,11 @@ class ALobbyScene : public AGameModeBase {
   void Draw() override;
   APlayerController* OnClientConnected(FNetworkConnectionId ConnectionId) override;
   void OnClientDisconnected(FNetworkConnectionId ConnectionId) override;
+  void NotifyGhostReady(FNetworkConnectionId ConnectionId);
 
  private:
+  enum class ERaceStartState { Idle, FetchingGhosts, WaitingForReady, Countdown };
+
   std::vector<ALobbyPlayerState*> GetPlayerStates();
   ALobbyPlayerState* FindLocalPlayerState();
   ALobbyPlayerState* FindHostPlayerState();
@@ -34,12 +38,19 @@ class ALobbyScene : public AGameModeBase {
   uint8_t AllocatePlayerColorIndex();
   void EnsureHostPlayerState();
   void SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States);
+  bool ArePlayerIdentitiesReady(const std::vector<ALobbyPlayerState*>& States) const;
+  void FetchRaceGhosts();
+  void DistributeRaceGhosts();
+  void BeginStartCountdown();
   void StartGame();
   MSoundComponent* m_bgmSound = nullptr;
   float StartCountdownRemaining = -1.0f;
   int LastPublishedCountdownSeconds = -1;
   bool bStartTravelRequested = false;
   std::string PendingStartLevelPath;
+  ERaceStartState RaceStartState = ERaceStartState::Idle;
+  float GhostReadyTimeoutRemaining = -1.0f;
+  std::unordered_set<FNetworkConnectionId> GhostReadyConnections;
 
   int MaxPlayers = 4;
   uint8_t NextPlayerColorIndex = 0;

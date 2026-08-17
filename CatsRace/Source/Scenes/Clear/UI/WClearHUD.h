@@ -1,4 +1,5 @@
 #pragma once
+
 #include <NetworkTypes.h>
 #include <WidgetBase.h>
 
@@ -23,40 +24,37 @@ struct FResultEntryViewData {
 
 class WClearHUD : public AWidgetBase {
  public:
-  DEFINE_ACTOR_CLASS(WClearHUD);
+  DEFINE_ACTOR_CLASS(WClearHUD)
   WClearHUD();
 
-  void SetClearTime(float clearTime);
-  void SetLeaderBoard(const std::vector<FLeaderBoardEntry>& entries);
+  void SetClearTime(float ClearTime);
   void SetMultiplayerResults(const std::vector<FResultEntryViewData>& Results);
+  void SetWorldRanking(const FWorldRankingBatchResult& Result, const std::string& IdentityKey);
+  void SetWorldRankingPending();
+  void SetWorldRankingError();
   void SetHostMode(bool bIsHost);
   void SetWaitingForHost(bool bWaiting);
   void SetWaitingForResults(bool bWaiting);
   void SetReturnCountdown(int Seconds);
 
-  void SetErrorText(std::string e);
-
-  std::function<void()> OnReplay;
   std::function<void()> OnBackToLobby;
 
  private:
-  void ClearResultEntries();
+  void ClearLobbyEntries();
+  void ClearWorldEntries();
+  void AddWorldSectionLabel(const std::string& Label);
   void RebuildActionNavigation();
 
-  MUIVerticalBoxComponent* m_ResultListBox = nullptr;
-  MUIVerticalBoxComponent* m_ActionBox = nullptr;
-
-  UIBoxButtonComponent* m_ReplayButton = nullptr;
-  UIBoxButtonComponent* m_BackToLobbyButton = nullptr;
-
-  UITextComponent* m_ClearTimeText = nullptr;
-  UITextComponent* m_LoadingText = nullptr;
-  UITextComponent* m_WaitingHostText = nullptr;
+  MUIVerticalBoxComponent* LobbyResultListBox = nullptr;
+  MUIVerticalBoxComponent* WorldResultListBox = nullptr;
+  MUIVerticalBoxComponent* ActionBox = nullptr;
+  UIBoxButtonComponent* BackToLobbyButton = nullptr;
+  UITextComponent* ClearTimeText = nullptr;
+  UITextComponent* LobbyLoadingText = nullptr;
+  UITextComponent* WorldStatusText = nullptr;
+  UITextComponent* WaitingHostText = nullptr;
   UITextComponent* ReturnCountdownText = nullptr;
-
-  std::vector<WRankEntryComponent*> m_ResultEntryWidgets;
-  const float m_EntryStartY = 300.0f;
-  const float m_EntryHeight = 45.0f;
-
-
+  std::vector<WRankEntryComponent*> LobbyEntryWidgets;
+  std::vector<WRankEntryComponent*> WorldEntryWidgets;
+  std::vector<UITextComponent*> WorldSectionLabels;
 };

@@ -5,8 +5,10 @@
 #include <utility>
 
 #include "ActorManager.h"
+#include "Core/GI_main.h"
 #include "Core/PlayerColorPalette.h"
 #include "PathResolver.h"
+#include "SceneManager.h"
 #include "Scenes/Game/Player.h"
 #include "World.h"
 
@@ -55,6 +57,13 @@ void AHostServerTravelActor::Draw() {
   }
 
   ImGui::Text("Status: %s", StatusText.c_str());
+
+  if (auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    bool BoothMode = GameInstance->BoothMode;
+    if (ImGui::Checkbox("Booth mode", &BoothMode)) {
+      GameInstance->BoothMode = BoothMode;
+    }
+  }
 
   ImGui::Separator();
   ImGui::TextUnformatted("Player Speed");

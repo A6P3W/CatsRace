@@ -3,13 +3,21 @@
 #include <algorithm>
 #include <utility>
 
+#include "Core/GI_main.h"
 #include "Core/MapData.h"
+#include "SceneManager.h"
+#include "Scenes/Lobby/LobbyScene.h"
+#include "World.h"
 
 namespace {
 enum : FNetworkRPCId {
   RPC_ServerSetPlayerName = 1,
   RPC_ServerSetLobbyOptions = 3,
-  RPC_ServerSetFinishResult = 4
+  RPC_ServerSetFinishResult = 4,
+  RPC_ServerSetDeviceId = 5,
+  RPC_ClientReceiveRaceGhost = 6,
+  RPC_ClientReceiveRaceGhostDeliveryComplete = 7,
+  RPC_ServerAcknowledgeRaceGhosts = 8
 };
 
 std::string GetDefaultLevelPath() {
@@ -29,10 +37,9 @@ ALobbyPlayerState::ALobbyPlayerState() {
   bReplicates = true;
   SelectedLevelPath = GetDefaultLevelPath();
   RegisterReplicatedProperty(&PlayerName);
+  RegisterReplicatedProperty(&DeviceId);
   RegisterReplicatedProperty(&PlayerColorIndex);
-  RegisterReplicatedProperty(
-      &SelectedLevelPath, this, &ALobbyPlayerState::OnRepSelectedLevelPath
-  );
+  RegisterReplicatedProperty(&SelectedLevelPath, this, &ALobbyPlayerState::OnRepSelectedLevelPath);
   RegisterReplicatedProperty(&MaxPlayers);
   RegisterReplicatedProperty(&bFinished);
   RegisterReplicatedProperty(&FinishTime);
@@ -56,6 +63,25 @@ void ALobbyPlayerState::InitializeRPCs() {
   RegisterRPC(
       RPC_ServerSetFinishResult, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyFinishResult
   );
+  RegisterRPC(RPC_ServerSetDeviceId, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyDeviceId);
+  RegisterRPC(
+      RPC_ClientReceiveRaceGhost,
+      ENetRPCType::Client,
+      this,
+      &ALobbyPlayerState::ClientReceiveRaceGhost
+  );
+  RegisterRPC(
+      RPC_ClientReceiveRaceGhostDeliveryComplete,
+      ENetRPCType::Client,
+      this,
+      &ALobbyPlayerState::ClientReceiveRaceGhostDeliveryComplete
+  );
+  RegisterRPC(
+      RPC_ServerAcknowledgeRaceGhosts,
+      ENetRPCType::Server,
+      this,
+      &ALobbyPlayerState::ServerAcknowledgeRaceGhosts
+  );
 }
 
 void ALobbyPlayerState::SetPlayerName(const std::string& Name) {
@@ -67,6 +93,19 @@ void ALobbyPlayerState::SetPlayerName(const std::string& Name) {
   InvokeRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name);
 }
 
+void ALobbyPlayerState::SetDeviceId(const std::string& InDeviceId) {
+  if (InDeviceId.empty()) {
+    return;
+  }
+  if (bHasAuthority) {
+    ApplyDeviceId(InDeviceId);
+    return;
+  }
+  InvokeRPC(
+      RPC_ServerSetDeviceId, ENetRPCType::Server, ENetPacketReliability::Reliable, InDeviceId
+  );
+}
+
 void ALobbyPlayerState::SetPlayerColorIndex(uint8_t InColorIndex) {
   if (PlayerColorIndex == InColorIndex) {
     return;
@@ -76,9 +115,7 @@ void ALobbyPlayerState::SetPlayerColorIndex(uint8_t InColorIndex) {
   MarkReplicatedStateDirty();
 }
 
-void ALobbyPlayerState::SetLobbyOptions(
-    const std::string& InSelectedLevelPath, int InMaxPlayers
-) {
+void ALobbyPlayerState::SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers) {
   if (bHasAuthority) {
     ApplyLobbyOptions(InSelectedLevelPath, InMaxPlayers);
     return;
@@ -111,6 +148,14 @@ void ALobbyPlayerState::ApplyPlayerName(const std::string& Name) {
   MarkReplicatedStateDirty();
 }
 
+void ALobbyPlayerState::ApplyDeviceId(const std::string& InDeviceId) {
+  if (InDeviceId.empty() || DeviceId == InDeviceId) {
+    return;
+  }
+  DeviceId = InDeviceId;
+  MarkReplicatedStateDirty();
+}
+
 void ALobbyPlayerState::ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers) {
   SetSelectedMap(
       IsAvailableLevelPath(InSelectedLevelPath) ? InSelectedLevelPath : GetDefaultLevelPath()
@@ -125,7 +170,6 @@ void ALobbyPlayerState::ApplyFinishResult(bool bInFinished, float InFinishTime) 
   MarkReplicatedStateDirty();
 }
 
-
 void ALobbyPlayerState::SetStartCountdownSeconds(int InStartCountdownSeconds) {
   if (StartCountdownSeconds == InStartCountdownSeconds) {
     return;
@@ -133,6 +177,99 @@ void ALobbyPlayerState::SetStartCountdownSeconds(int InStartCountdownSeconds) {
 
   StartCountdownSeconds = InStartCountdownSeconds;
   MarkReplicatedStateDirty();
+}
+
+void ALobbyPlayerState::SendRaceGhosts(const std::vector<FRaceGhostData>& Ghosts) {
+  if (!bHasAuthority) {
+    return;
+  }
+  if (Ghosts.empty()) {
+    InvokeRPC(
+        RPC_ClientReceiveRaceGhostDeliveryComplete,
+        ENetRPCType::Client,
+        ENetPacketReliability::Reliable
+    );
+    return;
+  }
+
+  for (size_t Index = 0; Index < Ghosts.size(); ++Index) {
+    const FRaceGhostData& Ghost = Ghosts[Index];
+    InvokeRPC(
+        RPC_ClientReceiveRaceGhost,
+        ENetRPCType::Client,
+        ENetPacketReliability::Reliable,
+        static_cast<int>(Index),
+        Ghost.UserId,
+        Ghost.PlayerName,
+        Ghost.Score,
+        Ghost.GhostSchemaVersion,
+        Ghost.GhostRecordedSeconds,
+        Ghost.bIsGhostPartial,
+        Ghost.GhostData,
+        Index + 1 == Ghosts.size()
+    );
+  }
+}
+
+void ALobbyPlayerState::ClientReceiveRaceGhost(
+    int SlotIndex,
+    std::string UserId,
+    std::string InPlayerName,
+    float Score,
+    int GhostSchemaVersion,
+    float GhostRecordedSeconds,
+    bool bIsGhostPartial,
+    std::string GhostData,
+    bool bIsLastGhost
+) {
+  if (GetWorld()->IsServer()) {
+    if (bIsLastGhost) {
+      CompleteRaceGhostDelivery();
+    }
+    return;
+  }
+  auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!GameInstance || SlotIndex < 0 || SlotIndex >= 4) {
+    return;
+  }
+  if (SlotIndex == 0) {
+    GameInstance->RaceGhosts.clear();
+  }
+  if (GameInstance->RaceGhosts.size() <= static_cast<size_t>(SlotIndex)) {
+    GameInstance->RaceGhosts.resize(static_cast<size_t>(SlotIndex) + 1);
+  }
+
+  FRaceGhostData& Ghost = GameInstance->RaceGhosts[static_cast<size_t>(SlotIndex)];
+  Ghost.UserId = std::move(UserId);
+  Ghost.PlayerName = std::move(InPlayerName);
+  Ghost.Score = Score;
+  Ghost.GhostSchemaVersion = GhostSchemaVersion;
+  Ghost.GhostRecordedSeconds = GhostRecordedSeconds;
+  Ghost.bIsGhostPartial = bIsGhostPartial;
+  Ghost.GhostData = std::move(GhostData);
+  if (bIsLastGhost) {
+    CompleteRaceGhostDelivery();
+  }
+}
+
+void ALobbyPlayerState::ClientReceiveRaceGhostDeliveryComplete() {
+  if (!GetWorld()->IsServer()) {
+    if (auto* GameInstance =
+            dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+      GameInstance->RaceGhosts.clear();
+    }
+  }
+  CompleteRaceGhostDelivery();
+}
+
+void ALobbyPlayerState::CompleteRaceGhostDelivery() {
+  InvokeRPC(RPC_ServerAcknowledgeRaceGhosts, ENetRPCType::Server, ENetPacketReliability::Reliable);
+}
+
+void ALobbyPlayerState::ServerAcknowledgeRaceGhosts() {
+  if (auto* LobbyScene = dynamic_cast<ALobbyScene*>(GetWorld()->GetGameMode())) {
+    LobbyScene->NotifyGhostReady(OwnerConnectionId);
+  }
 }
 
 ALobbyPlayerState::FCallbackHandle ALobbyPlayerState::AddOnSelectedMapChanged(

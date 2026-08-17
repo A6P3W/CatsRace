@@ -1,37 +1,45 @@
 #include "Scenes/Clear/PC_Clear.h"
 
+#include <ActorManager.h>
 #include <EnhancedInputComponent.h>
-#include <KeyboardDevice.h>
 #include <NetworkManager.h>
 
 #include <algorithm>
-#include <cmath>
 #include <iomanip>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <sstream>
-#include "Scenes/Lobby/LobbyPlayerState.h"
-#include "Core/GI_main.h"
-#include "Core/GameSceneIds.h"
-#include "Core/MapData.h"
+
 #include "InputManager.h"
-#include "Log.h"
-#include "SceneManager.h"
+#include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/UI/WClearHUD.h"
-#include "Scenes/Game/GameScene01.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
-#include "Services/LeaderBoardManager.h"
 #include "UIManager.h"
 #include "World.h"
 
 namespace {
-enum : FNetworkRPCId { RPC_ServerSubmitLocalResult = 1 };
+enum : FNetworkRPCId { RPC_ClientReceiveWorldRanking = 1 };
 
-std::string GetReplayLevelPath() {
-  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (gi && !gi->last_level_path.empty()) {
-    return gi->last_level_path;
-  }
-  return AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+nlohmann::json SerializeEntry(const FWorldRankingEntry& Entry) {
+  return {
+      {"rank", Entry.Rank},
+      {"user_id", Entry.UserId},
+      {"identity_key", Entry.IdentityKey},
+      {"player_name", Entry.PlayerName},
+      {"score", Entry.Score},
+      {"is_self", Entry.bIsSelf}
+  };
+}
+
+FWorldRankingEntry ParseEntry(const nlohmann::json& Value) {
+  FWorldRankingEntry Entry;
+  Entry.Rank = Value.value("rank", 0);
+  Entry.UserId = Value.value("user_id", std::string{});
+  Entry.IdentityKey = Value.value("identity_key", std::string{});
+  Entry.PlayerName = Value.value("player_name", std::string{});
+  Entry.Score = Value.value("score", 0.0f);
+  Entry.bIsSelf = Value.value("is_self", false);
+  return Entry;
 }
 }  // namespace
 
@@ -40,306 +48,200 @@ REGISTER_ACTOR(PC_Clear)
 PC_Clear::PC_Clear() {
   SetUpdateableAnytime(true);
   RegisterRPC(
-      RPC_ServerSubmitLocalResult,
-      ENetRPCType::Server,
-      this,
-      &PC_Clear::Server_SubmitLocalResult
+      RPC_ClientReceiveWorldRanking, ENetRPCType::Client, this, &PC_Clear::ClientReceiveWorldRanking
   );
 }
 
 void PC_Clear::BeginPlay() {
   APlayerController::BeginPlay();
-
   if (!bIsLocallyControlled) {
     return;
   }
 
   SetInputMode(EInputMode::UIOnly);
   SetupInputMappings();
+  ClearHUD = GetWorld()->SpawnActor<WClearHUD>();
+  UIManager::GetInstance()->AddWidget(ClearHUD);
+  UIManager::GetInstance()->SetFocusedWidget(ClearHUD);
+  if (!ClearHUD) {
+    return;
+  }
 
-  auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  m_ClearHUD = GetWorld()->SpawnActor<WClearHUD>();
-  UIManager::GetInstance()->AddWidget(m_ClearHUD);
-  UIManager::GetInstance()->SetFocusedWidget(m_ClearHUD);
-
-  if (m_ClearHUD) {
-    const bool bIsStandalone = GetWorld()->IsStandalone();
-    m_ClearHUD->SetHostMode(false);
-    m_ClearHUD->SetWaitingForHost(false);
-
-    if (bIsStandalone) {
-      m_ClearHUD->SetClearTime(gi ? gi->ClearTime : -1.0f);
-    } else {
-      m_ClearHUD->SetClearTime(-1.0f);
-      m_ClearHUD->SetWaitingForResults(true);
-      m_ClearHUD->SetReturnCountdown(10);
+  const bool bIsHost = GetWorld()->IsServer();
+  ClearHUD->SetHostMode(false);
+  ClearHUD->SetWaitingForHost(!bIsHost);
+  ClearHUD->SetWaitingForResults(true);
+  ClearHUD->SetWorldRankingPending();
+  ClearHUD->OnBackToLobby = [this]() {
+    if (auto* Scene = dynamic_cast<AClearScene*>(GetWorld()->GetGameMode())) {
+      Scene->RequestReturnToLobby();
     }
-  }
-
-  if (GetWorld()->IsStandalone()) {
-    // Fetch and display leaderboard initially
-    FetchAndDisplay();
-  }
+  };
 }
 
 void PC_Clear::OnUpdate(float DeltaTime) {
+  APlayerController::OnUpdate(DeltaTime);
   if (bIsLocallyControlled) {
-    if (MEnhancedInputComponent* input = GetInputComponent()) {
-      if (InputMapper* mapper = GetInputMapper()) {
-        input->ProcessInputBindings(*mapper, true, false);
+    if (MEnhancedInputComponent* Input = GetInputComponent()) {
+      if (InputMapper* Mapper = GetInputMapper()) {
+        Input->ProcessInputBindings(*Mapper, true, false);
       }
     }
   }
 
-  if (!bIsLocallyControlled || !m_ClearHUD || GetWorld()->IsStandalone()) {
+  if (!bIsLocallyControlled || !ClearHUD) {
+    return;
+  }
+  RefreshMultiplayerResults();
+  RefreshReturnCountdown();
+}
+
+bool PC_Clear::SendWorldRankingToOwner(
+    bool bSuccess, const FWorldRankingBatchResult& Result, const std::string& IdentityKey
+) {
+  if (!bHasAuthority) {
+    return false;
+  }
+
+  nlohmann::json Payload = {
+      {"success", bSuccess}, {"identity_key", IdentityKey}, {"top", nlohmann::json::array()}
+  };
+  for (const auto& Entry : Result.Top) {
+    Payload["top"].push_back(SerializeEntry(Entry));
+  }
+
+  Payload["self_rank"] = nullptr;
+  Payload["around_self"] = nlohmann::json::array();
+  const auto RankingIt = Result.RankingsByIdentity.find(IdentityKey);
+  if (RankingIt != Result.RankingsByIdentity.end()) {
+    if (RankingIt->second.SelfRank.has_value()) {
+      Payload["self_rank"] = *RankingIt->second.SelfRank;
+    }
+    for (const auto& Entry : RankingIt->second.AroundSelf) {
+      Payload["around_self"].push_back(SerializeEntry(Entry));
+    }
+  }
+
+  return InvokeRPC(
+      RPC_ClientReceiveWorldRanking,
+      ENetRPCType::Client,
+      ENetPacketReliability::Reliable,
+      Payload.dump()
+  );
+}
+
+void PC_Clear::ClientReceiveWorldRanking(std::string Payload) {
+  if (!bIsLocallyControlled || !ClearHUD) {
     return;
   }
 
-  m_ResultSubmitRetryCooldown =
-      (std::max)(0.0f, m_ResultSubmitRetryCooldown - DeltaTime);
-
-  DisplayReturnCountdownRemaining -= DeltaTime;
-  const int displayedCountdown = (std::max)(0, static_cast<int>(std::ceil(DisplayReturnCountdownRemaining)));
-  if (displayedCountdown != LastDisplayedReturnCountdown) {
-    LastDisplayedReturnCountdown = displayedCountdown;
-    m_ClearHUD->SetReturnCountdown(displayedCountdown);
-  }
-
-  SubmitLocalResultToServerIfNeeded();
-  RefreshMultiplayerResults();
-}
-
-void PC_Clear::ExecutePostScore(const std::string& name) {
-  auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi) return;
-
-  std::string map_id = gi->map_id;
-  auto* LBM = GetWorld()->SpawnActor<LeaderBoardManager>();
-  LBM->PostScore(map_id, name, [this](bool bSuccess) {
-    if (!bSuccess) {
-      if (m_ClearHUD) {
-        m_ClearHUD->SetErrorText("Failed to Post Score");
-      }
+  try {
+    const nlohmann::json Value = nlohmann::json::parse(Payload);
+    if (!Value.value("success", false)) {
+      ClearHUD->SetWorldRankingError();
+      ClearHUD->SetHostMode(GetWorld()->IsServer());
+      return;
     }
-    FetchAndDisplay();
-  });
-}
 
-void PC_Clear::FetchAndDisplay() {
-  auto gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi) return;
+    const std::string IdentityKey = Value.value("identity_key", std::string{});
+    FWorldRankingBatchResult Result;
+    for (const auto& EntryValue : Value.value("top", nlohmann::json::array())) {
+      Result.Top.push_back(ParseEntry(EntryValue));
+    }
 
-  std::string map_id = gi->map_id;
-  auto* LBM = GetWorld()->SpawnActor<LeaderBoardManager>();
-  LBM->FetchLeaderBoard(
-      map_id, [this](bool bSuccess, const std::vector<FLeaderBoardEntry>& entries) {
-        if (!bSuccess) {
-          if (m_ClearHUD) {
-            m_ClearHUD->SetErrorText("Failed to Fetch LeaderBoard");
-          }
-          return;
-        }
-        m_FetchedUserIds.clear();
-        for (const auto& entry : entries) {
-          m_FetchedUserIds.push_back(entry.user_id);
-        }
-        if (m_ClearHUD) {
-          m_ClearHUD->SetLeaderBoard(entries);
-        }
-      }
-  );
+    FUserRankingData UserRanking;
+    if (Value.contains("self_rank") && Value["self_rank"].is_number_integer()) {
+      UserRanking.SelfRank = Value["self_rank"].get<int>();
+    }
+    for (const auto& EntryValue : Value.value("around_self", nlohmann::json::array())) {
+      UserRanking.AroundSelf.push_back(ParseEntry(EntryValue));
+    }
+    Result.RankingsByIdentity[IdentityKey] = std::move(UserRanking);
+    ClearHUD->SetWorldRanking(Result, IdentityKey);
+    ClearHUD->SetHostMode(GetWorld()->IsServer());
+  } catch (const nlohmann::json::exception&) {
+    ClearHUD->SetWorldRankingError();
+    ClearHUD->SetHostMode(GetWorld()->IsServer());
+  }
 }
 
 std::vector<ALobbyPlayerState*> PC_Clear::GetResultStates() {
-  std::map<FNetworkConnectionId, ALobbyPlayerState*> stateByConnectionId;
+  std::map<FNetworkConnectionId, ALobbyPlayerState*> StateByConnectionId;
   if (!GetWorld() || !GetWorld()->GetActorManager()) {
     return {};
   }
-  for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
-    if (auto* state = dynamic_cast<ALobbyPlayerState*>(actorPtr.get())) {
-      if (state->IsPendingDestroy()) {
-        continue;
-      }
-
-      auto existingIt = stateByConnectionId.find(state->OwnerConnectionId);
-      if (existingIt == stateByConnectionId.end()) {
-        stateByConnectionId[state->OwnerConnectionId] = state;
-        continue;
-      }
-
-      ALobbyPlayerState* existing = existingIt->second;
-      const bool bPreferState =
-          (state->bHasAuthority && existing && !existing->bHasAuthority) ||
-          (state->IsFinished() && existing && !existing->IsFinished()) ||
-          (state->IsFinished() && state->GetFinishTime() > 0.0f && existing &&
-           existing->GetFinishTime() <= 0.0f);
-      if (bPreferState) {
-        existingIt->second = state;
-      }
+  for (const auto& ActorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
+    auto* State = dynamic_cast<ALobbyPlayerState*>(ActorPtr.get());
+    if (!State || State->IsPendingDestroy()) {
+      continue;
+    }
+    auto ExistingIt = StateByConnectionId.find(State->OwnerConnectionId);
+    if (ExistingIt == StateByConnectionId.end() ||
+        (State->bHasAuthority && !ExistingIt->second->bHasAuthority)) {
+      StateByConnectionId[State->OwnerConnectionId] = State;
     }
   }
 
-  std::vector<ALobbyPlayerState*> states;
-  for (const auto& pair : stateByConnectionId) {
-    if (pair.second) {
-      states.push_back(pair.second);
-    }
+  std::vector<ALobbyPlayerState*> States;
+  for (const auto& Pair : StateByConnectionId) {
+    States.push_back(Pair.second);
   }
-
   std::sort(
-      states.begin(), states.end(), [](const ALobbyPlayerState* a, const ALobbyPlayerState* b) {
-        if (a->IsFinished() != b->IsFinished()) return a->IsFinished() > b->IsFinished();
-        if (a->IsFinished() && a->GetFinishTime() != b->GetFinishTime())
-          return a->GetFinishTime() < b->GetFinishTime();
-        return a->OwnerConnectionId < b->OwnerConnectionId;
+      States.begin(), States.end(), [](const ALobbyPlayerState* A, const ALobbyPlayerState* B) {
+        if (A->IsFinished() != B->IsFinished()) {
+          return A->IsFinished() > B->IsFinished();
+        }
+        if (A->IsFinished() && A->GetFinishTime() != B->GetFinishTime()) {
+          return A->GetFinishTime() < B->GetFinishTime();
+        }
+        return A->OwnerConnectionId < B->OwnerConnectionId;
       }
   );
-  return states;
+  return States;
 }
 
 void PC_Clear::RefreshMultiplayerResults() {
-  if (!m_ClearHUD) {
-    return;
-  }
+  const FNetworkConnectionId LocalId = NetworkManager::GetInstance().GetLocalConnectionId();
+  const auto States = GetResultStates();
+  std::ostringstream Signature;
+  Signature << std::fixed << std::setprecision(2);
+  std::vector<FResultEntryViewData> Results;
 
-  const FNetworkConnectionId localId = NetworkManager::GetInstance().GetLocalConnectionId();
-  const auto states = GetResultStates();
-  std::ostringstream signature;
-  signature << std::fixed << std::setprecision(2);
-
-  std::vector<FResultEntryViewData> results;
-  results.reserve(states.size());
-
-  for (const auto* state : states) {
-    if (!state) {
-      continue;
-    }
-
-    const bool bLocalPlayer =
-        (GetWorld()->IsServer() && state->OwnerConnectionId == 0) ||
-        state->OwnerConnectionId == localId || state->bIsLocallyControlled;
-
-    FResultEntryViewData data;
-    data.ConnectionId = state->OwnerConnectionId;
-    data.PlayerName = state->GetPlayerName();
-    data.bFinished = state->IsFinished();
-    data.FinishTime = state->GetFinishTime();
-    data.bLocalPlayer = bLocalPlayer;
-    results.push_back(data);
-
-    signature << data.ConnectionId << ':' << data.PlayerName << ':' << (data.bFinished ? 1 : 0)
-              << ':' << data.FinishTime << '|';
-
-    if (bLocalPlayer && data.bFinished) {
-      m_ClearHUD->SetClearTime(data.FinishTime);
+  for (const auto* State : States) {
+    const bool bLocalPlayer = (GetWorld()->IsServer() && State->OwnerConnectionId == 0) ||
+                              State->OwnerConnectionId == LocalId || State->bIsLocallyControlled;
+    FResultEntryViewData Data;
+    Data.ConnectionId = State->OwnerConnectionId;
+    Data.PlayerName = State->GetPlayerName();
+    Data.bFinished = State->IsFinished();
+    Data.FinishTime = State->GetFinishTime();
+    Data.bLocalPlayer = bLocalPlayer;
+    Results.push_back(Data);
+    Signature << Data.ConnectionId << ':' << Data.PlayerName << ':' << Data.bFinished << ':'
+              << Data.FinishTime << '|';
+    if (bLocalPlayer && Data.bFinished) {
+      ClearHUD->SetClearTime(Data.FinishTime);
     }
   }
 
-  m_ClearHUD->SetWaitingForResults(results.empty());
-  m_ClearHUD->SetHostMode(false);
-  m_ClearHUD->SetWaitingForHost(false);
-
-  const std::string nextSignature = signature.str();
-  if (nextSignature != m_LastResultSignature) {
-    m_LastResultSignature = nextSignature;
-    m_ClearHUD->SetMultiplayerResults(results);
+  ClearHUD->SetWaitingForResults(Results.empty());
+  const std::string NextSignature = Signature.str();
+  if (NextSignature != LastResultSignature) {
+    LastResultSignature = NextSignature;
+    ClearHUD->SetMultiplayerResults(Results);
   }
 }
 
-void PC_Clear::SubmitLocalResultToServerIfNeeded() {
-  if (m_bSubmittedLocalResult || GetWorld()->IsServer() ||
-      GetWorld()->IsStandalone()) {
-    return;
-  }
-
-  auto* gi =
-      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi || gi->ClearTime < 0.0f) {
-    return;
-  }
-
-  const FNetworkConnectionId localId =
-      NetworkManager::GetInstance().GetLocalConnectionId();
-
-  // サーバーから完走結果が返ってきた場合だけ送信完了とする
-  for (const auto* state : GetResultStates()) {
-    if (state && state->OwnerConnectionId == localId &&
-        state->IsFinished()) {
-      m_bSubmittedLocalResult = true;
-      return;
+void PC_Clear::RefreshReturnCountdown() {
+  int Countdown = -1;
+  for (const auto* State : GetResultStates()) {
+    if (State && State->OwnerConnectionId == 0) {
+      Countdown = State->GetStartCountdownSeconds();
+      break;
     }
   }
-
-  if (m_ResultSubmitRetryCooldown > 0.0f) {
-    return;
+  if (Countdown != LastDisplayedReturnCountdown) {
+    LastDisplayedReturnCountdown = Countdown;
+    ClearHUD->SetReturnCountdown(Countdown);
   }
-
-  const bool bSent = InvokeRPC(
-      RPC_ServerSubmitLocalResult,
-      ENetRPCType::Server,
-      ENetPacketReliability::Reliable,
-      gi->ClearTime
-  );
-
-  m_ResultSubmitRetryCooldown = bSent ? 0.5f : 0.1f;
-}
-
-void PC_Clear::Server_SubmitLocalResult(float FinishTime) {
-  if (!GetWorld() || !GetWorld()->IsServer() || FinishTime < 0.0f) {
-    return;
-  }
-
-  const FNetworkConnectionId connectionId = OwnerConnectionId;
-  std::string playerName =
-      "Player " + std::to_string(connectionId + 1);
-
-  for (auto* state : GetResultStates()) {
-    if (!state || state->OwnerConnectionId != connectionId) {
-      continue;
-    }
-
-    playerName = state->GetPlayerName();
-
-    if (!state->IsFinished() || state->GetFinishTime() <= 0.0f) {
-      state->SetFinishResult(true, FinishTime);
-    }
-    break;
-  }
-
-  auto* gi =
-      dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!gi) {
-    return;
-  }
-
-  auto existing = std::find_if(
-      gi->multiplayer_results.begin(),
-      gi->multiplayer_results.end(),
-      [connectionId](const GI_main::FMultiplayerResult& result) {
-        return result.ConnectionId == connectionId;
-      }
-  );
-
-  if (existing == gi->multiplayer_results.end()) {
-    GI_main::FMultiplayerResult result;
-    result.ConnectionId = connectionId;
-    result.PlayerName = playerName;
-    result.bFinished = true;
-    result.FinishTime = FinishTime;
-    gi->multiplayer_results.push_back(result);
-  } else {
-    existing->bFinished = true;
-    existing->FinishTime = FinishTime;
-
-    if (!playerName.empty()) {
-      existing->PlayerName = playerName;
-    }
-  }
-
-  M_LOG(
-      Log,
-      "Clear result accepted: connection={}, time={}",
-      connectionId,
-      FinishTime
-  );
 }

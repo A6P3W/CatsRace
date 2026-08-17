@@ -36,10 +36,9 @@ void PC_Lobby::BeginPlay() {
     ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
     UIManager::GetInstance()->AddWidget(ControlGuideWidget);
 
- if (auto* sm = GetWorld()->GetSoundManager()) {
+    if (auto* sm = GetWorld()->GetSoundManager()) {
       // PlaySE (または PlayBGM) は再生中のハンドル(int)を返します
       int bgmHandle = sm->PlaySE("/Game/images/Time_to_change_2.mp3", true);
-
 
       if (bgmHandle != -1) {
         sm->SetVolume(bgmHandle, 0.2f);
@@ -60,6 +59,9 @@ void PC_Lobby::OnUpdate(float DeltaTime) {
   if (localState && gi && !gi->player_name.empty() &&
       localState->GetPlayerName() != gi->player_name) {
     localState->SetPlayerName(gi->player_name);
+  }
+  if (localState && gi && !gi->DeviceId.empty() && localState->GetDeviceId() != gi->DeviceId) {
+    localState->SetDeviceId(gi->DeviceId);
   }
 }
 

@@ -421,7 +421,7 @@ void AMenuScene::LeaveOnlineLobby() {
 void AMenuScene::LoadSettings() {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
     if (gi->player_name.empty()) {
-      gi->player_name = gi->user_id.empty() ? PlayerNameDefaults::Generate() : gi->user_id;
+      gi->player_name = PlayerNameDefaults::Generate();
     }
     strncpy_s(PlayerName, sizeof(PlayerName), gi->player_name.c_str(), _TRUNCATE);
     LobbyName = gi->player_name + "'s Lobby";

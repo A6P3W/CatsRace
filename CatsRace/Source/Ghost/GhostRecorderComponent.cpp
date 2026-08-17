@@ -1,5 +1,6 @@
 #include "Ghost/GhostRecorderComponent.h"
 
+#include <algorithm>
 #include <cmath>
 
 #include "Actor.h"
@@ -7,6 +8,8 @@
 void MGhostRecorderComponent::StartRecording() {
   m_Frames.clear();
   m_AccumulatedTime = 0.0f;
+  RecordedSeconds = 0.0f;
+  ReachedRecordingLimit = false;
   m_bRecording = true;
   CaptureFrame();
 }
@@ -22,10 +25,17 @@ void MGhostRecorderComponent::OnUpdate(float DeltaTime) {
     return;
   }
 
-  m_AccumulatedTime += DeltaTime;
+  const float RemainingSeconds = (std::max)(0.0f, MaxRecordingSeconds - RecordedSeconds);
+  const float RecordedDelta = (std::min)(DeltaTime, RemainingSeconds);
+  RecordedSeconds += RecordedDelta;
+  m_AccumulatedTime += RecordedDelta;
   while (m_AccumulatedTime >= RecordingInterval) {
     m_AccumulatedTime -= RecordingInterval;
     CaptureFrame();
+  }
+  if (RecordedSeconds >= MaxRecordingSeconds) {
+    ReachedRecordingLimit = true;
+    m_bRecording = false;
   }
 }
 

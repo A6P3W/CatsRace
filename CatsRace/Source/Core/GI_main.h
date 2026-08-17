@@ -7,8 +7,10 @@
 #include <string>
 #include <vector>
 
+#include "Core/DeviceIdentity.h"
 #include "Core/MapData.h"
 #include "Core/PlayerColorPalette.h"
+#include "Services/LeaderBoardManager.h"
 
 namespace PlayerNameDefaults {
 inline std::string Generate() {
@@ -40,16 +42,24 @@ class GI_main : public GameInstance {
     uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
     bool bFinished = false;
     float FinishTime = 0.0f;
+    std::string UserId;
+    std::string IdType = "DeviceId";
+    std::string IdentityKey;
+    int GhostSchemaVersion = 1;
+    float GhostRecordedSeconds = 0.0f;
+    bool bIsGhostPartial = false;
+    std::string GhostData;
   };
 
-  float ClearTime = -1.0f;
-  std::string map_id = "/";
-  std::string user_id = "";
-  std::string LastGhostData = "";
-
   std::string player_name = PlayerNameDefaults::Generate();
+  std::string DeviceId = DeviceIdentity::GetOrCreateDeviceId();
   std::string last_server_ip = "127.0.0.1";
-  std::string last_level_path = AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+  std::string last_level_path =
+      AvailableMaps.empty() ? std::string{} : AvailableMaps.front().LevelPath;
+  std::string RaceMapId;
+  int RaceMapVersion = 1;
+  bool BoothMode = false;
   bool bRotateCamera = true;
   std::vector<FMultiplayerResult> multiplayer_results;
+  std::vector<FRaceGhostData> RaceGhosts;
 };

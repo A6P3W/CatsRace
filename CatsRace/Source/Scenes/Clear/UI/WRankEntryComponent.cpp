@@ -7,14 +7,15 @@
 #include <iomanip>
 #include <sstream>
 
-void WRankEntryComponent::Initialize(
-    int rank, const std::string& userId, float score, const std::string& deltaTimestamp
+void WRankEntryComponent::InitializeWorld(
+    int Rank, const std::string& PlayerName, float Score, bool bIsSelf
 ) {
-  m_Rank = rank;
-  m_UserId = userId;
-  m_Score = score;
-  m_DeltaTimestamp = deltaTimestamp;
-  SetWidgetSize({540.0f, 40.0f});
+  m_Rank = Rank;
+  m_UserId = PlayerName;
+  m_Score = Score;
+  m_bFinished = true;
+  m_bLocalPlayer = bIsSelf;
+  SetWidgetSize({620.0f, 38.0f});
 }
 
 void WRankEntryComponent::Initialize(
@@ -23,7 +24,6 @@ void WRankEntryComponent::Initialize(
   m_Rank = rank;
   m_UserId = playerName;
   m_Score = finishTime;
-  m_bShowTimestamp = false;
   m_bFinished = bFinished;
   m_bLocalPlayer = bLocalPlayer;
   SetWidgetSize({620.0f, 40.0f});
@@ -41,7 +41,7 @@ void WRankEntryComponent::OnRegister() {
     // 1. 順位テキストの生成
     std::string rankStr = "-";
     if (m_bFinished && m_Rank > 0) {
-      rankStr = m_bShowTimestamp ? "#" + std::to_string(m_Rank) : std::to_string(m_Rank);
+      rankStr = std::to_string(m_Rank);
     }
     m_RankTextComponent = NewObject<UITextComponent>(owner);
     m_RankTextComponent->SetText(rankStr);
@@ -64,21 +64,7 @@ void WRankEntryComponent::OnRegister() {
     m_NameTextComponent->SetAnchoredPosition({-width * 0.5f + 110.0f, 0.0f});
     m_NameTextComponent->RegisterComponent();
 
-    // 3. 経過時間テキストの生成
-    if (m_bShowTimestamp) {
-      std::string timeStr = m_DeltaTimestamp;
-      m_TimeTextComponent = NewObject<UITextComponent>(owner);
-      m_TimeTextComponent->SetText(timeStr);
-      m_TimeTextComponent->SetColor(textColor);
-      m_TimeTextComponent->SetFontSize(30);
-      m_TimeTextComponent->AttachToComponent(this);
-      m_TimeTextComponent->SetAnchor(EUIAnchor::MiddleCenter);
-      m_TimeTextComponent->SetPivot({1.0f, 0.5f});
-      m_TimeTextComponent->SetAnchoredPosition({110.0f, 0.0f});
-      m_TimeTextComponent->RegisterComponent();
-    }
-
-    // 4. スコアテキストの生成
+    // 3. スコアテキストの生成
     std::ostringstream oss;
     if (m_bFinished) {
       oss << std::fixed << std::setprecision(2) << m_Score;
