@@ -2,7 +2,7 @@
   "actors": [
     {
       "class": "AMapPreviewActor",
-      "instance_name": "",
+      "instance_name": "AMapPreviewActor_1",
       "transform": {
         "location": {
           "x": 500.09771728515625,
@@ -14,7 +14,7 @@
     },
     {
       "class": "ADefaultCircleCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultCircleCollisionActor_1",
       "transform": {
         "location": {
           "x": 954.1888427734375,
@@ -26,7 +26,7 @@
     },
     {
       "class": "ADefaultCircleCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultCircleCollisionActor_2",
       "transform": {
         "location": {
           "x": 948.9130249023438,
@@ -38,11 +38,11 @@
     },
     {
       "class": "ADefaultCircleCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultCircleCollisionActor_3",
       "transform": {
         "location": {
           "x": -971.6896362304688,
-          "y": 537.6619262695312
+          "y": 537.6619262695313
         },
         "rotation": 0.0,
         "scale": 0.2772839665412903
@@ -50,10 +50,10 @@
     },
     {
       "class": "ADefaultCircleCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultCircleCollisionActor_4",
       "transform": {
         "location": {
-          "x": -962.6870727539062,
+          "x": -962.6870727539063,
           "y": -536.3234252929688
         },
         "rotation": 0.0,
@@ -62,22 +62,7 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/Warning.png"
-      },
-      "transform": {
-        "location": {
-          "x": -573.6028442382812,
-          "y": 117.3927001953125
-        },
-        "rotation": 0.0,
-        "scale": 1.496934175491333
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_2",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/GameGuide.png"
       },
@@ -92,7 +77,7 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_3",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/Tips1.png"
       },
@@ -107,7 +92,7 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_4",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/Tips2.png"
       },
@@ -122,7 +107,7 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_5",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/Tips3.png"
       },
@@ -137,67 +122,22 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/version-auto.png"
-      },
-      "transform": {
-        "location": {
-          "x": 849.3233642578125,
-          "y": 519.7240600585938
-        },
-        "rotation": 0.0,
-        "scale": 0.18400000035762787
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_7",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/Tips4.png"
       },
       "transform": {
         "location": {
-          "x": 99.96882629394531,
-          "y": -370.42169189453125
+          "x": 87.40885925292969,
+          "y": -354.9749450683594
         },
         "rotation": 0.0,
-        "scale": 1.0
+        "scale": 0.8885237574577332
       }
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/BroccoliEngine.png"
-      },
-      "transform": {
-        "location": {
-          "x": 966.0237426757812,
-          "y": -511.7081298828125
-        },
-        "rotation": -63.5,
-        "scale": 0.49000000953674316
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/Warning2.png"
-      },
-      "transform": {
-        "location": {
-          "x": -835.8507080078125,
-          "y": 227.11526489257812
-        },
-        "rotation": 0.0,
-        "scale": 0.8327566385269165
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_10",
       "properties": {
         "ImagePath": "Resources-EOS/Lobby/youtube-qr.png"
       },
@@ -212,7 +152,7 @@
     },
     {
       "class": "AInflowMoveSpawner",
-      "instance_name": "",
+      "instance_name": "AInflowMoveSpawner_1",
       "transform": {
         "location": {
           "x": 2039.91455078125,
@@ -224,10 +164,10 @@
     },
     {
       "class": "APlayer",
-      "instance_name": "",
+      "instance_name": "APlayer_1",
       "transform": {
         "location": {
-          "x": -245.71316528320312,
+          "x": -245.71316528320313,
           "y": -88.9979248046875
         },
         "rotation": 22.0,
@@ -236,7 +176,7 @@
     },
     {
       "class": "APlayer",
-      "instance_name": "",
+      "instance_name": "APlayer_2",
       "transform": {
         "location": {
           "x": -286.4902648925781,
@@ -248,10 +188,10 @@
     },
     {
       "class": "APlayer",
-      "instance_name": "",
+      "instance_name": "APlayer_3",
       "transform": {
         "location": {
-          "x": -160.61318969726562,
+          "x": -160.61318969726563,
           "y": -165.2333221435547
         },
         "rotation": 58.0,
@@ -260,13 +200,13 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "",
+      "instance_name": "ASpriteActor_11",
       "properties": {
         "ImagePath": "/Game/images/images.png"
       },
       "transform": {
         "location": {
-          "x": 64.54714965820312,
+          "x": 64.54714965820313,
           "y": -209.5562286376953
         },
         "rotation": 84.5,
@@ -275,7 +215,7 @@
     },
     {
       "class": "APlayer",
-      "instance_name": "",
+      "instance_name": "APlayer_4",
       "transform": {
         "location": {
           "x": -63.102813720703125,
@@ -287,7 +227,7 @@
     },
     {
       "class": "APlayer",
-      "instance_name": "",
+      "instance_name": "APlayer_5",
       "transform": {
         "location": {
           "x": -251.03195190429688,
@@ -299,7 +239,7 @@
     },
     {
       "class": "ADefaultLineCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultLineCollisionActor_1",
       "transform": {
         "location": {
           "x": -1129.326171875,
@@ -311,7 +251,7 @@
     },
     {
       "class": "ADefaultLineCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultLineCollisionActor_2",
       "transform": {
         "location": {
           "x": -1137.34716796875,
@@ -323,10 +263,10 @@
     },
     {
       "class": "ADefaultLineCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultLineCollisionActor_3",
       "transform": {
         "location": {
-          "x": 929.7305297851562,
+          "x": 929.7305297851563,
           "y": -713.064453125
         },
         "rotation": 90.0,
@@ -335,7 +275,7 @@
     },
     {
       "class": "ADefaultLineCollisionActor",
-      "instance_name": "",
+      "instance_name": "ADefaultLineCollisionActor_4",
       "transform": {
         "location": {
           "x": -1115.260986328125,
@@ -347,7 +287,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_1",
       "transform": {
         "location": {
           "x": -906.707763671875,
@@ -359,10 +299,10 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_2",
       "transform": {
         "location": {
-          "x": -772.8987426757812,
+          "x": -772.8987426757813,
           "y": 329.2574768066406
         },
         "rotation": 0.5,
@@ -371,7 +311,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_3",
       "transform": {
         "location": {
           "x": -579.1063842773438,
@@ -383,7 +323,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_4",
       "transform": {
         "location": {
           "x": -412.4740905761719,
@@ -395,7 +335,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_5",
       "transform": {
         "location": {
           "x": -242.17257690429688,
@@ -407,7 +347,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_6",
       "transform": {
         "location": {
           "x": -73.32662963867188,
@@ -419,7 +359,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_7",
       "transform": {
         "location": {
           "x": 364.7994384765625,
@@ -431,11 +371,11 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_8",
       "transform": {
         "location": {
           "x": 449.222412109375,
-          "y": -623.1546020507812
+          "y": -623.1546020507813
         },
         "rotation": -90.0,
         "scale": 1.0
@@ -443,7 +383,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_9",
       "transform": {
         "location": {
           "x": -131.54937744140625,
@@ -455,7 +395,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_10",
       "transform": {
         "location": {
           "x": -328.0511169433594,
@@ -467,7 +407,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_11",
       "transform": {
         "location": {
           "x": -509.9971923828125,
@@ -479,7 +419,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_12",
       "transform": {
         "location": {
           "x": -699.2210693359375,
@@ -491,7 +431,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_13",
       "transform": {
         "location": {
           "x": -882.6226806640625,
@@ -503,7 +443,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_14",
       "transform": {
         "location": {
           "x": -1047.1019287109375,
@@ -515,7 +455,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_15",
       "transform": {
         "location": {
           "x": -1055.8353271484375,
@@ -527,7 +467,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_16",
       "transform": {
         "location": {
           "x": -1057.2908935546875,
@@ -539,7 +479,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_17",
       "transform": {
         "location": {
           "x": -1068.9354248046875,
@@ -551,7 +491,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_18",
       "transform": {
         "location": {
           "x": -1102.4134521484375,
@@ -563,7 +503,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_19",
       "transform": {
         "location": {
           "x": -1128.613525390625,
@@ -575,7 +515,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_20",
       "transform": {
         "location": {
           "x": -1137.346923828125,
@@ -587,7 +527,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_21",
       "transform": {
         "location": {
           "x": -1048.5574951171875,
@@ -599,7 +539,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_22",
       "transform": {
         "location": {
           "x": -1130.0693359375,
@@ -611,7 +551,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_23",
       "transform": {
         "location": {
           "x": 82.41920471191406,
@@ -623,11 +563,11 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_24",
       "transform": {
         "location": {
           "x": 227.97605895996094,
-          "y": -116.61672973632812
+          "y": -116.61672973632813
         },
         "rotation": -48.5,
         "scale": 1.0
@@ -635,7 +575,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_25",
       "transform": {
         "location": {
           "x": 369.16619873046875,
@@ -647,7 +587,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_26",
       "transform": {
         "location": {
           "x": 60.58561706542969,
@@ -659,7 +599,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_27",
       "transform": {
         "location": {
           "x": 245.44281005859375,
@@ -671,7 +611,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_28",
       "transform": {
         "location": {
           "x": 421.56658935546875,
@@ -683,11 +623,11 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_29",
       "transform": {
         "location": {
-          "x": 590.4573364257812,
-          "y": -723.2947387695312
+          "x": 590.4573364257813,
+          "y": -723.2947387695313
         },
         "rotation": -183.5,
         "scale": 1.0
@@ -695,7 +635,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_30",
       "transform": {
         "location": {
           "x": 614.6907958984375,
@@ -707,7 +647,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_31",
       "transform": {
         "location": {
           "x": 759.6287841796875,
@@ -719,7 +659,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_32",
       "transform": {
         "location": {
           "x": 872.977783203125,
@@ -731,7 +671,7 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_33",
       "transform": {
         "location": {
           "x": 768.919677734375,
@@ -743,10 +683,10 @@
     },
     {
       "class": "ADefaultDirectionalForceFieldActor",
-      "instance_name": "",
+      "instance_name": "ADefaultDirectionalForceFieldActor_34",
       "transform": {
         "location": {
-          "x": 557.0872192382812,
+          "x": 557.0872192382813,
           "y": -466.27532958984375
         },
         "rotation": -81.5,
