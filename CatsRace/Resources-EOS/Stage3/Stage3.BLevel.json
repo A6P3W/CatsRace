@@ -13397,10 +13397,10 @@
       "instance_name": "AInflowMoveSpawner_2",
       "transform": {
         "location": {
-          "x": -3909.297119140625,
-          "y": -2930.61767578125
+          "x": -3807.958740234375,
+          "y": -2053.1767578125
         },
-        "rotation": 90.0,
+        "rotation": 45.0,
         "scale": 1.0
       }
     },
@@ -13438,18 +13438,6 @@
         },
         "rotation": -269.0,
         "scale": 1.0
-      }
-    },
-    {
-      "class": "ARotatingBarActor",
-      "instance_name": "ARotatingBarActor_5",
-      "transform": {
-        "location": {
-          "x": -1230.164306640625,
-          "y": -870.4637451171875
-        },
-        "rotation": -179.0,
-        "scale": 2.0199999809265137
       }
     },
     {
@@ -13522,6 +13510,90 @@
         },
         "rotation": -412.0,
         "scale": 0.5600000023841858
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_14",
+      "transform": {
+        "location": {
+          "x": -1420.638916015625,
+          "y": -801.5325317382813
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_15",
+      "transform": {
+        "location": {
+          "x": -1232.658935546875,
+          "y": -801.5325317382813
+        },
+        "rotation": 180.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_16",
+      "transform": {
+        "location": {
+          "x": -1041.62255859375,
+          "y": -801.5325317382813
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_18",
+      "transform": {
+        "location": {
+          "x": -1847.802978515625,
+          "y": -2992.37353515625
+        },
+        "rotation": -2.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_19",
+      "transform": {
+        "location": {
+          "x": -914.8946533203125,
+          "y": -2939.962890625
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_20",
+      "transform": {
+        "location": {
+          "x": -377.91961669921875,
+          "y": 1306.63916015625
+        },
+        "rotation": -357.0,
+        "scale": 1.2200000286102295
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_21",
+      "transform": {
+        "location": {
+          "x": -271.8897399902344,
+          "y": 1313.707763671875
+        },
+        "rotation": -359.0,
+        "scale": 1.2200000286102295
       }
     }
   ],
