@@ -4,7 +4,7 @@
       "class": "ASpriteActor",
       "instance_name": "ASpriteActor_1",
       "properties": {
-        "ImagePath": "C:/CatsRace/CatsRace/Resources-EOS/Stage3/World_Level_4__Tiles.png"
+        "ImagePath": "Resources-EOS/Stage3/World_Level_4__Tiles.png"
       },
       "transform": {
         "location": {
