@@ -1,6 +1,5 @@
 #include "Scenes/Loading/LoadingScene.h"
 
-
 #include <array>
 #include <cstring>
 #include <memory>
@@ -75,7 +74,8 @@ void ALoadingScene::BeginPlay() {
   }
 
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    const std::string name = gi->player_name.empty() ? gi->user_id : gi->player_name;
+    const std::string name =
+        gi->player_name.empty() ? PlayerNameDefaults::Generate() : gi->player_name;
     if (!name.empty()) {
       strncpy_s(PlayerName, sizeof(PlayerName), name.c_str(), _TRUNCATE);
     }

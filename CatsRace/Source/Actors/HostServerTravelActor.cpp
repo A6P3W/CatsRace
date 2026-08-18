@@ -2,12 +2,18 @@
 
 #include <imgui.h>
 
+#include <algorithm>
+#include <cstring>
 #include <utility>
 
 #include "ActorManager.h"
+#include "Core/GI_main.h"
 #include "Core/PlayerColorPalette.h"
 #include "PathResolver.h"
+#include "SceneManager.h"
 #include "Scenes/Game/Player.h"
+#include "Scenes/Lobby/LobbyPlayerState.h"
+#include "Scenes/Lobby/LobbyScene.h"
 #include "World.h"
 
 REGISTER_ACTOR(AHostServerTravelActor)
@@ -56,6 +62,15 @@ void AHostServerTravelActor::Draw() {
 
   ImGui::Text("Status: %s", StatusText.c_str());
 
+  if (auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+    bool BoothMode = GameInstance->BoothMode;
+    if (ImGui::Checkbox("Booth mode", &BoothMode)) {
+      GameInstance->BoothMode = BoothMode;
+    }
+  }
+
+  DrawLobbyPlayerEntries();
+
   ImGui::Separator();
   ImGui::TextUnformatted("Player Speed");
   for (const FPlayerSpeedEntry& Entry : PlayerEntries) {
@@ -95,6 +110,123 @@ void AHostServerTravelActor::Draw() {
     ImGui::PopID();
   }
   ImGui::End();
+}
+
+void AHostServerTravelActor::RefreshLobbyPlayerEntries() {
+  World* CurrentWorld = GetWorld();
+  if (!CurrentWorld || !CurrentWorld->GetActorManager() ||
+      !dynamic_cast<ALobbyScene*>(CurrentWorld->GetGameMode())) {
+    LobbyPlayerEntries.clear();
+    return;
+  }
+
+  std::vector<ALobbyPlayerState*> States;
+  for (const auto& ActorPtr : CurrentWorld->GetActorManager()->GetAllActors()) {
+    auto* State = ActorPtr ? dynamic_cast<ALobbyPlayerState*>(ActorPtr.get()) : nullptr;
+    if (State && !State->IsPendingDestroy()) {
+      States.push_back(State);
+    }
+  }
+  std::sort(States.begin(), States.end(), [](const auto* A, const auto* B) {
+    return A->OwnerConnectionId < B->OwnerConnectionId;
+  });
+
+  std::vector<FLobbyPlayerEntry> RefreshedEntries;
+  RefreshedEntries.reserve(States.size());
+  for (ALobbyPlayerState* State : States) {
+    const auto Existing = std::find_if(
+        LobbyPlayerEntries.begin(),
+        LobbyPlayerEntries.end(),
+        [State](const FLobbyPlayerEntry& Entry) {
+          return Entry.ConnectionId == State->OwnerConnectionId;
+        }
+    );
+
+    FLobbyPlayerEntry Entry;
+    if (Existing != LobbyPlayerEntries.end()) {
+      Entry = std::move(*Existing);
+    } else {
+      Entry.ConnectionId = State->OwnerConnectionId;
+    }
+    Entry.PlayerState = State;
+    if (Entry.LastObservedName != State->GetPlayerName()) {
+      SetLobbyPlayerNameInput(Entry, State->GetPlayerName());
+    }
+    RefreshedEntries.push_back(std::move(Entry));
+  }
+  LobbyPlayerEntries = std::move(RefreshedEntries);
+}
+
+void AHostServerTravelActor::DrawLobbyPlayerEntries() {
+  RefreshLobbyPlayerEntries();
+  if (LobbyPlayerEntries.empty()) {
+    return;
+  }
+
+  ImGui::Separator();
+  ImGui::TextUnformatted("Lobby Players");
+  for (FLobbyPlayerEntry& Entry : LobbyPlayerEntries) {
+    ALobbyPlayerState* State = Entry.PlayerState;
+    if (!State || State->IsPendingDestroy()) {
+      continue;
+    }
+
+    ImGui::PushID(static_cast<int>(Entry.ConnectionId));
+    ImGui::Text(
+        "[%u] %s: %s",
+        Entry.ConnectionId,
+        Entry.ConnectionId == 0 ? "Host" : "Player",
+        State->GetPlayerName().c_str()
+    );
+    ImGui::InputText("##PlayerName", Entry.NameInput.data(), Entry.NameInput.size());
+    ImGui::SameLine();
+
+    const std::string NewName = Entry.NameInput.data();
+    const bool bCanChange = !NewName.empty();
+    ImGui::BeginDisabled(!bCanChange);
+    if (ImGui::Button("Change Name") && bCanChange) {
+      if (HasDuplicateBoothName(Entry.ConnectionId, NewName)) {
+        LobbyPlayerStatusText = "Booth mode requires unique player names.";
+      } else {
+        State->SetPlayerName(NewName);
+        Entry.LastObservedName = NewName;
+        LobbyPlayerStatusText = "Changed player " + std::to_string(Entry.ConnectionId) + " name.";
+      }
+    }
+    ImGui::EndDisabled();
+    ImGui::PopID();
+  }
+
+  if (!LobbyPlayerStatusText.empty()) {
+    ImGui::Text("Lobby status: %s", LobbyPlayerStatusText.c_str());
+  }
+}
+
+void AHostServerTravelActor::SetLobbyPlayerNameInput(
+    FLobbyPlayerEntry& Entry, const std::string& Name
+) {
+  Entry.NameInput.fill('\0');
+  const size_t CopyLength = (std::min)(Name.size(), Entry.NameInput.size() - 1);
+  std::memcpy(Entry.NameInput.data(), Name.data(), CopyLength);
+  Entry.LastObservedName = Name;
+}
+
+bool AHostServerTravelActor::HasDuplicateBoothName(
+    FNetworkConnectionId TargetConnectionId, const std::string& Name
+) const {
+  const auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!GameInstance || !GameInstance->BoothMode) {
+    return false;
+  }
+
+  return std::any_of(
+      LobbyPlayerEntries.begin(),
+      LobbyPlayerEntries.end(),
+      [TargetConnectionId, &Name](const FLobbyPlayerEntry& Entry) {
+        return Entry.ConnectionId != TargetConnectionId && Entry.PlayerState &&
+               !Entry.PlayerState->IsPendingDestroy() && Entry.PlayerState->GetPlayerName() == Name;
+      }
+  );
 }
 
 void AHostServerTravelActor::InitializePlayerEntries() {

@@ -7,6 +7,7 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
+#include "Services/LeaderBoardManager.h"
 
 class ALobbyPlayerState : public AActor {
  public:
@@ -18,16 +19,19 @@ class ALobbyPlayerState : public AActor {
   ALobbyPlayerState();
   ALobbyPlayerState(const FVector2D& Location, FRotator Rotation);
 
-  void SetPlayerName(const std::string& Name);
+  bool SetPlayerName(const std::string& Name);
+  bool SetDeviceId(const std::string& InDeviceId);
   void SetPlayerColorIndex(uint8_t InColorIndex);
   void SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers);
   void SetFinishResult(bool bInFinished, float InFinishTime);
   void SetStartCountdownSeconds(int InStartCountdownSeconds);
+  void SendRaceGhosts(const std::vector<FRaceGhostData>& Ghosts);
 
   FCallbackHandle AddOnSelectedMapChanged(FSelectedMapChangedCallback Callback);
   void RemoveOnSelectedMapChanged(FCallbackHandle Handle);
 
   const std::string& GetPlayerName() const { return PlayerName; }
+  const std::string& GetDeviceId() const { return DeviceId; }
   uint8_t GetPlayerColorIndex() const { return PlayerColorIndex; }
   const std::string& GetSelectedLevelPath() const { return SelectedLevelPath; }
   int GetMaxPlayers() const { return MaxPlayers; }
@@ -38,13 +42,29 @@ class ALobbyPlayerState : public AActor {
  private:
   void InitializeRPCs();
   void ApplyPlayerName(const std::string& Name);
+  void ApplyDeviceId(const std::string& InDeviceId);
   void ApplyLobbyOptions(std::string InSelectedLevelPath, int InMaxPlayers);
   void ApplyFinishResult(bool bInFinished, float InFinishTime);
   void SetSelectedMap(const std::string& NewLevelPath);
   void OnRepSelectedLevelPath(std::string OldLevelPath);
   void BroadcastOnSelectedMapChanged();
+  void ClientReceiveRaceGhost(
+      int SlotIndex,
+      std::string UserId,
+      std::string PlayerName,
+      float Score,
+      int GhostSchemaVersion,
+      float GhostRecordedSeconds,
+      bool bIsGhostPartial,
+      std::string GhostData,
+      bool bIsLastGhost
+  );
+  void ClientReceiveRaceGhostDeliveryComplete();
+  void ServerAcknowledgeRaceGhosts();
+  void CompleteRaceGhostDelivery();
 
   std::string PlayerName = "Player";
+  std::string DeviceId;
   uint8_t PlayerColorIndex = InvalidPlayerColorIndex;
   std::string SelectedLevelPath;
   int MaxPlayers = 4;

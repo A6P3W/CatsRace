@@ -1,0 +1,8 @@
+.venv
+.vscode
+.local/
+*__pycache__/
+.terraform/
+**/src/common/
+cells/*/src/requirements.txt
+function.zip

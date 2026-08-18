@@ -8,25 +8,17 @@ class MSpriteComponent;
 class WRankEntryComponent : public MUIWidgetComponent {
  public:
   WRankEntryComponent() = default;
+  void InitializeWorld(int Rank, const std::string& PlayerName, float Score, bool bIsSelf);
   void Initialize(
-      int rank, const std::string& userId, float score, const std::string& deltaTimestamp
-  );
-  void Initialize(
-      int rank,
-      const std::string& playerName,
-      bool bFinished,
-      float finishTime,
-      bool bLocalPlayer
+      int rank, const std::string& playerName, bool bFinished, float finishTime, bool bLocalPlayer
   );
 
   void OnRegister() override;
 
  private:
-  int m_Rank;
+  int m_Rank = 0;
   std::string m_UserId;
-  float m_Score;
-  std::string m_DeltaTimestamp;
-  bool m_bShowTimestamp = true;
+  float m_Score = 0.0f;
   bool m_bFinished = true;
   bool m_bLocalPlayer = false;
 

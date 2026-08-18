@@ -2,19 +2,22 @@
 
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
+#include <unordered_set>
 
 #include "ActorManager.h"
 #include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
 #include "EOSLobbyManager.h"
+#include "Log.h"
 #include "NetworkManager.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/PC_Lobby.h"
+#include "Services/LeaderBoardManager.h"
 #include "World.h"
-#include <filesystem>
 REGISTER_GAME_MODE(ALobbyScene)
 
 namespace {
@@ -46,12 +49,25 @@ void ALobbyScene::BeginPlay() {
       );
     }
   }
-}  
+}
 
 void ALobbyScene::OnUpdate(float DeltaTime) {
-  if (!GetWorld()->IsServer() || StartCountdownRemaining < 0.0f || bStartTravelRequested) {
+  if (!GetWorld()->IsServer() || bStartTravelRequested) {
     return;
   }
+
+  if (RaceStartState == ERaceStartState::WaitingForReady) {
+    GhostReadyTimeoutRemaining -= DeltaTime;
+    if (GhostReadyTimeoutRemaining <= 0.0f) {
+      M_LOG(Warning, "Ghost ready ACK timeout; continuing without all ACKs");
+      BeginStartCountdown();
+    }
+    return;
+  }
+  if (RaceStartState != ERaceStartState::Countdown || StartCountdownRemaining < 0.0f) {
+    return;
+  }
+
   StartCountdownRemaining -= DeltaTime;
   const int seconds = (std::max)(0, static_cast<int>(std::ceil(StartCountdownRemaining)));
   if (seconds != LastPublishedCountdownSeconds) {
@@ -80,6 +96,9 @@ void ALobbyScene::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
     state->Destroy();
   }
   AGameModeBase::OnClientDisconnected(ConnectionId);
+  if (RaceStartState == ERaceStartState::WaitingForReady) {
+    NotifyGhostReady(ConnectionId);
+  }
 }
 
 std::vector<ALobbyPlayerState*> ALobbyScene::GetPlayerStates() {
@@ -171,13 +190,10 @@ uint8_t ALobbyScene::AllocatePlayerColorIndex() {
   }
 
   for (size_t offset = 0; offset < PlayerColorPalette.size(); ++offset) {
-    const uint8_t colorIndex = static_cast<uint8_t>(
-        (NextPlayerColorIndex + offset) % PlayerColorPalette.size()
-    );
+    const uint8_t colorIndex =
+        static_cast<uint8_t>((NextPlayerColorIndex + offset) % PlayerColorPalette.size());
     if (!usedColors[colorIndex]) {
-      NextPlayerColorIndex = static_cast<uint8_t>(
-          (colorIndex + 1) % PlayerColorPalette.size()
-      );
+      NextPlayerColorIndex = static_cast<uint8_t>((colorIndex + 1) % PlayerColorPalette.size());
       return colorIndex;
     }
   }
@@ -190,6 +206,10 @@ void ALobbyScene::EnsureHostPlayerState() { SpawnPlayerState(0); }
 void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States) {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
     gi->last_level_path = SelectedLevelPath;
+    if (const FMapInfo* Map = FindMapInfo(SelectedLevelPath)) {
+      gi->RaceMapId = Map->MapId;
+      gi->RaceMapVersion = Map->MapVersion;
+    }
     gi->multiplayer_results.clear();
     for (const auto* state : States) {
       if (!state) continue;
@@ -197,6 +217,9 @@ void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerS
       result.ConnectionId = state->OwnerConnectionId;
       result.PlayerName = state->GetPlayerName();
       result.PlayerColorIndex = state->GetPlayerColorIndex();
+      result.IdType = gi->BoothMode ? "PlayerName" : "DeviceId";
+      result.UserId = gi->BoothMode ? result.PlayerName : state->GetDeviceId();
+      result.IdentityKey = result.IdType + ":" + result.UserId;
       result.bFinished = false;
       result.FinishTime = 0.0f;
       gi->multiplayer_results.push_back(result);
@@ -204,17 +227,105 @@ void ALobbyScene::SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerS
   }
 }
 
+bool ALobbyScene::ArePlayerIdentitiesReady(const std::vector<ALobbyPlayerState*>& States) const {
+  const auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!GameInstance || States.empty()) {
+    return false;
+  }
+
+  std::unordered_set<std::string> IdentityKeys;
+  for (const ALobbyPlayerState* State : States) {
+    if (!State) {
+      return false;
+    }
+    const std::string UserId =
+        GameInstance->BoothMode ? State->GetPlayerName() : State->GetDeviceId();
+    const std::string IdType = GameInstance->BoothMode ? "PlayerName" : "DeviceId";
+    if (UserId.empty() || !IdentityKeys.insert(IdType + ":" + UserId).second) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void ALobbyScene::FetchRaceGhosts() {
+  const FMapInfo* Map = FindMapInfo(PendingStartLevelPath);
+  if (!Map || Map->MapId.empty()) {
+    M_LOG(Error, "Cannot fetch ghosts: selected map metadata is invalid");
+    RaceStartState = ERaceStartState::Idle;
+    return;
+  }
+
+  RaceStartState = ERaceStartState::FetchingGhosts;
+  auto* Manager = GetWorld()->SpawnActor<LeaderBoardManager>();
+  Manager->FetchRaceGhosts(
+      Map->MapId,
+      Map->MapVersion,
+      [this](bool bSuccess, const std::vector<FRaceGhostData>& Ghosts) {
+        if (auto* GameInstance =
+                dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+          GameInstance->RaceGhosts = bSuccess ? Ghosts : std::vector<FRaceGhostData>{};
+        }
+        if (!bSuccess) {
+          M_LOG(Warning, "Ghost fetch failed; continuing with an empty ghost set");
+        }
+        DistributeRaceGhosts();
+      }
+  );
+}
+
+void ALobbyScene::DistributeRaceGhosts() {
+  const auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  const std::vector<FRaceGhostData> EmptyGhosts;
+  const auto& Ghosts = GameInstance ? GameInstance->RaceGhosts : EmptyGhosts;
+
+  GhostReadyConnections.clear();
+  RaceStartState = ERaceStartState::WaitingForReady;
+  GhostReadyTimeoutRemaining = 5.0f;
+  for (ALobbyPlayerState* State : GetPlayerStates()) {
+    if (State) {
+      State->SendRaceGhosts(Ghosts);
+    }
+  }
+}
+
+void ALobbyScene::NotifyGhostReady(FNetworkConnectionId ConnectionId) {
+  if (!GetWorld()->IsServer() || RaceStartState != ERaceStartState::WaitingForReady) {
+    return;
+  }
+  GhostReadyConnections.insert(ConnectionId);
+  const auto States = GetPlayerStates();
+  const bool bAllReady = std::all_of(States.begin(), States.end(), [this](const auto* State) {
+    return State && GhostReadyConnections.contains(State->OwnerConnectionId);
+  });
+  if (bAllReady) {
+    BeginStartCountdown();
+  }
+}
+
+void ALobbyScene::BeginStartCountdown() {
+  RaceStartState = ERaceStartState::Countdown;
+  GhostReadyTimeoutRemaining = -1.0f;
+  StartCountdownRemaining = 3.0f;
+  LastPublishedCountdownSeconds = 3;
+  if (auto* HostState = FindHostPlayerState()) {
+    HostState->SetStartCountdownSeconds(3);
+  }
+}
+
 void ALobbyScene::StartGame() {
-  if (!GetWorld()->IsServer() || StartCountdownRemaining >= 0.0f || bStartTravelRequested ||
+  const auto States = GetPlayerStates();
+  if (!GetWorld()->IsServer() || RaceStartState != ERaceStartState::Idle || bStartTravelRequested ||
       SelectedLevelPath.empty() || GetPlayerStates().empty()) {
     return;
   }
-  PendingStartLevelPath = SelectedLevelPath;
-  StartCountdownRemaining = 3.0f;
-  LastPublishedCountdownSeconds = 3;
-  if (auto* hostState = FindHostPlayerState()) {
-    hostState->SetStartCountdownSeconds(3);
+  if (!ArePlayerIdentitiesReady(States)) {
+    M_LOG(Warning, "Cannot start race until all player identities are unique and ready");
+    return;
   }
+  PendingStartLevelPath = SelectedLevelPath;
+  SaveLobbyResultsToGameInstance(States);
+  FetchRaceGhosts();
   if (OnlinePlayManager::GetInstance().IsInLobby()) {
     EOSLobbyManager::GetInstance().UpdateCurrentLobbyAttributes(
         {MakeLobbyStateAttribute(LobbyStateRacing)}, [](bool bSuccess) { (void)bSuccess; }

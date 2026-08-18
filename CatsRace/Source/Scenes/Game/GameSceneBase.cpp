@@ -1,7 +1,5 @@
 #include "GameSceneBase.h"
 
-#include "Actors/HostServerTravelActor.h"
-
 #include <EnhancedInputComponent.h>
 #include <NetworkManager.h>
 #include <PlayerController.h>
@@ -11,21 +9,20 @@
 #include <TimerHandle.h>
 #include <TimerManager.h>
 #include <UIManager.h>
-#include "Objects/Items/HeldSpeedItem.h"
+
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
+#include "ActorManager.h"
+#include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
-#include "Ghost/GhostData.h"
-#include "Ghost/GhostPlaybackComponent.h"
-#include "Ghost/GhostPlayer.h"
 #include "Ghost/GhostRecorderComponent.h"
 #include "Log.h"
-#include "ActorManager.h"
+#include "Objects/Items/HeldSpeedItem.h"
 #include "Objects/SampleA.h"
 #include "PC_Game.h"
 #include "ResourceManager.h"
@@ -34,12 +31,9 @@
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
-#include "Services/LeaderBoardManager.h"
 #include "UMath.h"
-#include "Objects/Items/HeldSpeedItem.h"
 
-AGameSceneBase::AGameSceneBase(
-) {
+AGameSceneBase::AGameSceneBase() {
   SetDefaultPawnClass(APlayer::StaticClassName());
   SetDefaultPlayerControllerClass(PC_Game::StaticClassName());
 }
@@ -53,24 +47,26 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
   }
   if (RaceRunning) {
     RaceTime += DeltaTime;
-    if (m_GhostPlayer && m_GhostPlayer->GetPlaybackComponent()) {
-      m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
-    }
   }
-
 }
 
 void AGameSceneBase::BeginPlay() {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->ClearTime = -1.0f;
+    MapId = gi->RaceMapId;
+    MapVersion = gi->RaceMapVersion;
+    if (MapId.empty()) {
+      if (const FMapInfo* Map = FindMapInfo(gi->last_level_path)) {
+        MapId = Map->MapId;
+        MapVersion = Map->MapVersion;
+      }
+    }
   }
 
   AGameModeBase::BeginPlay();
 
   AHostServerTravelActor::SpawnForListenServer(*GetWorld());
 
-
-   if (GetWorld()->IsServer()) {
+  if (GetWorld()->IsServer()) {
     std::vector<FVector2D> savedLocations;
 
     for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
@@ -86,7 +82,6 @@ void AGameSceneBase::BeginPlay() {
   }
 
   SpawnActor<ASampleA>();
-  LoadTopGhost();
   M_LOG(Log, "Game scene initialized: {}", MapId);
 
   if (GetWorld()->IsServer()) {
@@ -113,9 +108,10 @@ void AGameSceneBase::OnPlayerSpawned(
     player->SetRotateCamera(gi->bRotateCamera);
   }
 
-  if (ConnectionId == 0) {
-    m_GhostRecorder = NewObject<MGhostRecorderComponent>(player);
-    m_GhostRecorder->RegisterComponent();
+  if (GetWorld()->IsServer()) {
+    auto* Recorder = NewObject<MGhostRecorderComponent>(player);
+    Recorder->RegisterComponent();
+    GhostRecorders[ConnectionId] = Recorder;
   }
 
   // 参加リザルト登録
@@ -152,52 +148,6 @@ void AGameSceneBase::OnPlayerSpawned(
   }
 }
 
-void AGameSceneBase::LoadTopGhost() {
-  auto* lbm = GetWorld()->SpawnActor<LeaderBoardManager>();
-  const std::string mapId = MapId;
-  lbm->FetchLeaderBoard(
-      mapId, [this, lbm, mapId](bool bSuccess, const std::vector<FLeaderBoardEntry>& entries) {
-        if (!bSuccess || entries.empty()) {
-          M_LOG(Log, "Top ghost skipped: leaderboard is empty or unavailable");
-          return;
-        }
-
-        const std::string topUserId = entries.front().user_id;
-        lbm->FetchGhostData(
-            mapId,
-            {topUserId},
-            [this, topUserId](
-                bool bGhostSuccess,
-                const std::unordered_map<std::string, std::string>& ghostDataById
-            ) {
-              auto ghostDataIt = ghostDataById.find(topUserId);
-              if (!bGhostSuccess || ghostDataIt == ghostDataById.end() ||
-                  ghostDataIt->second.empty()) {
-                M_LOG(Log, "Top ghost skipped: ghost data is empty for {}", topUserId);
-                return;
-              }
-
-              auto frames = GhostDataSerializer::Deserialize(ghostDataIt->second);
-              if (frames.empty()) {
-                M_LOG(Warning, "Top ghost skipped: failed to parse ghost data for {}", topUserId);
-                return;
-              }
-
-              if (!m_GhostPlayer) {
-                m_GhostPlayer = GetWorld()->SpawnActor<AGhostPlayer>();
-              }
-              m_GhostPlayer->SetUserId(topUserId);
-              m_GhostPlayer->SetGhostData(frames);
-              if (m_GhostPlayer->GetPlaybackComponent()) {
-                m_GhostPlayer->GetPlaybackComponent()->UpdatePlayback(RaceTime);
-              }
-              M_LOG(Log, "Top ghost loaded: {} frames from {}", frames.size(), topUserId);
-            }
-        );
-      }
-  );
-}
-
 void AGameSceneBase::RaceFinish() {
   if (auto* player = dynamic_cast<APlayer*>(GetPlayerPawn())) {
     NotifyPlayerFinished(player);
@@ -230,9 +180,6 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
   }
 
   SaveResult(Player->OwnerConnectionId, RaceTime);
-  if (Player->OwnerConnectionId == 0 && m_GhostRecorder) {
-    m_GhostRecorder->StopRecording();
-  }
 
   if (AreAllPlayersFinished()) {
     TravelToClear();
@@ -246,10 +193,13 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
 
 void AGameSceneBase::SaveResult(FNetworkConnectionId ConnectionId, float FinishTime) {
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-    gi->ClearTime = FinishTime;
-    gi->map_id = MapId;
-    gi->LastGhostData =
-        (ConnectionId == 0 && m_GhostRecorder) ? m_GhostRecorder->GetSerializedData() : "";
+    MGhostRecorderComponent* Recorder = nullptr;
+    if (const auto Found = GhostRecorders.find(ConnectionId); Found != GhostRecorders.end()) {
+      Recorder = Found->second;
+      if (Recorder) {
+        Recorder->StopRecording();
+      }
+    }
     auto existing = std::find_if(
         gi->multiplayer_results.begin(),
         gi->multiplayer_results.end(),
@@ -265,10 +215,41 @@ void AGameSceneBase::SaveResult(FNetworkConnectionId ConnectionId, float FinishT
                               : ("Player " + std::to_string(ConnectionId + 1));
       result.bFinished = true;
       result.FinishTime = FinishTime;
+      if (Recorder) {
+        result.GhostData = Recorder->GetSerializedData();
+        result.GhostRecordedSeconds = Recorder->GetRecordedSeconds();
+        result.bIsGhostPartial = Recorder->IsPartialGhost();
+      }
       gi->multiplayer_results.push_back(result);
     } else if (!existing->bFinished) {
       existing->bFinished = true;
       existing->FinishTime = FinishTime;
+      if (Recorder) {
+        existing->GhostData = Recorder->GetSerializedData();
+        existing->GhostRecordedSeconds = Recorder->GetRecordedSeconds();
+        existing->bIsGhostPartial = Recorder->IsPartialGhost();
+      }
+    }
+
+    const auto SavedResult = std::find_if(
+        gi->multiplayer_results.begin(),
+        gi->multiplayer_results.end(),
+        [ConnectionId](const GI_main::FMultiplayerResult& Result) {
+          return Result.ConnectionId == ConnectionId;
+        }
+    );
+    if (SavedResult != gi->multiplayer_results.end()) {
+      M_LOG(
+          Log,
+          "Race result collected: connection={}, identity={}, score={}, ghost_bytes={}, "
+          "recorded_seconds={}, partial={}",
+          ConnectionId,
+          SavedResult->IdentityKey,
+          SavedResult->FinishTime,
+          SavedResult->GhostData.size(),
+          SavedResult->GhostRecordedSeconds,
+          SavedResult->bIsGhostPartial
+      );
     }
   }
 }
@@ -293,6 +274,12 @@ void AGameSceneBase::TravelToClear() {
   }
   bResultTravelRequested = true;
   RaceRunning = false;
+  for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
+    (void)ConnectionId;
+    if (Recorder) {
+      Recorder->StopRecording();
+    }
+  }
   GetWorld()->ServerTravel(GameSceneIds::Clear);
 }
 
@@ -309,8 +296,11 @@ void AGameSceneBase::RaceStart() {
   M_LOG(Log, "start", 0);
 
   RaceRunning = true;
-  if (m_GhostRecorder) {
-    m_GhostRecorder->StartRecording();
+  for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
+    (void)ConnectionId;
+    if (Recorder) {
+      Recorder->StartRecording();
+    }
   }
 
   if (GetWorld() && GetWorld()->GetActorManager()) {

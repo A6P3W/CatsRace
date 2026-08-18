@@ -3,6 +3,7 @@
 #include <TimerManager.h>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "GameModeBase.h"
@@ -12,7 +13,6 @@ class WCountDown;
 class WMainHUD;
 class WPauseMenu;
 class MGhostRecorderComponent;
-class AGhostPlayer;
 class APlayer;
 class APlayerController;
 
@@ -29,6 +29,7 @@ class AGameSceneBase : public AGameModeBase {
   void SpawnHeldSpeedItemWithRespawn(FVector2D location);
   float GetRaceTime() const { return RaceTime; }
   const std::string& GetMapId() const { return MapId; }
+  int GetMapVersion() const { return MapVersion; }
   void RaceFinish();
   void NotifyPlayerFinished(APlayer* Player);
   virtual void RestartGame();
@@ -41,17 +42,15 @@ class AGameSceneBase : public AGameModeBase {
   void RaceCountDown();
   void RaceStart();
   void ClearCountDown();
-  void LoadTopGhost();
   void SaveResult(FNetworkConnectionId ConnectionId, float FinishTime);
   bool AreAllPlayersFinished() const;
   void TravelToClear();
-  void RespawnNextItem();  
+  void RespawnNextItem();
 
   int m_CountDown = 3;
   FTimerHandle CountHandle;
 
-  MGhostRecorderComponent* m_GhostRecorder = nullptr;
-  AGhostPlayer* m_GhostPlayer = nullptr;
+  std::unordered_map<FNetworkConnectionId, MGhostRecorderComponent*> GhostRecorders;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;
@@ -59,9 +58,10 @@ class AGameSceneBase : public AGameModeBase {
   bool bResultTravelRequested = false;
   float ResultTravelDelay = -1.0f;
   std::string MapId;
+  int MapVersion = 1;
   std::string LevelFileName;
   FVector2D PlayerStartLocation;
 
-  std::vector<FTimerHandle> m_itemRespawnHandles;    
-  std::vector<FVector2D> m_pendingRespawnLocations; 
+  std::vector<FTimerHandle> m_itemRespawnHandles;
+  std::vector<FVector2D> m_pendingRespawnLocations;
 };

@@ -1,0 +1,36 @@
+{
+  "name": "GCP Python Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "1.15.8"
+    }
+  },
+  "containerEnv": {
+    "CLOUDSDK_CORE_PROJECT": "catsrace",
+    "GOOGLE_CLOUD_PROJECT": "catsrace"
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Local cells proxy",
+      "onAutoForward": "silent"
+    }
+  },
+  "mounts": [
+    "source=gcloud-config,target=/home/vscode/.config/gcloud,type=volume"
+  ],
+  "postStartCommand": "sudo mkdir -p /home/vscode/.config/gcloud && sudo chown -R vscode:vscode /home/vscode/.config/gcloud",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "hashicorp.terraform"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}

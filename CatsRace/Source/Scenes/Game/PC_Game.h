@@ -1,6 +1,8 @@
 #pragma once
 #include <TimerHandle.h>
 
+#include <vector>
+
 #include "PlayerController.h"
 
 class EditorMode;
@@ -10,6 +12,7 @@ class WCountDown;
 class WControlGuide;
 class WPauseMenu;
 class APlayerDirectionIndicator;
+class AGhostPlayer;
 
 class PC_Game : public APlayerController {
  public:
@@ -32,12 +35,14 @@ class PC_Game : public APlayerController {
  private:
   void RaceCountDown();
   void ClearCountDown();
+  void SpawnRaceGhosts();
 
   WMainHUD* MainHUD = nullptr;
   WCountDown* CountDownWidget = nullptr;
   WControlGuide* ControlGuideWidget = nullptr;
   WPauseMenu* PauseMenu = nullptr;
   APlayerDirectionIndicator* PlayerDirectionIndicator = nullptr;
+  std::vector<AGhostPlayer*> GhostPlayers;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;

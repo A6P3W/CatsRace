@@ -5,6 +5,7 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
+#include "Log.h"
 #include "NetworkManager.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
@@ -36,10 +37,9 @@ void PC_Lobby::BeginPlay() {
     ControlGuideWidget->SetGuideMode(EControlGuideMode::UI);
     UIManager::GetInstance()->AddWidget(ControlGuideWidget);
 
- if (auto* sm = GetWorld()->GetSoundManager()) {
+    if (auto* sm = GetWorld()->GetSoundManager()) {
       // PlaySE (または PlayBGM) は再生中のハンドル(int)を返します
       int bgmHandle = sm->PlaySE("/Game/images/Time_to_change_2.mp3", true);
-
 
       if (bgmHandle != -1) {
         sm->SetVolume(bgmHandle, 0.2f);
@@ -55,11 +55,26 @@ void PC_Lobby::OnUpdate(float DeltaTime) {
     return;
   }
 
-  auto* localState = FindLocalPlayerState();
-  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (localState && gi && !gi->player_name.empty() &&
-      localState->GetPlayerName() != gi->player_name) {
-    localState->SetPlayerName(gi->player_name);
+  auto* LocalState = FindLocalPlayerState();
+  auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!PlayerIdentitySubmitted && LocalState && GameInstance) {
+    if (!PlayerNameSubmitted) {
+      PlayerNameSubmitted =
+          GameInstance->player_name.empty() || LocalState->SetPlayerName(GameInstance->player_name);
+    }
+    if (!DeviceIdSubmitted) {
+      DeviceIdSubmitted =
+          GameInstance->DeviceId.empty() || LocalState->SetDeviceId(GameInstance->DeviceId);
+    }
+    PlayerIdentitySubmitted = PlayerNameSubmitted && DeviceIdSubmitted;
+    if (PlayerIdentitySubmitted) {
+      M_LOG(
+          Log,
+          "Lobby identity submitted: connection={}, player_name={}",
+          LocalState->OwnerConnectionId,
+          GameInstance->player_name
+      );
+    }
   }
 }
 
