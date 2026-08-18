@@ -28,7 +28,7 @@ class ALobbyScene : public AGameModeBase {
   void NotifyGhostReady(FNetworkConnectionId ConnectionId);
 
  private:
-  enum class ERaceStartState { Idle, FetchingGhosts, WaitingForReady, Countdown };
+  enum class ERaceStartState { Idle, WaitingForReady, Countdown };
 
   std::vector<ALobbyPlayerState*> GetPlayerStates();
   ALobbyPlayerState* FindLocalPlayerState();
@@ -39,8 +39,7 @@ class ALobbyScene : public AGameModeBase {
   void EnsureHostPlayerState();
   void SaveLobbyResultsToGameInstance(const std::vector<ALobbyPlayerState*>& States);
   bool ArePlayerIdentitiesReady(const std::vector<ALobbyPlayerState*>& States) const;
-  void FetchRaceGhosts();
-  void DistributeRaceGhosts();
+  void RequestRaceGhostDownloads();
   void BeginStartCountdown();
   void StartGame();
   MSoundComponent* m_bgmSound = nullptr;

@@ -17,7 +17,6 @@
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyRoadActor.h"
 #include "Scenes/Lobby/PC_Lobby.h"
-#include "Services/LeaderBoardManager.h"
 #include "World.h"
 REGISTER_GAME_MODE(ALobbyScene)
 
@@ -251,43 +250,20 @@ bool ALobbyScene::ArePlayerIdentitiesReady(const std::vector<ALobbyPlayerState*>
   return true;
 }
 
-void ALobbyScene::FetchRaceGhosts() {
+void ALobbyScene::RequestRaceGhostDownloads() {
   const FMapInfo* Map = FindMapInfo(PendingStartLevelPath);
   if (!Map || Map->MapId.empty()) {
-    M_LOG(Error, "Cannot fetch ghosts: selected map metadata is invalid");
+    M_LOG(Error, "Cannot request ghost downloads: selected map metadata is invalid");
     RaceStartState = ERaceStartState::Idle;
     return;
   }
 
-  RaceStartState = ERaceStartState::FetchingGhosts;
-  auto* Manager = GetWorld()->SpawnActor<LeaderBoardManager>();
-  Manager->FetchRaceGhosts(
-      Map->MapId,
-      Map->MapVersion,
-      [this](bool bSuccess, const std::vector<FRaceGhostData>& Ghosts) {
-        if (auto* GameInstance =
-                dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-          GameInstance->RaceGhosts = bSuccess ? Ghosts : std::vector<FRaceGhostData>{};
-        }
-        if (!bSuccess) {
-          M_LOG(Warning, "Ghost fetch failed; continuing with an empty ghost set");
-        }
-        DistributeRaceGhosts();
-      }
-  );
-}
-
-void ALobbyScene::DistributeRaceGhosts() {
-  const auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  const std::vector<FRaceGhostData> EmptyGhosts;
-  const auto& Ghosts = GameInstance ? GameInstance->RaceGhosts : EmptyGhosts;
-
   GhostReadyConnections.clear();
   RaceStartState = ERaceStartState::WaitingForReady;
-  GhostReadyTimeoutRemaining = 5.0f;
+  GhostReadyTimeoutRemaining = 7.0f;
   for (ALobbyPlayerState* State : GetPlayerStates()) {
     if (State) {
-      State->SendRaceGhosts(Ghosts);
+      State->RequestRaceGhostDownload(Map->MapId, Map->MapVersion);
     }
   }
 }
@@ -328,7 +304,7 @@ void ALobbyScene::StartGame() {
   }
   PendingStartLevelPath = SelectedLevelPath;
   SaveLobbyResultsToGameInstance(States);
-  FetchRaceGhosts();
+  RequestRaceGhostDownloads();
   if (OnlinePlayManager::GetInstance().IsInLobby()) {
     EOSLobbyManager::GetInstance().UpdateCurrentLobbyAttributes(
         {MakeLobbyStateAttribute(LobbyStateRacing)}, [](bool bSuccess) { (void)bSuccess; }

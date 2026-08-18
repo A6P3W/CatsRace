@@ -56,11 +56,12 @@ resource "google_cloudfunctions2_function" "function" {
   }
 
   service_config {
-    available_memory               = var.memory_size
-    timeout_seconds                = 60
-    max_instance_count             = 1
-    ingress_settings               = "ALLOW_ALL"
-    all_traffic_on_latest_revision = true
+    available_memory                 = var.memory_size
+    timeout_seconds                  = 60
+    max_instance_count               = 1
+    max_instance_request_concurrency = 4
+    ingress_settings                 = "ALLOW_ALL"
+    all_traffic_on_latest_revision   = true
 
     environment_variables = {
       PROJECT_ID = var.project_id
@@ -74,4 +75,3 @@ resource "google_cloud_run_service_iam_member" "public_access" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
