@@ -10,7 +10,7 @@ REGISTER_ACTOR(AGhostPlayer)
 AGhostPlayer::AGhostPlayer(FVector2D location, FRotator rotation) {
   SetActorLocation(location);
   SetActorRotation(rotation);
-  SetActorScale(FScale(0.4f));
+  SetActorScale(FScale(0.3f));
   m_UserIdFontHandle = ResourceManager::GetInstance().GetFont(20, 5);
 
   const int handle =
@@ -18,7 +18,7 @@ AGhostPlayer::AGhostPlayer(FVector2D location, FRotator rotation) {
   m_SpriteComponent = NewObject<MSpriteComponent>(this);
   m_SpriteComponent->SetRenderSettings(0, RenderSpace::World);
   if (handle != -1) {
-    m_SpriteComponent->SubmitGraph(handle, FScale(1.0f), 188);
+    m_SpriteComponent->SubmitGraph(handle, FScale(1.0f), 110);
   }
   m_SpriteComponent->AttachToComponent(GetRootComponent());
   m_SpriteComponent->RegisterComponent();
@@ -38,7 +38,7 @@ void AGhostPlayer::Draw() {
   FVector2D labelPos = renderSystem.WorldToScreen(GetActorLocation());
   const int textWidth = ResourceManager::GetInstance().GetTextWidth(m_UserId, m_UserIdFontHandle);
   labelPos.X -= textWidth * 0.5f;
-  labelPos.Y -= 72.0f;
+  labelPos.Y -= 37.0f;
 
   renderSystem.SubmitText(
       {labelPos.X + 1.0f, labelPos.Y + 1.0f},
@@ -49,7 +49,7 @@ void AGhostPlayer::Draw() {
       2
   );
   renderSystem.SubmitText(
-      labelPos, m_UserId, m_UserIdFontHandle, FColor{255, 255, 255}, RenderSpace::Screen, 3
+      labelPos, m_UserId, m_UserIdFontHandle, FColor{255, 255, 255, 150}, RenderSpace::Screen, 3
   );
 }
 
