@@ -14612,21 +14612,6 @@
     },
     {
       "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_16",
-      "properties": {
-        "ImagePath": ""
-      },
-      "transform": {
-        "location": {
-          "x": -3534.69580078125,
-          "y": 587.0813598632813
-        },
-        "rotation": 0.0,
-        "scale": 1.0
-      }
-    },
-    {
-      "class": "ASpriteActor",
       "instance_name": "ASpriteActor_17",
       "properties": {
         "ImagePath": "/Game/images/arrow-up.png"
@@ -14773,21 +14758,6 @@
         },
         "rotation": 135.0,
         "scale": 5.3188300132751465
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_27",
-      "properties": {
-        "ImagePath": ""
-      },
-      "transform": {
-        "location": {
-          "x": 2085.15283203125,
-          "y": -1725.4876708984375
-        },
-        "rotation": 0.0,
-        "scale": 1.0
       }
     },
     {
