@@ -36,6 +36,26 @@ class RepositoryRulesTest(unittest.TestCase):
             self.assertEqual(len(indices), len(set(indices)))
             self.assertTrue(all(0 <= index < total for index in indices))
 
+    def test_ghost_selection_uses_requested_percentile_ranks(self):
+        self.assertEqual(
+            select_ghost_indices(10),
+            [
+                ("world_first", 0),
+                ("one_third", 3),
+                ("two_thirds", 6),
+                ("normal", 8),
+            ],
+        )
+        self.assertEqual(
+            select_ghost_indices(5),
+            [
+                ("world_first", 0),
+                ("one_third", 1),
+                ("two_thirds", 3),
+                ("normal", 4),
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

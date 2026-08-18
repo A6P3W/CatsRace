@@ -35,11 +35,16 @@ def should_update_best(
 def select_ghost_indices(total: int) -> list[tuple[str, int]]:
     if total <= 0:
         return []
+
+    def percentile_index(percent: int) -> int:
+        return ((total * percent + 99) // 100) - 1
+
+    # Keep the existing wire-level slot names for client compatibility.
     candidates = (
         ("world_first", 0),
-        ("one_third", total // 3),
-        ("two_thirds", (2 * total) // 3),
-        ("normal", total // 2),
+        ("one_third", percentile_index(40)),
+        ("two_thirds", percentile_index(70)),
+        ("normal", percentile_index(90)),
     )
     selected: list[tuple[str, int]] = []
     used: set[int] = set()

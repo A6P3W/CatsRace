@@ -9,7 +9,7 @@
 
 #include "Actor.h"
 
-#define GCF_USE_LOCAL_SERVER 1
+#define GCF_USE_LOCAL_SERVER 0
 
 namespace GcfEndpoints {
 #if GCF_USE_LOCAL_SERVER
@@ -18,9 +18,9 @@ inline const std::string GetRaceGhosts = BaseUrl + "/get-race-ghosts-v2";
 inline const std::string PostRaceResult = BaseUrl + "/post-race-result-v2";
 inline const std::string GetWorldRanking = BaseUrl + "/get-world-ranking-v2";
 #else
-inline const std::string GetRaceGhosts = "https://get-race-ghosts-v2-xxxx-uw.a.run.app";
-inline const std::string PostRaceResult = "https://post-race-result-v2-xxxx-uw.a.run.app";
-inline const std::string GetWorldRanking = "https://get-world-ranking-v2-xxxx-uw.a.run.app";
+inline const std::string GetRaceGhosts = "https://get-race-ghosts-v2-q56mlgzsqa-uw.a.run.app";
+inline const std::string PostRaceResult = "https://post-race-result-v2-q56mlgzsqa-uw.a.run.app";
+inline const std::string GetWorldRanking = "https://get-world-ranking-v2-q56mlgzsqa-uw.a.run.app";
 #endif
 }  // namespace GcfEndpoints
 
