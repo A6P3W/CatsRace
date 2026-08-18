@@ -15,10 +15,9 @@
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
+#include "Scenes/Lobby/LobbyRoadActor.h"
 #include "Scenes/Lobby/PC_Lobby.h"
 #include "Services/LeaderBoardManager.h"
-#include "SpriteActor.h"
-#include "SpriteComponent.h"
 #include "World.h"
 REGISTER_GAME_MODE(ALobbyScene)
 
@@ -41,12 +40,7 @@ ALobbyScene::ALobbyScene() {
 void ALobbyScene::BeginPlay() {
   AGameModeBase::BeginPlay();
 
-  auto* LobbyRoad = GetWorld()->SpawnActor<ASpriteActor>();
-  LobbyRoad->SetActorScale(FScale(0.8f));
-  LobbyRoad->SetImagePath("/Game/images/lobby-road.png");
-  if (auto* LobbyRoadSprite = dynamic_cast<MSpriteComponent*>(LobbyRoad->GetRootComponent())) {
-    LobbyRoadSprite->SetRenderSettings(-100, RenderSpace::World);
-  }
+  GetWorld()->SpawnActor<ALobbyRoadActor>();
 
   AHostServerTravelActor::SpawnForListenServer(*GetWorld());
 
