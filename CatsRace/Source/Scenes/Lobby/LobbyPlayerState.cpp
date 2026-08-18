@@ -1,12 +1,13 @@
 #include "Scenes/Lobby/LobbyPlayerState.h"
 
 #include <algorithm>
-#include <utility>
 
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
+#include "Log.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyScene.h"
+#include "Services/LeaderBoardManager.h"
 #include "World.h"
 
 namespace {
@@ -15,8 +16,7 @@ enum : FNetworkRPCId {
   RPC_ServerSetLobbyOptions = 3,
   RPC_ServerSetFinishResult = 4,
   RPC_ServerSetDeviceId = 5,
-  RPC_ClientReceiveRaceGhost = 6,
-  RPC_ClientReceiveRaceGhostDeliveryComplete = 7,
+  RPC_ClientDownloadRaceGhosts = 6,
   RPC_ServerAcknowledgeRaceGhosts = 8
 };
 
@@ -65,16 +65,10 @@ void ALobbyPlayerState::InitializeRPCs() {
   );
   RegisterRPC(RPC_ServerSetDeviceId, ENetRPCType::Server, this, &ALobbyPlayerState::ApplyDeviceId);
   RegisterRPC(
-      RPC_ClientReceiveRaceGhost,
+      RPC_ClientDownloadRaceGhosts,
       ENetRPCType::Client,
       this,
-      &ALobbyPlayerState::ClientReceiveRaceGhost
-  );
-  RegisterRPC(
-      RPC_ClientReceiveRaceGhostDeliveryComplete,
-      ENetRPCType::Client,
-      this,
-      &ALobbyPlayerState::ClientReceiveRaceGhostDeliveryComplete
+      &ALobbyPlayerState::ClientDownloadRaceGhosts
   );
   RegisterRPC(
       RPC_ServerAcknowledgeRaceGhosts,
@@ -181,90 +175,49 @@ void ALobbyPlayerState::SetStartCountdownSeconds(int InStartCountdownSeconds) {
   MarkReplicatedStateDirty();
 }
 
-void ALobbyPlayerState::SendRaceGhosts(const std::vector<FRaceGhostData>& Ghosts) {
+void ALobbyPlayerState::RequestRaceGhostDownload(const std::string& MapId, int MapVersion) {
   if (!bHasAuthority) {
     return;
   }
-  if (Ghosts.empty()) {
-    InvokeRPC(
-        RPC_ClientReceiveRaceGhostDeliveryComplete,
-        ENetRPCType::Client,
-        ENetPacketReliability::Reliable
-    );
-    return;
-  }
-
-  for (size_t Index = 0; Index < Ghosts.size(); ++Index) {
-    const FRaceGhostData& Ghost = Ghosts[Index];
-    InvokeRPC(
-        RPC_ClientReceiveRaceGhost,
-        ENetRPCType::Client,
-        ENetPacketReliability::Reliable,
-        static_cast<int>(Index),
-        Ghost.UserId,
-        Ghost.PlayerName,
-        Ghost.Score,
-        Ghost.GhostSchemaVersion,
-        Ghost.GhostRecordedSeconds,
-        Ghost.bIsGhostPartial,
-        Ghost.GhostData,
-        Index + 1 == Ghosts.size()
-    );
-  }
+  InvokeRPC(
+      RPC_ClientDownloadRaceGhosts,
+      ENetRPCType::Client,
+      ENetPacketReliability::Reliable,
+      MapId,
+      MapVersion
+  );
 }
 
-void ALobbyPlayerState::ClientReceiveRaceGhost(
-    int SlotIndex,
-    std::string UserId,
-    std::string InPlayerName,
-    float Score,
-    int GhostSchemaVersion,
-    float GhostRecordedSeconds,
-    bool bIsGhostPartial,
-    std::string GhostData,
-    bool bIsLastGhost
-) {
-  if (GetWorld()->IsServer()) {
-    if (bIsLastGhost) {
-      CompleteRaceGhostDelivery();
-    }
-    return;
-  }
+void ALobbyPlayerState::ClientDownloadRaceGhosts(std::string MapId, int MapVersion) {
   auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (!GameInstance || SlotIndex < 0 || SlotIndex >= 4) {
+  if (!GameInstance) {
+    CompleteRaceGhostDownload();
     return;
   }
-  if (SlotIndex == 0) {
-    GameInstance->RaceGhosts.clear();
-  }
-  if (GameInstance->RaceGhosts.size() <= static_cast<size_t>(SlotIndex)) {
-    GameInstance->RaceGhosts.resize(static_cast<size_t>(SlotIndex) + 1);
-  }
+  GameInstance->RaceGhosts.clear();
 
-  FRaceGhostData& Ghost = GameInstance->RaceGhosts[static_cast<size_t>(SlotIndex)];
-  Ghost.UserId = std::move(UserId);
-  Ghost.PlayerName = std::move(InPlayerName);
-  Ghost.Score = Score;
-  Ghost.GhostSchemaVersion = GhostSchemaVersion;
-  Ghost.GhostRecordedSeconds = GhostRecordedSeconds;
-  Ghost.bIsGhostPartial = bIsGhostPartial;
-  Ghost.GhostData = std::move(GhostData);
-  if (bIsLastGhost) {
-    CompleteRaceGhostDelivery();
+  auto* Manager = GetWorld()->SpawnActor<LeaderBoardManager>();
+  if (!Manager) {
+    M_LOG(
+        Warning, "Could not create the ghost download manager; continuing with an empty ghost set"
+    );
+    CompleteRaceGhostDownload();
+    return;
   }
+  Manager->FetchRaceGhosts(
+      MapId,
+      MapVersion,
+      [this, GameInstance](bool bSuccess, const std::vector<FRaceGhostData>& Ghosts) {
+        GameInstance->RaceGhosts = bSuccess ? Ghosts : std::vector<FRaceGhostData>{};
+        if (!bSuccess) {
+          M_LOG(Warning, "Ghost fetch failed; continuing with an empty ghost set");
+        }
+        CompleteRaceGhostDownload();
+      }
+  );
 }
 
-void ALobbyPlayerState::ClientReceiveRaceGhostDeliveryComplete() {
-  if (!GetWorld()->IsServer()) {
-    if (auto* GameInstance =
-            dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
-      GameInstance->RaceGhosts.clear();
-    }
-  }
-  CompleteRaceGhostDelivery();
-}
-
-void ALobbyPlayerState::CompleteRaceGhostDelivery() {
+void ALobbyPlayerState::CompleteRaceGhostDownload() {
   InvokeRPC(RPC_ServerAcknowledgeRaceGhosts, ENetRPCType::Server, ENetPacketReliability::Reliable);
 }
 

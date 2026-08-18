@@ -7,7 +7,6 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
-#include "Services/LeaderBoardManager.h"
 
 class ALobbyPlayerState : public AActor {
  public:
@@ -25,7 +24,7 @@ class ALobbyPlayerState : public AActor {
   void SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers);
   void SetFinishResult(bool bInFinished, float InFinishTime);
   void SetStartCountdownSeconds(int InStartCountdownSeconds);
-  void SendRaceGhosts(const std::vector<FRaceGhostData>& Ghosts);
+  void RequestRaceGhostDownload(const std::string& MapId, int MapVersion);
 
   FCallbackHandle AddOnSelectedMapChanged(FSelectedMapChangedCallback Callback);
   void RemoveOnSelectedMapChanged(FCallbackHandle Handle);
@@ -48,20 +47,9 @@ class ALobbyPlayerState : public AActor {
   void SetSelectedMap(const std::string& NewLevelPath);
   void OnRepSelectedLevelPath(std::string OldLevelPath);
   void BroadcastOnSelectedMapChanged();
-  void ClientReceiveRaceGhost(
-      int SlotIndex,
-      std::string UserId,
-      std::string PlayerName,
-      float Score,
-      int GhostSchemaVersion,
-      float GhostRecordedSeconds,
-      bool bIsGhostPartial,
-      std::string GhostData,
-      bool bIsLastGhost
-  );
-  void ClientReceiveRaceGhostDeliveryComplete();
+  void ClientDownloadRaceGhosts(std::string MapId, int MapVersion);
   void ServerAcknowledgeRaceGhosts();
-  void CompleteRaceGhostDelivery();
+  void CompleteRaceGhostDownload();
 
   std::string PlayerName = "Player";
   std::string DeviceId;
