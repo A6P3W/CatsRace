@@ -1,6 +1,8 @@
 #include "GameSceneBase.h"
 
 #include <EnhancedInputComponent.h>
+#include <NetBuffer.h>
+#include <NetPacketType.h>
 #include <NetworkManager.h>
 #include <PlayerController.h>
 #include <PlayerStart.h>
@@ -45,7 +47,10 @@ void AGameSceneBase::OnUpdate(float DeltaTime) {
       TravelToClear();
     }
   }
-  if (RaceRunning) {
+  if (!RaceRunning && bHasRaceStartTime &&
+      NetworkManager::GetInstance().GetEstimatedServerTime() >= RaceStartServerTime) {
+    RaceStart();
+  } else if (RaceRunning) {
     RaceTime += DeltaTime;
   }
 }
@@ -90,9 +95,32 @@ void AGameSceneBase::BeginPlay() {
 }
 
 void AGameSceneBase::OnAllClientsTravelReady() {
-  GetWorldTimerManager().SetTimer(
-      CountHandle, this, &AGameSceneBase::RaceCountDown, 1.0f, true, 1.0f
-  );
+  if (bHasRaceStartTime) {
+    return;
+  }
+
+  RaceStartServerTime = NetworkManager::GetInstance().GetEstimatedServerTime() + 3.0;
+  bHasRaceStartTime = true;
+
+  if (!GetWorld() || !GetWorld()->GetActorManager()) {
+    return;
+  }
+  for (const auto& ActorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
+    auto* Controller = dynamic_cast<PC_Game*>(ActorPtr.get());
+    if (Controller && Controller->OwnerConnectionId == 0) {
+      Controller->ReceiveRaceStartTime(RaceStartServerTime);
+      break;
+    }
+  }
+
+  if (NetworkManager::GetInstance().GetConnectedClientCount() > 0) {
+    FNetBuffer Buffer;
+    Buffer.Write(ENetPacketType::RaceStartTime);
+    Buffer.Write(RaceStartServerTime);
+    if (!NetworkManager::GetInstance().Broadcast(Buffer, ENetPacketReliability::Reliable)) {
+      M_LOG(Warning, "Failed to broadcast race start time: {}", RaceStartServerTime);
+    }
+  }
 }
 
 void AGameSceneBase::OnPlayerSpawned(
@@ -281,15 +309,6 @@ void AGameSceneBase::TravelToClear() {
     }
   }
   GetWorld()->ServerTravel(GameSceneIds::Clear);
-}
-
-void AGameSceneBase::RaceCountDown() {
-  m_CountDown--;
-
-  if (m_CountDown <= 0) {
-    GetWorldTimerManager().ClearTimer(CountHandle);
-    RaceStart();
-  }
 }
 
 void AGameSceneBase::RaceStart() {

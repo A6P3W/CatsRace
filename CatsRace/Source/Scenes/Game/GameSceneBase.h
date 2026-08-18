@@ -39,21 +39,18 @@ class AGameSceneBase : public AGameModeBase {
   void OnAllClientsTravelReady() override;
 
   virtual void OpenCurrentScene() = 0;
-  void RaceCountDown();
   void RaceStart();
-  void ClearCountDown();
   void SaveResult(FNetworkConnectionId ConnectionId, float FinishTime);
   bool AreAllPlayersFinished() const;
   void TravelToClear();
   void RespawnNextItem();
 
-  int m_CountDown = 3;
-  FTimerHandle CountHandle;
-
   std::unordered_map<FNetworkConnectionId, MGhostRecorderComponent*> GhostRecorders;
 
   float RaceTime = 0.0f;
   bool RaceRunning = false;
+  double RaceStartServerTime = 0.0;
+  bool bHasRaceStartTime = false;
   bool bPaused = false;
   bool bResultTravelRequested = false;
   float ResultTravelDelay = -1.0f;
