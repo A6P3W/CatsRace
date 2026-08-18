@@ -47,4 +47,5 @@ class PC_Lobby : public APlayerController {
   WMapSelectDialog* m_MapSelectDialog = nullptr;
   AMapPreviewActor* MapPreviewActor = nullptr;
   WControlGuide* ControlGuideWidget = nullptr;
+  bool PlayerIdentitySubmitted = false;
 };

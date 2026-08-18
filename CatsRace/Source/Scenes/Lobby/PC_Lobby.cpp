@@ -54,14 +54,16 @@ void PC_Lobby::OnUpdate(float DeltaTime) {
     return;
   }
 
-  auto* localState = FindLocalPlayerState();
-  auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
-  if (localState && gi && !gi->player_name.empty() &&
-      localState->GetPlayerName() != gi->player_name) {
-    localState->SetPlayerName(gi->player_name);
-  }
-  if (localState && gi && !gi->DeviceId.empty() && localState->GetDeviceId() != gi->DeviceId) {
-    localState->SetDeviceId(gi->DeviceId);
+  auto* LocalState = FindLocalPlayerState();
+  auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
+  if (!PlayerIdentitySubmitted && LocalState && GameInstance) {
+    if (!GameInstance->player_name.empty()) {
+      LocalState->SetPlayerName(GameInstance->player_name);
+    }
+    if (!GameInstance->DeviceId.empty()) {
+      LocalState->SetDeviceId(GameInstance->DeviceId);
+    }
+    PlayerIdentitySubmitted = true;
   }
 }
 
