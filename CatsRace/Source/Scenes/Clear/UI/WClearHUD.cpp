@@ -4,8 +4,10 @@
 #include <UITextComponent.h>
 #include <UIVerticalBoxComponent.h>
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <unordered_set>
 
 #include "WRankEntryComponent.h"
 
@@ -177,35 +179,53 @@ void WClearHUD::SetWorldRanking(
 ) {
   ClearWorldEntries();
   WorldStatusText->SetVisibility(false);
-  AddWorldSectionLabel("Top 5");
-  for (const auto& RankingEntry : Result.Top) {
-    auto* Entry = NewObject<WRankEntryComponent>(this);
-    Entry->InitializeWorld(
-        RankingEntry.Rank,
-        RankingEntry.PlayerName,
-        RankingEntry.Score,
-        RankingEntry.bIsSelf || RankingEntry.IdentityKey == IdentityKey
-    );
-    WorldResultListBox->AddItem(Entry);
-    WorldEntryWidgets.push_back(Entry);
-    Entry->RegisterComponent();
+
+  std::unordered_set<int> DisplayedRanks;
+  const auto AddRankingEntry =
+      [this, &IdentityKey, &DisplayedRanks](const FWorldRankingEntry& RankingEntry) {
+        if (RankingEntry.Rank <= 0 || !DisplayedRanks.insert(RankingEntry.Rank).second) {
+          return;
+        }
+        auto* Entry = NewObject<WRankEntryComponent>(this);
+        Entry->InitializeWorld(
+            RankingEntry.Rank,
+            RankingEntry.PlayerName,
+            RankingEntry.Score,
+            RankingEntry.bIsSelf || RankingEntry.IdentityKey == IdentityKey
+        );
+        WorldResultListBox->AddItem(Entry);
+        WorldEntryWidgets.push_back(Entry);
+        Entry->RegisterComponent();
+      };
+
+  const size_t TopCount = (std::min)(Result.Top.size(), static_cast<size_t>(5));
+  for (size_t Index = 0; Index < TopCount; ++Index) {
+    AddRankingEntry(Result.Top[Index]);
   }
 
-  AddWorldSectionLabel("Self ±2");
   const auto RankingIt = Result.RankingsByIdentity.find(IdentityKey);
-  if (RankingIt != Result.RankingsByIdentity.end()) {
-    for (const auto& RankingEntry : RankingIt->second.AroundSelf) {
-      auto* Entry = NewObject<WRankEntryComponent>(this);
-      Entry->InitializeWorld(
-          RankingEntry.Rank,
-          RankingEntry.PlayerName,
-          RankingEntry.Score,
-          RankingEntry.bIsSelf || RankingEntry.IdentityKey == IdentityKey
-      );
-      WorldResultListBox->AddItem(Entry);
-      WorldEntryWidgets.push_back(Entry);
-      Entry->RegisterComponent();
-    }
+  if (RankingIt == Result.RankingsByIdentity.end()) {
+    return;
+  }
+
+  std::vector<FWorldRankingEntry> AroundSelf = RankingIt->second.AroundSelf;
+  std::sort(
+      AroundSelf.begin(),
+      AroundSelf.end(),
+      [](const FWorldRankingEntry& A, const FWorldRankingEntry& B) { return A.Rank < B.Rank; }
+  );
+
+  const bool bNeedsSeparator =
+      RankingIt->second.SelfRank.has_value() && *RankingIt->second.SelfRank >= 9 &&
+      std::any_of(AroundSelf.begin(), AroundSelf.end(), [&DisplayedRanks](const auto& Entry) {
+        return Entry.Rank > 0 && !DisplayedRanks.contains(Entry.Rank);
+      });
+  if (bNeedsSeparator) {
+    AddWorldSeparator();
+  }
+
+  for (const auto& RankingEntry : AroundSelf) {
+    AddRankingEntry(RankingEntry);
   }
 }
 
@@ -258,23 +278,23 @@ void WClearHUD::ClearWorldEntries() {
       Entry->DestroyComponent();
     }
   }
-  for (auto* Label : WorldSectionLabels) {
-    if (Label) {
-      Label->DestroyComponent();
+  for (auto* Separator : WorldSeparatorWidgets) {
+    if (Separator) {
+      Separator->DestroyComponent();
     }
   }
   WorldEntryWidgets.clear();
-  WorldSectionLabels.clear();
+  WorldSeparatorWidgets.clear();
 }
 
-void WClearHUD::AddWorldSectionLabel(const std::string& Label) {
+void WClearHUD::AddWorldSeparator() {
   auto* Text = NewObject<UITextComponent>(this);
-  Text->SetText(Label);
+  Text->SetText("----");
   Text->SetColor(FColor{126, 203, 255});
   Text->SetFontSize(27);
   Text->SetWidgetSize({ResultListWidth, 32.0f});
   WorldResultListBox->AddItem(Text);
-  WorldSectionLabels.push_back(Text);
+  WorldSeparatorWidgets.push_back(Text);
   Text->RegisterComponent();
 }
 

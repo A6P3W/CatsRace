@@ -42,7 +42,7 @@ class WClearHUD : public AWidgetBase {
  private:
   void ClearLobbyEntries();
   void ClearWorldEntries();
-  void AddWorldSectionLabel(const std::string& Label);
+  void AddWorldSeparator();
   void RebuildActionNavigation();
 
   MUIVerticalBoxComponent* LobbyResultListBox = nullptr;
@@ -56,5 +56,5 @@ class WClearHUD : public AWidgetBase {
   UITextComponent* ReturnCountdownText = nullptr;
   std::vector<WRankEntryComponent*> LobbyEntryWidgets;
   std::vector<WRankEntryComponent*> WorldEntryWidgets;
-  std::vector<UITextComponent*> WorldSectionLabels;
+  std::vector<UITextComponent*> WorldSeparatorWidgets;
 };
