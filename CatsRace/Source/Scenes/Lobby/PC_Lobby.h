@@ -48,4 +48,6 @@ class PC_Lobby : public APlayerController {
   AMapPreviewActor* MapPreviewActor = nullptr;
   WControlGuide* ControlGuideWidget = nullptr;
   bool PlayerIdentitySubmitted = false;
+  bool PlayerNameSubmitted = false;
+  bool DeviceIdSubmitted = false;
 };

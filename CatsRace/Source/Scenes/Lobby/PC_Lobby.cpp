@@ -5,6 +5,7 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Core/MapData.h"
+#include "Log.h"
 #include "NetworkManager.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
@@ -57,13 +58,23 @@ void PC_Lobby::OnUpdate(float DeltaTime) {
   auto* LocalState = FindLocalPlayerState();
   auto* GameInstance = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance());
   if (!PlayerIdentitySubmitted && LocalState && GameInstance) {
-    if (!GameInstance->player_name.empty()) {
-      LocalState->SetPlayerName(GameInstance->player_name);
+    if (!PlayerNameSubmitted) {
+      PlayerNameSubmitted =
+          GameInstance->player_name.empty() || LocalState->SetPlayerName(GameInstance->player_name);
     }
-    if (!GameInstance->DeviceId.empty()) {
-      LocalState->SetDeviceId(GameInstance->DeviceId);
+    if (!DeviceIdSubmitted) {
+      DeviceIdSubmitted =
+          GameInstance->DeviceId.empty() || LocalState->SetDeviceId(GameInstance->DeviceId);
     }
-    PlayerIdentitySubmitted = true;
+    PlayerIdentitySubmitted = PlayerNameSubmitted && DeviceIdSubmitted;
+    if (PlayerIdentitySubmitted) {
+      M_LOG(
+          Log,
+          "Lobby identity submitted: connection={}, player_name={}",
+          LocalState->OwnerConnectionId,
+          GameInstance->player_name
+      );
+    }
   }
 }
 

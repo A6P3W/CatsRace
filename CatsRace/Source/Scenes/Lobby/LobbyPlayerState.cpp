@@ -84,24 +84,26 @@ void ALobbyPlayerState::InitializeRPCs() {
   );
 }
 
-void ALobbyPlayerState::SetPlayerName(const std::string& Name) {
+bool ALobbyPlayerState::SetPlayerName(const std::string& Name) {
   if (bHasAuthority) {
     ApplyPlayerName(Name);
-    return;
+    return true;
   }
 
-  InvokeRPC(RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name);
+  return InvokeRPC(
+      RPC_ServerSetPlayerName, ENetRPCType::Server, ENetPacketReliability::Reliable, Name
+  );
 }
 
-void ALobbyPlayerState::SetDeviceId(const std::string& InDeviceId) {
+bool ALobbyPlayerState::SetDeviceId(const std::string& InDeviceId) {
   if (InDeviceId.empty()) {
-    return;
+    return false;
   }
   if (bHasAuthority) {
     ApplyDeviceId(InDeviceId);
-    return;
+    return true;
   }
-  InvokeRPC(
+  return InvokeRPC(
       RPC_ServerSetDeviceId, ENetRPCType::Server, ENetPacketReliability::Reliable, InDeviceId
   );
 }

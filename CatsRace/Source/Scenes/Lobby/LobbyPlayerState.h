@@ -19,8 +19,8 @@ class ALobbyPlayerState : public AActor {
   ALobbyPlayerState();
   ALobbyPlayerState(const FVector2D& Location, FRotator Rotation);
 
-  void SetPlayerName(const std::string& Name);
-  void SetDeviceId(const std::string& InDeviceId);
+  bool SetPlayerName(const std::string& Name);
+  bool SetDeviceId(const std::string& InDeviceId);
   void SetPlayerColorIndex(uint8_t InColorIndex);
   void SetLobbyOptions(const std::string& InSelectedLevelPath, int InMaxPlayers);
   void SetFinishResult(bool bInFinished, float InFinishTime);
