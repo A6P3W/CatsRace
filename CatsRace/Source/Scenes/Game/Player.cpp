@@ -49,7 +49,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_hasHeldItem);
   RegisterReplicatedProperty(&m_PlayerName);
   RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
-  RegisterReplicatedProperty(&m_driftGauge);
+  RegisterReplicatedProperty(&ReplicatedDriftGaugeRatio);
   RegisterReplicatedProperty(&m_currentLap);
   RegisterReplicatedProperty(&SpeedMultiplier);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
@@ -416,12 +416,12 @@ void APlayer::OnMove(const FInputActionValue& Value) {
 void APlayer::Server_SetDrift(bool bDriftHeld) { m_driftKeyPressed = bDriftHeld; }
 
 void APlayer::Server_SyncDriftState(bool bDrifting, float driftDirection, float driftGaugeRatio) {
+  ReplicatedDriftGaugeRatio = std::clamp(driftGaugeRatio, 0.0f, 1.0f);
   if (m_isDrifting && !bDrifting) {
     BeginSkidReleaseTrail();
   }
   m_isDrifting = bDrifting;
   m_driftDirection = driftDirection;
-  m_driftGauge = std::clamp(driftGaugeRatio, 0.0f, 1.0f) * MaxDriftGauge;
 }
 
 void APlayer::Server_NotifyGoal() { NotifyGoalReached(); }
@@ -702,8 +702,15 @@ void APlayer::BeginSkidReleaseTrail() {
     return;
   }
 
-  SkidReleaseGaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+  SkidReleaseGaugeRatio = GetDriftGaugeRatioForVisuals();
   SkidReleaseTimer = SkidReleaseDuration;
+}
+
+float APlayer::GetDriftGaugeRatioForVisuals() const {
+  if (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0)) {
+    return std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+  }
+  return ReplicatedDriftGaugeRatio;
 }
 
 void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLines) {
@@ -854,7 +861,7 @@ void APlayer::SpawnDriftParticles() {
 
 void APlayer::DrawDriftEffect() {
   auto& rs = RenderSystem::GetInstance();
-  const float gaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
+  const float gaugeRatio = GetDriftGaugeRatioForVisuals();
 
   FColor driftColor{255, 204, 0, 100};
   if (gaugeRatio > 0.9f) {

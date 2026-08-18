@@ -85,6 +85,7 @@ class APlayer : public APawn {
   bool m_isDrifting = false;
   bool m_driftKeyPressed = false;
   float m_driftGauge = 0.0f;
+  float ReplicatedDriftGaugeRatio = 0.0f;
   float m_driftDirection = 0.0f;
   const float MaxDriftGauge = 30.0f;
   const float DriftSteerMultiplier = 1.0f;
@@ -160,6 +161,7 @@ class APlayer : public APawn {
   void UpdateDriftEffect(float DeltaTime);
   void DrawDriftEffect();
   void BeginSkidReleaseTrail();
+  float GetDriftGaugeRatioForVisuals() const;
   void SpawnSkidMark(const FVector2D& Location);
   void SpawnDriftParticles();
   void BeginOverlap(AActor* OtherActor) override;
