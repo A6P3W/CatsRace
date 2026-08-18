@@ -1,9 +1,12 @@
 #include "PC_Game.h"
 
+#include <cmath>
+
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
 #include "GamePadDevice.h"
+#include "GameScene01.h"
 #include "Ghost/GhostData.h"
 #include "Ghost/GhostPlaybackComponent.h"
 #include "Ghost/GhostPlayer.h"
@@ -11,6 +14,7 @@
 #include "InputMapper.h"
 #include "KeyboardDevice.h"
 #include "Log.h"
+#include "NetPacketType.h"
 #include "NetworkManager.h"
 #include "SceneManager.h"
 #include "Scenes/Common/UI/WControlGuide.h"
@@ -25,16 +29,31 @@
 #include "SoundManager.h"
 #include "UIManager.h"
 #include "World.h"
-#include "GameScene01.h" 
 
 REGISTER_ACTOR(PC_Game)
 
 PC_Game::PC_Game() { SetUpdateableAnytime(true); }
 
+PC_Game::~PC_Game() {
+  if (NetworkPacketCallbackHandle != 0) {
+    NetworkManager::GetInstance().RemoveOnPacketReceived(NetworkPacketCallbackHandle);
+  }
+}
+
 void PC_Game::BeginPlay() {
   APlayerController::BeginPlay();
 
   if (bIsLocallyControlled) {
+    NetworkPacketCallbackHandle = NetworkManager::GetInstance().AddOnPacketReceived(
+        [this](FNetworkConnectionId ConnectionId, FNetBuffer& Buffer) {
+          HandleNetworkPacket(ConnectionId, Buffer);
+        }
+    );
+    double PendingStartTime = 0.0;
+    if (NetworkManager::GetInstance().ConsumePendingRaceStartTime(PendingStartTime)) {
+      ReceiveRaceStartTime(PendingStartTime);
+    }
+
     MainHUD = GetWorld()->SpawnActor<WMainHUD>();
     UIManager::GetInstance()->AddWidget(MainHUD);
     PlayerDirectionIndicator = GetWorld()->SpawnActor<APlayerDirectionIndicator>();
@@ -51,12 +70,9 @@ void PC_Game::BeginPlay() {
     } else {
       SpawnRaceGhosts();
       CountDownWidget = GetWorld()->SpawnActor<WCountDown>();
-      CountDownWidget->SetCountText(std::to_string(m_CountDown));
       UIManager::GetInstance()->AddWidget(CountDownWidget);
 
       SetInputMode(EInputMode::UIOnly);
-
-      GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::RaceCountDown, 1.0f, true, 1.0f);
     }
 
     ControlGuideWidget = GetWorld()->SpawnActor<WControlGuide>();
@@ -69,6 +85,17 @@ void PC_Game::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
 
   if (bIsLocallyControlled) {
+    if (!RaceRunning && bHasRaceStartTime) {
+      const double RemainingTime =
+          RaceStartServerTime - NetworkManager::GetInstance().GetEstimatedServerTime();
+      if (RemainingTime <= 0.0) {
+        StartLocalRace();
+        return;
+      } else {
+        UpdateCountdown(RemainingTime);
+      }
+    }
+
     if (RaceRunning) {
       RaceTime += DeltaTime;
       for (AGhostPlayer* GhostPlayer : GhostPlayers) {
@@ -123,26 +150,60 @@ void PC_Game::SpawnRaceGhosts() {
   );
 }
 
-void PC_Game::RaceCountDown() {
-  m_CountDown--;
-
-  if (m_CountDown <= 0) {
-    GetWorldTimerManager().ClearTimer(CountHandle);
-    if (CountDownWidget) {
-      CountDownWidget->SetCountText("Go!");
-    }
-    RaceRunning = true;
-    SetInputMode(EInputMode::GameOnly);
-    if (PlayerDirectionIndicator) {
-      PlayerDirectionIndicator->InitializePlayers(dynamic_cast<APlayer*>(GetPawn()));
-    }
-    GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
-  } else {
-    if (CountDownWidget) {
-      CountDownWidget->SetCountText(std::to_string(m_CountDown));
-    }
-    GetWorld()->GetSoundManager()->PlaySE("/Game/soundreality-pop-423717.mp3", false);
+void PC_Game::HandleNetworkPacket(FNetworkConnectionId ConnectionId, FNetBuffer& Buffer) {
+  (void)ConnectionId;
+  ENetPacketType PacketType = ENetPacketType::None;
+  if (!Buffer.Read(PacketType) || PacketType != ENetPacketType::RaceStartTime) {
+    return;
   }
+  double PendingStartTime = 0.0;
+  if (NetworkManager::GetInstance().ConsumePendingRaceStartTime(PendingStartTime)) {
+    ReceiveRaceStartTime(PendingStartTime);
+  }
+}
+
+void PC_Game::ReceiveRaceStartTime(double StartTime) {
+  if (RaceRunning) {
+    return;
+  }
+  RaceStartServerTime = StartTime;
+  bHasRaceStartTime = true;
+  M_LOG(
+      Log,
+      "Race start time received: connection={} local={} start_time={} estimated_server_time={}",
+      OwnerConnectionId,
+      bIsLocallyControlled,
+      RaceStartServerTime,
+      NetworkManager::GetInstance().GetEstimatedServerTime()
+  );
+}
+
+void PC_Game::UpdateCountdown(double RemainingTime) {
+  const int Count = static_cast<int>(std::ceil(RemainingTime));
+  if (Count < 1 || Count > 3 || Count == LastDisplayedCount) {
+    return;
+  }
+  LastDisplayedCount = Count;
+  if (CountDownWidget) {
+    CountDownWidget->SetCountText(std::to_string(Count));
+  }
+  GetWorld()->GetSoundManager()->PlaySE("/Game/soundreality-pop-423717.mp3", false);
+}
+
+void PC_Game::StartLocalRace() {
+  if (RaceRunning) {
+    return;
+  }
+  RaceRunning = true;
+  RaceTime = 0.0f;
+  if (CountDownWidget) {
+    CountDownWidget->SetCountText("Go!");
+  }
+  SetInputMode(EInputMode::GameOnly);
+  if (PlayerDirectionIndicator) {
+    PlayerDirectionIndicator->InitializePlayers(dynamic_cast<APlayer*>(GetPawn()));
+  }
+  GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
 }
 
 void PC_Game::ClearCountDown() {

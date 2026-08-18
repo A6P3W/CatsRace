@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "NetworkManager.h"
 #include "PlayerController.h"
 
 class EditorMode;
@@ -19,6 +20,7 @@ class PC_Game : public APlayerController {
   DEFINE_ACTOR_CLASS(PC_Game)
 
   PC_Game();
+  ~PC_Game() override;
 
   void SetupPlayerInputComponent(MEnhancedInputComponent* PlayerInputComponent) override;
   void SetupInputMappings() override;
@@ -27,13 +29,16 @@ class PC_Game : public APlayerController {
   void RestartGame();
   void ReturnToLobby();
   void LeaveSession();
+  void ReceiveRaceStartTime(double StartTime);
 
  protected:
   void BeginPlay() override;
   void OnUpdate(float DeltaTime) override;
 
  private:
-  void RaceCountDown();
+  void HandleNetworkPacket(FNetworkConnectionId ConnectionId, FNetBuffer& Buffer);
+  void UpdateCountdown(double RemainingTime);
+  void StartLocalRace();
   void ClearCountDown();
   void SpawnRaceGhosts();
 
@@ -47,6 +52,9 @@ class PC_Game : public APlayerController {
   float RaceTime = 0.0f;
   bool RaceRunning = false;
   bool bPaused = false;
-  int m_CountDown = 3;
+  double RaceStartServerTime = 0.0;
+  bool bHasRaceStartTime = false;
+  int LastDisplayedCount = 0;
   FTimerHandle CountHandle;
+  NetworkManager::CallbackHandle NetworkPacketCallbackHandle = 0;
 };
