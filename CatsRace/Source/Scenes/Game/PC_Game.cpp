@@ -25,6 +25,8 @@
 #include "SoundManager.h"
 #include "UIManager.h"
 #include "World.h"
+#include "GameScene01.h" 
+
 REGISTER_ACTOR(PC_Game)
 
 PC_Game::PC_Game() { SetUpdateableAnytime(true); }
@@ -82,9 +84,14 @@ void PC_Game::OnUpdate(float DeltaTime) {
     if (MainHUD) {
       if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
         MainHUD->SetHeldItemVisible(player->HasHeldItem());
+        bool bIsStage1 = (dynamic_cast<AGameScene01*>(GetWorld()->GetGameMode()) != nullptr);
 
-        MainHUD->SetLapVisible(true);
-        MainHUD->UpdateLapText(player->GetCurrentLap(), 2);
+        if (bIsStage1) {
+          MainHUD->SetLapVisible(false);
+        } else {
+          MainHUD->SetLapVisible(true);
+          MainHUD->UpdateLapText(player->GetCurrentLap(), 2);
+        }
       }
     }
   }

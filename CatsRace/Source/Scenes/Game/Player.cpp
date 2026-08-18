@@ -301,7 +301,7 @@ void APlayer::OnUpdate(float DeltaTime) {
   // ---- ドリフトゲージ表示 ----
   if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0))) {
     const float GaugeX = 760.0f;
-    const float GaugeY = 50.0f;
+    const float GaugeY = 1000.0f;
     const float GaugeWidth = 400.0f;
     const float GaugeHeight = 24.0f;
 
@@ -408,7 +408,7 @@ void APlayer::OnMove(const FInputActionValue& Value) {
   const FVector2D clampedInput{
       std::clamp(Value.Axis2D.X, -1.0f, 1.0f), std::clamp(Value.Axis2D.Y, -1.0f, 1.0f)
   };
-  // ★重要: クライアント側でのドリフト判定やアニメーション用にローカル変数に代入
+
   m_accelInput = clampedInput.Y;
   m_slider = -clampedInput.X;
 }
