@@ -12,14 +12,14 @@ AGameScene3::AGameScene3() {}
 
 void AGameScene3::BeginPlay() {
   AGameSceneBase::BeginPlay();
-  auto* cp0 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-4968.0f, -2829.0f});
+  auto* cp0 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{2450.0f, -2000.0f});
   cp0->SetCheckpointIndex(0);
 
-  auto* cp1 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{3916.0f, 2520.0f});
+  auto* cp1 = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{200.0f, 2000.0f});
   cp1->SetCheckpointIndex(1);
 
   // ゴールライン（通常CPの総数を渡す）
-  auto* lapLine = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{-2098.0f, 4002.0f});
+  auto* lapLine = GetWorld()->SpawnActor<ALapCheckpoint>(FVector2D{3000.0f, 3456.0f});
   lapLine->SetIsLapLine(true);
   lapLine->SetTotalCheckpoints(2);
 }
