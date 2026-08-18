@@ -136,21 +136,6 @@
       }
     },
     {
-      "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_10",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/youtube-qr.png"
-      },
-      "transform": {
-        "location": {
-          "x": 298.57196044921875,
-          "y": 402.099853515625
-        },
-        "rotation": 0.0,
-        "scale": 1.3245095014572144
-      }
-    },
-    {
       "class": "AInflowMoveSpawner",
       "instance_name": "AInflowMoveSpawner_1",
       "transform": {
@@ -691,6 +676,36 @@
         },
         "rotation": -81.5,
         "scale": 1.0
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "ASpriteActor_12",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/vote-a.png"
+      },
+      "transform": {
+        "location": {
+          "x": -791.2642822265625,
+          "y": 65.15744018554688
+        },
+        "rotation": 0.0,
+        "scale": 0.31914710998535156
+      }
+    },
+    {
+      "class": "ASpriteActor",
+      "instance_name": "ASpriteActor_13",
+      "properties": {
+        "ImagePath": "Resources-EOS/Lobby/not-a.png"
+      },
+      "transform": {
+        "location": {
+          "x": 373.1782531738281,
+          "y": 333.1109619140625
+        },
+        "rotation": 0.0,
+        "scale": 0.34042462706565857
       }
     }
   ],
