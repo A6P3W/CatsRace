@@ -13154,54 +13154,6 @@
     },
     {
       "class": "AHeldSpeedItem",
-      "instance_name": "AHeldSpeedItem_1",
-      "transform": {
-        "location": {
-          "x": 1470.408935546875,
-          "y": 2844.39794921875
-        },
-        "rotation": 270270.0,
-        "scale": 1.0
-      }
-    },
-    {
-      "class": "AHeldSpeedItem",
-      "instance_name": "AHeldSpeedItem_2",
-      "transform": {
-        "location": {
-          "x": 1472.875244140625,
-          "y": 2955.386962890625
-        },
-        "rotation": 270270.0,
-        "scale": 1.0
-      }
-    },
-    {
-      "class": "AHeldSpeedItem",
-      "instance_name": "AHeldSpeedItem_3",
-      "transform": {
-        "location": {
-          "x": 1470.408935546875,
-          "y": 3068.8427734375
-        },
-        "rotation": 270.0,
-        "scale": 1.0
-      }
-    },
-    {
-      "class": "AHeldSpeedItem",
-      "instance_name": "AHeldSpeedItem_4",
-      "transform": {
-        "location": {
-          "x": -2063.986328125,
-          "y": 408.6593017578125
-        },
-        "rotation": 0.0,
-        "scale": 1.0
-      }
-    },
-    {
-      "class": "AHeldSpeedItem",
       "instance_name": "AHeldSpeedItem_5",
       "transform": {
         "location": {
@@ -13262,14 +13214,314 @@
     },
     {
       "class": "AHeldSpeedItem",
-      "instance_name": "AHeldSpeedItem_9",
+      "instance_name": "AHeldSpeedItem_10",
       "transform": {
         "location": {
-          "x": -2683.521728515625,
-          "y": -2970.799072265625
+          "x": 869.0137939453125,
+          "y": 2694.77294921875
         },
         "rotation": 0.0,
         "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_11",
+      "transform": {
+        "location": {
+          "x": 761.9628295898438,
+          "y": 2694.77294921875
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_12",
+      "transform": {
+        "location": {
+          "x": 659.5162963867188,
+          "y": 2694.77294921875
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_13",
+      "transform": {
+        "location": {
+          "x": -1266.668701171875,
+          "y": 740.4548950195313
+        },
+        "rotation": 0.0,
+        "scale": 0.8299999833106995
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_14",
+      "transform": {
+        "location": {
+          "x": -1156.8555908203125,
+          "y": 738.7859497070313
+        },
+        "rotation": 0.0,
+        "scale": 0.8299999833106995
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_15",
+      "transform": {
+        "location": {
+          "x": -1052.72900390625,
+          "y": 739.81689453125
+        },
+        "rotation": 0.0,
+        "scale": 0.8299999833106995
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_17",
+      "transform": {
+        "location": {
+          "x": 289.559814453125,
+          "y": -2353.542236328125
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_18",
+      "transform": {
+        "location": {
+          "x": 412.36962890625,
+          "y": -2353.542236328125
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_19",
+      "transform": {
+        "location": {
+          "x": 536.458740234375,
+          "y": -2354.821533203125
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AHeldSpeedItem",
+      "instance_name": "AHeldSpeedItem_20",
+      "transform": {
+        "location": {
+          "x": 655.4307861328125,
+          "y": -2350.983642578125
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "SpeedUpItem",
+      "instance_name": "SpeedUpItem_5",
+      "transform": {
+        "location": {
+          "x": -659.7286987304688,
+          "y": -976.025390625
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "SpeedUpItem",
+      "instance_name": "SpeedUpItem_6",
+      "transform": {
+        "location": {
+          "x": -3408.287109375,
+          "y": -2243.405517578125
+        },
+        "rotation": 180.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "SpeedUpItem",
+      "instance_name": "SpeedUpItem_7",
+      "transform": {
+        "location": {
+          "x": -3541.8720703125,
+          "y": -295.3172607421875
+        },
+        "rotation": 180.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "SpeedUpItem",
+      "instance_name": "SpeedUpItem_8",
+      "transform": {
+        "location": {
+          "x": -589.7669677734375,
+          "y": 261.380859375
+        },
+        "rotation": 90.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AInflowMoveSpawner",
+      "instance_name": "AInflowMoveSpawner_1",
+      "transform": {
+        "location": {
+          "x": 1942.1292724609375,
+          "y": 4204.85595703125
+        },
+        "rotation": 285.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "AInflowMoveSpawner",
+      "instance_name": "AInflowMoveSpawner_2",
+      "transform": {
+        "location": {
+          "x": -3909.297119140625,
+          "y": -2930.61767578125
+        },
+        "rotation": 90.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_2",
+      "transform": {
+        "location": {
+          "x": 2451.0927734375,
+          "y": -2106.462890625
+        },
+        "rotation": 0.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_3",
+      "transform": {
+        "location": {
+          "x": -733.9818725585938,
+          "y": -2870.048828125
+        },
+        "rotation": -88.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_4",
+      "transform": {
+        "location": {
+          "x": -2038.3173828125,
+          "y": -3051.289306640625
+        },
+        "rotation": -269.0,
+        "scale": 1.0
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_5",
+      "transform": {
+        "location": {
+          "x": -1230.164306640625,
+          "y": -870.4637451171875
+        },
+        "rotation": -179.0,
+        "scale": 2.0199999809265137
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_7",
+      "transform": {
+        "location": {
+          "x": 3336.49560546875,
+          "y": 4287.45556640625
+        },
+        "rotation": -233.0,
+        "scale": 1.2200000286102295
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_9",
+      "transform": {
+        "location": {
+          "x": 3338.9375,
+          "y": 4287.21240234375
+        },
+        "rotation": -322.0,
+        "scale": 1.2200000286102295
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_10",
+      "transform": {
+        "location": {
+          "x": -2059.444580078125,
+          "y": 980.8597412109375
+        },
+        "rotation": -412.0,
+        "scale": 0.5600000023841858
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_11",
+      "transform": {
+        "location": {
+          "x": -2150.0263671875,
+          "y": 1099.9390869140625
+        },
+        "rotation": -412.0,
+        "scale": 0.5600000023841858
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_12",
+      "transform": {
+        "location": {
+          "x": -2250.78564453125,
+          "y": 1228.1783447265625
+        },
+        "rotation": -412.0,
+        "scale": 0.5600000023841858
+      }
+    },
+    {
+      "class": "ARotatingBarActor",
+      "instance_name": "ARotatingBarActor_13",
+      "transform": {
+        "location": {
+          "x": -2335.2607421875,
+          "y": 1339.115478515625
+        },
+        "rotation": -412.0,
+        "scale": 0.5600000023841858
       }
     }
   ],
