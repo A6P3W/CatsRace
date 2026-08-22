@@ -20,6 +20,7 @@
 
 #include "ActorManager.h"
 #include "Actors/HostServerTravelActor.h"
+#include "Core/CatsRacePacketType.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "Ghost/GhostRecorderComponent.h"
@@ -102,20 +103,17 @@ void AGameSceneBase::OnAllClientsTravelReady() {
   RaceStartServerTime = NetworkManager::GetInstance().GetEstimatedServerTime() + 3.0;
   bHasRaceStartTime = true;
 
-  if (!GetWorld() || !GetWorld()->GetActorManager()) {
-    return;
-  }
-  for (const auto& ActorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
-    auto* Controller = dynamic_cast<PC_Game*>(ActorPtr.get());
-    if (Controller && Controller->OwnerConnectionId == 0) {
+  if (GetWorld()) {
+    if (auto* Controller =
+            dynamic_cast<PC_Game*>(GetWorld()->GetOrCreateLocalPlayerController())) {
       Controller->ReceiveRaceStartTime(RaceStartServerTime);
-      break;
     }
   }
 
   if (NetworkManager::GetInstance().GetConnectedClientCount() > 0) {
     FNetBuffer Buffer;
-    Buffer.Write(ENetPacketType::RaceStartTime);
+    Buffer.Write(ENetPacketType::UserMessage);
+    Buffer.Write(static_cast<uint8_t>(ECatsRaceMessageType::RaceStartTime));
     Buffer.Write(RaceStartServerTime);
     if (!NetworkManager::GetInstance().Broadcast(Buffer, ENetPacketReliability::Reliable)) {
       M_LOG(Warning, "Failed to broadcast race start time: {}", RaceStartServerTime);
@@ -187,6 +185,12 @@ APlayerController* AGameSceneBase::OnClientConnected(FNetworkConnectionId Connec
 }
 
 void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
+  if (const auto Found = GhostRecorders.find(ConnectionId); Found != GhostRecorders.end()) {
+    if (Found->second) {
+      Found->second->StopRecording();
+    }
+    GhostRecorders.erase(Found);
+  }
   if (GetWorld() && GetWorld()->GetActorManager()) {
     for (const auto& actorPtr : GetWorld()->GetActorManager()->GetAllActors()) {
       auto* player = dynamic_cast<APlayer*>(actorPtr.get());
@@ -304,7 +308,7 @@ void AGameSceneBase::TravelToClear() {
   RaceRunning = false;
   for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
     (void)ConnectionId;
-    if (Recorder) {
+    if (Recorder && Recorder->GetOwner() && !Recorder->GetOwner()->IsPendingDestroy()) {
       Recorder->StopRecording();
     }
   }
@@ -317,7 +321,7 @@ void AGameSceneBase::RaceStart() {
   RaceRunning = true;
   for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
     (void)ConnectionId;
-    if (Recorder) {
+    if (Recorder && Recorder->GetOwner() && !Recorder->GetOwner()->IsPendingDestroy()) {
       Recorder->StartRecording();
     }
   }

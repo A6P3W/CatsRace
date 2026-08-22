@@ -62,4 +62,20 @@ class GI_main : public GameInstance {
   bool bRotateCamera = true;
   std::vector<FMultiplayerResult> multiplayer_results;
   std::vector<FRaceGhostData> RaceGhosts;
+
+  GI_main();
+  ~GI_main() override;
+
+  bool ConsumePendingRaceStartTime(double& OutStartTime);
+  void SetPendingRaceStartTime(double StartTime);
+  double GetPendingRaceStartTime() const { return PendingRaceStartTime; }
+  bool HasPendingRaceStartTime() const { return bHasPendingRaceStartTime; }
+  void ClearPendingRaceStartTime();
+
+ private:
+  void HandleNetworkPacket(FNetworkConnectionId ConnectionId, FNetBuffer& Buffer);
+
+  double PendingRaceStartTime = 0.0;
+  bool bHasPendingRaceStartTime = false;
+  NetworkManager::CallbackHandle NetworkPacketCallbackHandle = 0;
 };
