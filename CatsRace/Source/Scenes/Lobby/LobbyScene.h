@@ -51,7 +51,7 @@ class ALobbyScene : public AGameModeBase {
   float GhostReadyTimeoutRemaining = -1.0f;
   std::unordered_set<FNetworkConnectionId> GhostReadyConnections;
 
-  int MaxPlayers = 4;
+  int MaxPlayers = 8;
   uint8_t NextPlayerColorIndex = 0;
   std::string SelectedLevelPath;
   PC_Lobby* m_LobbyPlayerController = nullptr;

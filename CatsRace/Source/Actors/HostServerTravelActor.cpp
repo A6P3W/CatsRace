@@ -26,9 +26,13 @@ constexpr const char* BLevelJsonExtension = ".BLevel.json";
 AHostServerTravelActor::AHostServerTravelActor() : StatusText("Ready") { bReplicates = false; }
 
 void AHostServerTravelActor::SpawnForListenServer(World& InWorld) {
+#if !defined(_RELEASE)
   if (InWorld.IsListenServer()) {
     InWorld.SpawnActor<AHostServerTravelActor>();
   }
+#else
+  (void)InWorld;
+#endif
 }
 
 void AHostServerTravelActor::Draw() {

@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "Core/CatsRacePacketType.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EnhancedInputComponent.h"
@@ -44,15 +45,18 @@ void PC_Game::BeginPlay() {
   APlayerController::BeginPlay();
 
   if (bIsLocallyControlled) {
+    if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+      double PendingStartTime = 0.0;
+      if (gi->ConsumePendingRaceStartTime(PendingStartTime)) {
+        ReceiveRaceStartTime(PendingStartTime);
+      }
+    }
+
     NetworkPacketCallbackHandle = NetworkManager::GetInstance().AddOnPacketReceived(
         [this](FNetworkConnectionId ConnectionId, FNetBuffer& Buffer) {
           HandleNetworkPacket(ConnectionId, Buffer);
         }
     );
-    double PendingStartTime = 0.0;
-    if (NetworkManager::GetInstance().ConsumePendingRaceStartTime(PendingStartTime)) {
-      ReceiveRaceStartTime(PendingStartTime);
-    }
 
     MainHUD = GetWorld()->SpawnActor<WMainHUD>();
     UIManager::GetInstance()->AddWidget(MainHUD);
@@ -85,6 +89,15 @@ void PC_Game::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
 
   if (bIsLocallyControlled) {
+    if (!RaceRunning && !bHasRaceStartTime) {
+      if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
+        double PendingStartTime = 0.0;
+        if (gi->ConsumePendingRaceStartTime(PendingStartTime)) {
+          ReceiveRaceStartTime(PendingStartTime);
+        }
+      }
+    }
+
     if (!RaceRunning && bHasRaceStartTime) {
       const double RemainingTime =
           RaceStartServerTime - NetworkManager::GetInstance().GetEstimatedServerTime();
@@ -153,17 +166,23 @@ void PC_Game::SpawnRaceGhosts() {
 void PC_Game::HandleNetworkPacket(FNetworkConnectionId ConnectionId, FNetBuffer& Buffer) {
   (void)ConnectionId;
   ENetPacketType PacketType = ENetPacketType::None;
-  if (!Buffer.Read(PacketType) || PacketType != ENetPacketType::RaceStartTime) {
+  if (!Buffer.Read(PacketType) || PacketType != ENetPacketType::UserMessage) {
     return;
   }
-  double PendingStartTime = 0.0;
-  if (NetworkManager::GetInstance().ConsumePendingRaceStartTime(PendingStartTime)) {
-    ReceiveRaceStartTime(PendingStartTime);
+  uint8_t MessageType = 0;
+  if (!Buffer.Read(MessageType)) {
+    return;
+  }
+  if (MessageType == static_cast<uint8_t>(ECatsRaceMessageType::RaceStartTime)) {
+    double StartTime = 0.0;
+    if (Buffer.Read(StartTime)) {
+      ReceiveRaceStartTime(StartTime);
+    }
   }
 }
 
 void PC_Game::ReceiveRaceStartTime(double StartTime) {
-  if (RaceRunning) {
+  if (RaceRunning || bHasRaceStartTime) {
     return;
   }
   RaceStartServerTime = StartTime;
