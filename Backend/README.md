@@ -28,16 +28,16 @@ terraform plan
 terraform apply
 ```
 
-## cellのローカル実行 (GCFデプロイ前のデバッグ)
+## functionのローカル実行 (GCFデプロイ前のデバッグ)
 
-指定した cell を Functions Framework で同時に起動し、Caddy 経由（`http://localhost:8080/<cell-name>`）で公開します。
+指定した function を Functions Framework で同時に起動し、Caddy 経由（`http://localhost:8080/<function-name>`）で公開します。
 ローカルデバッグ時も Firestore は GCP 実環境に接続されます。
 
-`cells/` にはランキング・ゴースト V2 API の3セルと、セル追加用の `template` があります。
+`functions/` にはランキング・ゴースト V2 API の3関数と、関数追加用の `template` があります。
 
 ```sh
-# 新API 3セルの同時ローカル起動
-make local CELLS="get-race-ghosts-v2 post-race-result-v2 get-world-ranking-v2"
+# 新API 3関数の同時ローカル起動
+make local FUNCTIONS="get-race-ghosts-v2 post-race-result-v2 get-world-ranking-v2"
 ```
 
 アクセス先:
@@ -57,7 +57,7 @@ curl -X POST \
   http://localhost:8080/get-race-ghosts-v2
 ```
 
-`cells/` 直下の全 cell を起動する場合:
+`functions/` 直下の全 function を起動する場合:
 
 ```sh
 make local-all
@@ -73,10 +73,10 @@ make local-clean
 
 ## 本番デプロイ (全ローカル検証完了後)
 
-ローカルでの単体・結合テストが完了した後、各 cell をデプロイします。
+ローカルでの単体・結合テストが完了した後、各 function をデプロイします。
 
 ```sh
-make deploy TARGET_DIR=./cells/post-race-result-v2
-make deploy TARGET_DIR=./cells/get-world-ranking-v2
-make deploy TARGET_DIR=./cells/get-race-ghosts-v2
+make deploy TARGET_DIR=./functions/post-race-result-v2
+make deploy TARGET_DIR=./functions/get-world-ranking-v2
+make deploy TARGET_DIR=./functions/get-race-ghosts-v2
 ```

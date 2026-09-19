@@ -12,9 +12,9 @@ from common.race_ranking_repository.models import (
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
-def load_flow(cell_name: str):
-    module_name = f"test_{cell_name.replace('-', '_')}_flow"
-    path = BACKEND_ROOT / "cells" / cell_name / "src" / "flow.py"
+def load_flow(function_name: str):
+    module_name = f"test_{function_name.replace('-', '_')}_flow"
+    path = BACKEND_ROOT / "functions" / function_name / "src" / "flow.py"
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = module
@@ -63,7 +63,7 @@ class FakeRepository:
         ]
 
 
-class CellFlowTest(unittest.TestCase):
+class FunctionFlowTest(unittest.TestCase):
     def test_post_result_flow_returns_batch_contract(self):
         flow = load_flow("post-race-result-v2")
         repository = FakeRepository()

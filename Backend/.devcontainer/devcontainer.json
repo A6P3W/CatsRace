@@ -16,7 +16,7 @@
   "forwardPorts": [8080],
   "portsAttributes": {
     "8080": {
-      "label": "Local cells proxy",
+      "label": "Local functions proxy",
       "onAutoForward": "silent"
     }
   },

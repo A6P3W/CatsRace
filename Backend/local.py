@@ -1,4 +1,4 @@
-"""Run one or more Cloud Functions cells locally behind Caddy."""
+"""Run one or more Cloud Functions locally behind Caddy."""
 
 from __future__ import annotations
 
@@ -17,15 +17,15 @@ from pathlib import Path
 from typing import Sequence
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-CELLS_ROOT = PROJECT_ROOT / "cells"
+FUNCTIONS_ROOT = PROJECT_ROOT / "functions"
 COPY_MODULE_SCRIPT = PROJECT_ROOT / "copy_module.py"
 LOCAL_ROOT = PROJECT_ROOT / ".local"
 CADDYFILE = LOCAL_ROOT / "Caddyfile"
-ENTRY_POINT = "cell_entry_point"
+ENTRY_POINT = "function_entry_point"
 SOURCE_FILE = "main.py"
 FUNCTION_HOST = "127.0.0.1"
 PROXY_HOST = "0.0.0.0"
-CELL_NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
+FUNCTION_NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 STARTUP_TIMEOUT_SECONDS = 15.0
 SHUTDOWN_TIMEOUT_SECONDS = 5.0
 
@@ -35,7 +35,7 @@ class LocalRunError(RuntimeError):
 
 
 @dataclass(frozen=True)
-class CellRoute:
+class FunctionRoute:
     name: str
     directory: Path
     port: int
@@ -50,81 +50,83 @@ class ManagedProcess:
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run Cloud Functions cells locally behind a Caddy proxy."
+        description="Run Cloud Functions locally behind a Caddy proxy."
     )
     selection = parser.add_mutually_exclusive_group(required=True)
-    selection.add_argument("--cells", nargs="+", metavar="CELL")
-    selection.add_argument("--all", action="store_true", dest="all_cells")
+    selection.add_argument("--functions", nargs="+", metavar="FUNCTION")
+    selection.add_argument("--all", action="store_true", dest="all_functions")
     parser.add_argument("--proxy-port", type=int, default=8080, metavar="PORT")
     return parser.parse_args(argv)
 
 
-def validate_cell_name(cell_name: str) -> None:
-    if not CELL_NAME_PATTERN.fullmatch(cell_name):
+def validate_function_name(function_name: str) -> None:
+    if not FUNCTION_NAME_PATTERN.fullmatch(function_name):
         raise LocalRunError(
-            f"Invalid cell name: {cell_name!r}. "
+            f"Invalid function name: {function_name!r}. "
             "Use only letters, numbers, hyphens, and underscores."
         )
 
 
-def resolve_cells(
-    requested_cells: Sequence[str] | None, all_cells: bool
+def resolve_functions(
+    requested_functions: Sequence[str] | None, all_functions: bool
 ) -> list[str]:
-    if all_cells:
-        if not CELLS_ROOT.is_dir():
-            raise LocalRunError(f"Cells directory not found: {CELLS_ROOT}")
-        cell_names = sorted(path.name for path in CELLS_ROOT.iterdir() if path.is_dir())
-        if not cell_names:
-            raise LocalRunError(f"No cells found under: {CELLS_ROOT}")
+    if all_functions:
+        if not FUNCTIONS_ROOT.is_dir():
+            raise LocalRunError(f"Functions directory not found: {FUNCTIONS_ROOT}")
+        function_names = sorted(
+            path.name for path in FUNCTIONS_ROOT.iterdir() if path.is_dir()
+        )
+        if not function_names:
+            raise LocalRunError(f"No functions found under: {FUNCTIONS_ROOT}")
     else:
-        cell_names = list(requested_cells or [])
-        if not cell_names:
+        function_names = list(requested_functions or [])
+        if not function_names:
             raise LocalRunError(
-                "CELLS is required. Example: make local CELLS=\"get-race-ghosts-v2 "
-                "post-race-result-v2 get-world-ranking-v2\""
+                'FUNCTIONS is required. Example: make local FUNCTIONS="get-race-ghosts-v2 '
+                'post-race-result-v2 get-world-ranking-v2"'
             )
 
     seen: set[str] = set()
     duplicates: set[str] = set()
-    for name in cell_names:
+    for name in function_names:
         if name in seen:
             duplicates.add(name)
         seen.add(name)
     if duplicates:
-        raise LocalRunError(f"Duplicate cell name: {', '.join(sorted(duplicates))}")
-    for cell_name in cell_names:
-        validate_cell_name(cell_name)
-    return cell_names
+        raise LocalRunError(f"Duplicate function name: {', '.join(sorted(duplicates))}")
+    for function_name in function_names:
+        validate_function_name(function_name)
+    return function_names
 
 
-def validate_cell(cell_name: str) -> Path:
-    cell_dir = CELLS_ROOT / cell_name
+def validate_function(function_name: str) -> Path:
+    function_dir = FUNCTIONS_ROOT / function_name
     required_paths = (
-        (cell_dir, "Cell directory", True),
-        (cell_dir / "module.yaml", "module.yaml", False),
-        (cell_dir / "src", "src directory", True),
-        (cell_dir / "src" / SOURCE_FILE, SOURCE_FILE, False),
-        (cell_dir / "src" / "main.requirements.txt", "main.requirements.txt", False),
+        (function_dir, "Function directory", True),
+        (function_dir / "module.yaml", "module.yaml", False),
+        (function_dir / "src", "src directory", True),
+        (function_dir / "src" / SOURCE_FILE, SOURCE_FILE, False),
+        (function_dir / "src" / "main.requirements.txt", "main.requirements.txt", False),
     )
     for path, label, must_be_directory in required_paths:
         exists = path.is_dir() if must_be_directory else path.is_file()
         if not exists:
             raise LocalRunError(f"{label} not found: {path}")
-    return cell_dir
+    return function_dir
 
 
 def assign_ports(
-    cell_names: Sequence[str], proxy_port: int
-) -> list[CellRoute]:
-    highest_port = proxy_port + len(cell_names)
+    function_names: Sequence[str], proxy_port: int
+) -> list[FunctionRoute]:
+    highest_port = proxy_port + len(function_names)
     if proxy_port < 1 or highest_port > 65535:
         raise LocalRunError(
-            "Ports must be between 1 and 65535, including all cell ports "
+            "Ports must be between 1 and 65535, including all function ports "
             f"(requested range: {proxy_port}-{highest_port})."
         )
     return [
-        CellRoute(name, CELLS_ROOT / name, proxy_port + index)
-        for index, name in enumerate(cell_names, start=1)
+        FunctionRoute(name, FUNCTIONS_ROOT / name, proxy_port + index)
+        for index, name in enumerate(function_names, start=1)
     ]
 
 
@@ -136,7 +138,7 @@ def check_port_available(host: str, port: int) -> None:
             raise LocalRunError(f"Port {port} is already in use.") from exc
 
 
-def check_ports(proxy_port: int, routes: Sequence[CellRoute]) -> None:
+def check_ports(proxy_port: int, routes: Sequence[FunctionRoute]) -> None:
     check_port_available(PROXY_HOST, proxy_port)
     for route in routes:
         check_port_available(FUNCTION_HOST, route.port)
@@ -150,14 +152,14 @@ def run_checked(command: Sequence[str], description: str) -> None:
         raise LocalRunError(f"Failed to {description.lower()}.") from exc
 
 
-def prepare_cell(route: CellRoute) -> None:
+def prepare_function(route: FunctionRoute) -> None:
     run_checked(
         [sys.executable, str(COPY_MODULE_SCRIPT), str(route.directory)],
-        f"Preparing cell: {route.name}",
+        f"Preparing function: {route.name}",
     )
 
 
-def install_requirements(route: CellRoute) -> None:
+def install_requirements(route: FunctionRoute) -> None:
     requirements = route.directory / "src" / "requirements.txt"
     if not requirements.is_file():
         raise LocalRunError(f"requirements.txt was not generated: {requirements}")
@@ -175,7 +177,7 @@ def install_requirements(route: CellRoute) -> None:
     )
 
 
-def generate_caddyfile(routes: Sequence[CellRoute], proxy_port: int) -> Path:
+def generate_caddyfile(routes: Sequence[FunctionRoute], proxy_port: int) -> Path:
     lines = [f":{proxy_port} {{"]
     for route in routes:
         lines.extend(
@@ -234,7 +236,7 @@ def start_process(
     return ManagedProcess(name, process, thread)
 
 
-def start_function(route: CellRoute) -> ManagedProcess:
+def start_function(route: FunctionRoute) -> ManagedProcess:
     command = [
         sys.executable,
         "-u",
@@ -341,10 +343,10 @@ def monitor(processes: Sequence[ManagedProcess]) -> None:
 
 
 def run(args: argparse.Namespace) -> None:
-    cell_names = resolve_cells(args.cells, args.all_cells)
-    for cell_name in cell_names:
-        validate_cell(cell_name)
-    routes = assign_ports(cell_names, args.proxy_port)
+    function_names = resolve_functions(args.functions, args.all_functions)
+    for function_name in function_names:
+        validate_function(function_name)
+    routes = assign_ports(function_names, args.proxy_port)
     check_ports(args.proxy_port, routes)
     if not shutil.which("caddy"):
         raise LocalRunError(
@@ -352,7 +354,7 @@ def run(args: argparse.Namespace) -> None:
         )
 
     for route in routes:
-        prepare_cell(route)
+        prepare_function(route)
         install_requirements(route)
     caddyfile = generate_caddyfile(routes, args.proxy_port)
 

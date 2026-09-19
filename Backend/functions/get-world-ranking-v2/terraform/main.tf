@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
     bucket = "tfstate-catsrace-1a747116"
-    prefix = "cells/get-race-ghosts-v2"
+    prefix = "functions/get-world-ranking-v2"
   }
 
   required_version = ">= 1.6.0"
@@ -45,7 +45,7 @@ resource "google_cloudfunctions2_function" "function" {
 
   build_config {
     runtime     = var.runtime
-    entry_point = "cell_entry_point"
+    entry_point = "function_entry_point"
 
     source {
       storage_source {
@@ -56,12 +56,11 @@ resource "google_cloudfunctions2_function" "function" {
   }
 
   service_config {
-    available_memory                 = var.memory_size
-    timeout_seconds                  = 60
-    max_instance_count               = 1
-    max_instance_request_concurrency = 4
-    ingress_settings                 = "ALLOW_ALL"
-    all_traffic_on_latest_revision   = true
+    available_memory               = var.memory_size
+    timeout_seconds                = 60
+    max_instance_count             = 1
+    ingress_settings               = "ALLOW_ALL"
+    all_traffic_on_latest_revision = true
 
     environment_variables = {
       PROJECT_ID = var.project_id
@@ -75,3 +74,4 @@ resource "google_cloud_run_service_iam_member" "public_access" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+

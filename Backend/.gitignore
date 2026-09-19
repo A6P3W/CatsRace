@@ -4,5 +4,5 @@
 *__pycache__/
 .terraform/
 **/src/common/
-cells/*/src/requirements.txt
+functions/*/src/requirements.txt
 function.zip
