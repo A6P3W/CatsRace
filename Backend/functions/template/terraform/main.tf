@@ -1,7 +1,7 @@
 terraform {
   backend "gcs" {
     bucket = "tfstate-catsrace-1a747116"
-    prefix = "cells/template"
+    prefix = "functions/template"
   }
 
   required_version = ">= 1.6.0"
@@ -54,7 +54,7 @@ resource "google_cloudfunctions2_function" "hello" {
 
   build_config {
     runtime     = var.runtime
-    entry_point = "cell_entry_point"
+    entry_point = "function_entry_point"
 
     source {
       storage_source {

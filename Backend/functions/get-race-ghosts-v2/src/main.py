@@ -7,7 +7,7 @@ from common.race_ranking_repository.validation import RequestValidationError
 
 
 @functions_framework.http
-def cell_entry_point(request):
+def function_entry_point(request):
     if request.method != "POST":
         return {"status": "error", "message": "POST method is required"}, 400
     body = request.get_json(silent=True)

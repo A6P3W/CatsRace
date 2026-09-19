@@ -5,7 +5,7 @@ from flow import main
 
 
 @functions_framework.http
-def cell_entry_point(request):
+def function_entry_point(request):
     try:
         print("--- HTTP Request Received ---")
 
