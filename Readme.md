@@ -1,5 +1,7 @@
 # CatsRace
 
+![タイトル](Documents/gameplay-title.png)
+
 ## 1. ゲーム概要
 
 プレイヤーは猫を操作し、複数のコースでゴールまでのタイムを競います。
@@ -10,17 +12,21 @@
 
 - ゲーム基盤: [BroccoliEngine](https://github.com/A6P3W/BroccoliEngine)
 - オンラインマルチプレイ: Epic Online Services(EOSP2P, EOSLobby, EOSTitleStorage)
-- ランキング,ゴースト: GoogleCloud(GCF, Firestore)
+- ランキング,ゴースト: GoogleCloud(GCF, Firestore) ※詳細は [Backend/README.md](Backend/README.md) を参照
 
 ## 3. ゲームシステム
 
 ### レース
+
+![レース](Documents/gameplay-stage3.png)
 
 ドリフト継続時間に応じてゲージが蓄積します。ドリフト解除時にはゲージ量に応じたブーストが発生します。
 
 コース上では加速アイテムを取得して任意のタイミングで使用できるほか、減速・加速などのギミックが配置されています。
 
 ### オンライン対戦
+
+![ロビー](Documents/gameplay-lobby.png)
 
 ロビーを作成または選択して参加し、コースを設定してレースを開始します。
 
@@ -44,7 +50,15 @@ flowchart LR
     Practice --> Menu
 ```
 
-## 5. 操作方法
+## 5. スクリーンショット
+
+| タイトル | メニュー |
+| :---: | :---: |
+| ![タイトル](Documents/gameplay-title.png) | ![メニュー](Documents/gameplay-menu.png) |
+| **ロビー** | **レース** |
+| ![ロビー](Documents/gameplay-lobby.png) | ![レース](Documents/gameplay-stage3.png) |
+
+## 6. 操作方法
 
 | 操作        | キーボード     | ゲームパッド        |
 | --------- | --------- | ------------- |
