@@ -55,6 +55,7 @@ class APlayer : public APawn {
   static constexpr float MinSpeedMultiplier = 0.8f;
   static constexpr float MaxSpeedMultiplier = 2.0f;
   static constexpr float DefaultSpeedMultiplier = 1.0f;
+  static constexpr int TotalLaps = 2;
 
  private:
   MCameraComponent* m_camera = nullptr;
@@ -77,7 +78,19 @@ class APlayer : public APawn {
   static constexpr float AccelForce = 3.5f;
   static constexpr float ReverseForce = 2.0f;
   static constexpr float BaseMaxSteer = 2.5f;
-  const float DriftSpeedDecay = 0.95f;
+  static constexpr float SlowEffectReferenceFrameRate = 60.0f;
+  static constexpr float AccelerationSpeedRetention = 0.8f;
+  static constexpr float SteeringSpeedReference = 3.0f;
+  static constexpr float NormalSteerMultiplier = 0.7f;
+  static constexpr float WalkAnimationMinSpeed = 0.1f;
+  static constexpr float WalkAnimationReferenceSpeed = 5.0f;
+  static constexpr float WalkAnimationSlowFrameSeconds = 0.16f;
+  static constexpr float WalkAnimationFastFrameReduction = 0.07f;
+  static constexpr float DriftSpeedDecay = 0.95f;
+  static constexpr float DriftStartSteeringThreshold = 0.3f;
+  static constexpr float DriftContinueSteeringThreshold = 0.1f;
+  static constexpr float DriftGaugeBuildRate = 40.0f;
+  static constexpr float DriftBoostActivationRatio = 0.2f;
   float m_moveAnimTime = 5.5f;
   int m_walkAnimFrame = 0;
   float m_fovEffectTimer = 0.0f;
@@ -111,7 +124,6 @@ class APlayer : public APawn {
   // ---- スピードダウン管理 ----
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
   FPlayerRaceProgress RaceProgress;
-  static constexpr int TotalLaps = 2;  // 総周回数
   FPlayerDriftVisuals DriftVisuals;
   void Multicast_UpdateLap(int newLap);
   void OnDriftPressed();

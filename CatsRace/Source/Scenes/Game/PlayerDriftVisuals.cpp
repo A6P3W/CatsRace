@@ -57,8 +57,11 @@ void FPlayerDriftVisuals::Update(
   for (auto& Mark : SkidMarks) {
     Mark.Age += DeltaTime;
     if (Mark.Age > SkidVisibleDuration) {
-      Mark.Alpha =
-          std::clamp(1.0f - (Mark.Age - SkidVisibleDuration) / SkidFadeDuration, 0.0f, 0.75f);
+      Mark.Alpha = std::clamp(
+          1.0f - (Mark.Age - SkidVisibleDuration) / SkidFadeDuration,
+          0.0f,
+          SkidFadeMaximumAlphaRatio
+      );
     }
   }
   SkidMarks.erase(
@@ -84,7 +87,7 @@ void FPlayerDriftVisuals::Update(
     Particle.Location = Particle.Location + Particle.Velocity * DeltaTime;
     Particle.Life -= DeltaTime;
     if (!Particle.IsSpark) {
-      Particle.Radius += 25.0f * DeltaTime;
+      Particle.Radius += SmokeRadiusGrowthSpeed * DeltaTime;
     }
   }
   DriftParticles.erase(
@@ -100,26 +103,26 @@ void FPlayerDriftVisuals::Update(
 void FPlayerDriftVisuals::SpawnSkidMark(
     const FVector2D& Location, const FRotator& Rotation, const FColor& Color
 ) {
-  if (SkidMarks.size() >= 300) {
+  if (SkidMarks.size() >= MaxSkidMarkCount) {
     SkidMarks.erase(SkidMarks.begin());
   }
 
-  const float TireOffset = 6.0f;
-  const FVector2D Offset = FVector2D(TireOffset * NextSkidMarkSide, 10.0f).RotateVector(Rotation);
+  const FVector2D Offset =
+      FVector2D(TireOffsetX * NextSkidMarkSide, TireOffsetY).RotateVector(Rotation);
   SkidMarks.push_back({Location + Offset, Rotation, 1.0f, 0.0f, Color});
   NextSkidMarkSide *= -1;
 }
 
 void FPlayerDriftVisuals::SpawnDriftParticles(const FVector2D& Location) {
   static std::mt19937 Rng{std::random_device{}()};
-  std::uniform_real_distribution<float> DistAngle(0.0f, 360.0f);
-  std::uniform_real_distribution<float> DistSmoke(20.0f, 80.0f);
-  std::uniform_real_distribution<float> DistSpark(100.0f, 280.0f);
-  std::uniform_real_distribution<float> DistLife(0.25f, 0.55f);
-  std::uniform_real_distribution<float> DistSparkLife(0.05f, 0.12f);
-  std::uniform_real_distribution<float> DistOffset(-15.0f, 15.0f);
+  std::uniform_real_distribution<float> DistAngle(ParticleMinAngleDegrees, ParticleMaxAngleDegrees);
+  std::uniform_real_distribution<float> DistSmoke(SmokeMinSpeed, SmokeMaxSpeed);
+  std::uniform_real_distribution<float> DistSpark(SparkMinSpeed, SparkMaxSpeed);
+  std::uniform_real_distribution<float> DistLife(SmokeMinLifeSeconds, SmokeMaxLifeSeconds);
+  std::uniform_real_distribution<float> DistSparkLife(SparkMinLifeSeconds, SparkMaxLifeSeconds);
+  std::uniform_real_distribution<float> DistOffset(-ParticleSpawnOffset, ParticleSpawnOffset);
 
-  for (int Index = 0; Index < 1; ++Index) {
+  for (int Index = 0; Index < SmokeParticleCount; ++Index) {
     const float Angle = UMath::DegToRad(DistAngle(Rng));
     const float Speed = DistSmoke(Rng);
     const float Life = DistLife(Rng);
@@ -128,12 +131,12 @@ void FPlayerDriftVisuals::SpawnDriftParticles(const FVector2D& Location) {
         {std::cos(Angle) * Speed, std::sin(Angle) * Speed},
         Life,
         Life,
-        6.0f,
+        SmokeParticleRadius,
         false,
     });
   }
 
-  for (int Index = 0; Index < 3; ++Index) {
+  for (int Index = 0; Index < SparkParticleCount; ++Index) {
     const float Angle = UMath::DegToRad(DistAngle(Rng));
     const float Speed = DistSpark(Rng);
     const float Life = DistSparkLife(Rng);
@@ -167,15 +170,15 @@ void FPlayerDriftVisuals::Draw(float GaugeRatio) const {
   }
 
   for (const auto& Particle : DriftParticles) {
-    const int Alpha = static_cast<int>(Particle.Life / Particle.MaxLife * 190.0f);
+    const int Alpha = static_cast<int>(Particle.Life / Particle.MaxLife * ParticleMaxAlpha);
     if (Particle.IsSpark) {
       FColor SparkColor{255, 204, 0, static_cast<uint8_t>(Alpha)};
-      if (GaugeRatio > 0.9f) {
+      if (GaugeRatio > GaugeColorHighThreshold) {
         SparkColor = FColor{255, 68, 68, static_cast<uint8_t>(Alpha)};
-      } else if (GaugeRatio > 0.2f) {
+      } else if (GaugeRatio > GaugeColorMidThreshold) {
         SparkColor = FColor{68, 204, 255, static_cast<uint8_t>(Alpha)};
       }
-      const FVector2D Tip = Particle.Location + Particle.Velocity * 0.025f;
+      const FVector2D Tip = Particle.Location + Particle.Velocity * SparkLineLengthScale;
       Renderer.SubmitLine(Particle.Location, Tip, SparkColor, RenderSpace::World, 3);
     } else {
       Renderer.SubmitCircle(

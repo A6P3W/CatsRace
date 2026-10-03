@@ -37,7 +37,26 @@ enum : FNetworkRPCId {
   RPC_MulticastUpdateLap = 5,
 
 };
-}
+
+constexpr float DriftGaugeX = 760.0f;
+constexpr float DriftGaugeY = 1000.0f;
+constexpr float DriftGaugeWidth = 400.0f;
+constexpr float DriftGaugeHeight = 24.0f;
+constexpr float DriftGaugeBoostThreshold = 0.2f;
+constexpr int DriftGaugeBackgroundLayer = 250;
+constexpr int DriftGaugeFillLayer = 251;
+constexpr int DriftGaugeOutlineLayer = 252;
+constexpr int DriftGaugeThresholdLayer = 253;
+
+constexpr float SpeedLineSpeedScale = 30.0f;
+constexpr float SpeedLineMinimumRatio = 0.1f;
+constexpr int SpeedLineMaximumCount = 60;
+constexpr int SpeedLineMaximumAlpha = 1800;
+constexpr float SpeedLineViewportWidth = 1920.0f;
+constexpr float SpeedLineViewportHeight = 1080.0f;
+constexpr float SpeedLineEdgeRegionRatio = 0.35f;
+constexpr uint32_t SpeedLineRandomSeed = 12345;
+}  // namespace
 
 REGISTER_ACTOR(APlayer)
 
@@ -199,20 +218,21 @@ void APlayer::OnUpdate(float DeltaTime) {
           strongest = strength;
         }
       }
-      float decayPerFrame = std::pow(strongest, DeltaTime * 60.0f);
+      float decayPerFrame = std::pow(strongest, DeltaTime * SlowEffectReferenceFrameRate);
       Movement->SetWorldVelocity(Movement->GetVelocity() * decayPerFrame);
     }
     if (m_accelInput > 0.0f) {
       float speedRatio = std::clamp(speed / EffectiveMaxSpeed, 0.0f, 1.0f);
-      float force = AccelForce * m_accelInput * (1.0f - speedRatio * 0.8f);
+      float force = AccelForce * m_accelInput * (1.0f - speedRatio * AccelerationSpeedRetention);
       Movement->AddLocalForce({0.0f, -force});
     } else if (m_accelInput < 0.0f) {
       float speedRatio = std::clamp(speed / EffectiveMaxReverseSpeed, 0.0f, 1.0f);
-      float force = ReverseForce * (-m_accelInput) * (1.0f - speedRatio * 0.8f);
+      float force =
+          ReverseForce * (-m_accelInput) * (1.0f - speedRatio * AccelerationSpeedRetention);
       Movement->AddLocalForce({0.0f, force});
     }
     // ---- ステアリング ----
-    float steerAbility = std::clamp(speed / 3.0f, 0.0f, 1.0f);
+    float steerAbility = std::clamp(speed / SteeringSpeedReference, 0.0f, 1.0f);
     float sliderDir = (m_accelInput < 0.0f) ? -m_slider : m_slider;
     UpdateDrift(DeltaTime, speed);
     if (!bHasAuthority) {
@@ -228,7 +248,7 @@ void APlayer::OnUpdate(float DeltaTime) {
           driftGaugeRatio
       );
     }
-    float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : 0.7f;
+    float steerMultiplier = m_isDrifting ? DriftSteerMultiplier : NormalSteerMultiplier;
     float steerAngle = BaseMaxSteer * m_slider * steerAbility * steerMultiplier;
     AddActorRotation(FRotator(steerAngle));
     Movement->AddVelocityRotation(FRotator(steerAngle));
@@ -243,10 +263,9 @@ void APlayer::OnUpdate(float DeltaTime) {
   DriftVisuals.Draw(GetDriftGaugeRatioForVisuals());
   // ---- アニメーション ----
   if (m_sprite) {
-    const float MoveAnimSpeedMin = 0.1f;
-    if (speed > MoveAnimSpeedMin) {
-      float speedRate = std::clamp(speed / 5.0f, 0.0f, 1.0f);
-      float frameTime = 0.16f - speedRate * 0.07f;
+    if (speed > WalkAnimationMinSpeed) {
+      float speedRate = std::clamp(speed / WalkAnimationReferenceSpeed, 0.0f, 1.0f);
+      float frameTime = WalkAnimationSlowFrameSeconds - speedRate * WalkAnimationFastFrameReduction;
       m_moveAnimTime += DeltaTime;
       while (m_moveAnimTime >= frameTime) {
         m_moveAnimTime -= frameTime;
@@ -300,55 +319,50 @@ void APlayer::OnUpdate(float DeltaTime) {
   }
   // ---- ドリフトゲージ表示 ----
   if (m_isDrifting && (bIsLocallyControlled || (bHasAuthority && OwnerConnectionId == 0))) {
-    const float GaugeX = 760.0f;
-    const float GaugeY = 1000.0f;
-    const float GaugeWidth = 400.0f;
-    const float GaugeHeight = 24.0f;
-
     float gaugeRatio = std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f);
 
     // 背景（枠）
     RenderSystem::GetInstance().SubmitBox(
-        {GaugeX, GaugeY},
-        {GaugeWidth, GaugeHeight},
+        {DriftGaugeX, DriftGaugeY},
+        {DriftGaugeWidth, DriftGaugeHeight},
         FRotator(0.0f),
         FColor{68, 68, 68, 200},
         1,
         RenderSpace::Screen,
-        250
+        DriftGaugeBackgroundLayer
     );
 
     // ゲージ本体（溜まり具合に応じて色を変える）
     FColor gaugeColor = (gaugeRatio >= 1.0f) ? FColor{255, 68, 68} : FColor{68, 204, 255};
     RenderSystem::GetInstance().SubmitBox(
-        {GaugeX, GaugeY},
-        {GaugeWidth * gaugeRatio, GaugeHeight},
+        {DriftGaugeX, DriftGaugeY},
+        {DriftGaugeWidth * gaugeRatio, DriftGaugeHeight},
         FRotator(0.0f),
         gaugeColor,
         1,
         RenderSpace::Screen,
-        251
+        DriftGaugeFillLayer
     );
 
     // 1/5（20%）の位置にしきい値ラインを表示
-    float thresholdX = GaugeX + GaugeWidth * 0.2f;
+    float thresholdX = DriftGaugeX + DriftGaugeWidth * DriftGaugeBoostThreshold;
     RenderSystem::GetInstance().SubmitLine(
-        {thresholdX, GaugeY},
-        {thresholdX, GaugeY + GaugeHeight},
+        {thresholdX, DriftGaugeY},
+        {thresholdX, DriftGaugeY + DriftGaugeHeight},
         FColor::Yellow,
         RenderSpace::Screen,
-        253
+        DriftGaugeThresholdLayer
     );
 
     // 枠線
     RenderSystem::GetInstance().SubmitBox(
-        {GaugeX, GaugeY},
-        {GaugeWidth, GaugeHeight},
+        {DriftGaugeX, DriftGaugeY},
+        {DriftGaugeWidth, DriftGaugeHeight},
         FRotator(0.0f),
         FColor{255, 255, 255},
         0,
         RenderSpace::Screen,
-        252
+        DriftGaugeOutlineLayer
     );
   }
 
@@ -551,20 +565,19 @@ void APlayer::BeginPlay() {
 }
 
 void APlayer::DrawSpeedLines(float speed) {
-  const float MaxSpeed = 30.0f;
-  float t = std::clamp(speed / MaxSpeed, 0.0f, 1.0f);
-  if (t < 0.1f) return;
+  float t = std::clamp(speed / SpeedLineSpeedScale, 0.0f, 1.0f);
+  if (t < SpeedLineMinimumRatio) return;
 
-  int lineCount = static_cast<int>(t * 60);
-  int alpha = static_cast<int>(t * 1800);
+  int lineCount = static_cast<int>(t * SpeedLineMaximumCount);
+  int alpha = static_cast<int>(t * SpeedLineMaximumAlpha);
 
-  const float CenterX = 960.0f;
-  const float CenterY = 540.0f;
+  const float CenterX = SpeedLineViewportWidth * 0.5f;
+  const float CenterY = SpeedLineViewportHeight * 0.5f;
 
-  static std::mt19937 rng(12345);
+  static std::mt19937 rng(SpeedLineRandomSeed);
   // 画面端付近にランダムな始点を置くための分布
-  std::uniform_real_distribution<float> distX(0.0f, 1920.0f);
-  std::uniform_real_distribution<float> distY(0.0f, 1080.0f);
+  std::uniform_real_distribution<float> distX(0.0f, SpeedLineViewportWidth);
+  std::uniform_real_distribution<float> distY(0.0f, SpeedLineViewportHeight);
   std::uniform_real_distribution<float> distLen(0.05f, 0.25f);  // 中心方向に何割進むか
 
   const auto now = std::chrono::steady_clock::now().time_since_epoch();
@@ -578,20 +591,20 @@ void APlayer::DrawSpeedLines(float speed) {
     int edge = i % 4;
     switch (edge) {
       case 0:
-        sx = distX(rng) * 0.35f;
-        sy = distY(rng) * 0.35f;
+        sx = distX(rng) * SpeedLineEdgeRegionRatio;
+        sy = distY(rng) * SpeedLineEdgeRegionRatio;
         break;  // 左上
       case 1:
-        sx = 1920.0f - distX(rng) * 0.35f;
-        sy = distY(rng) * 0.35f;
+        sx = SpeedLineViewportWidth - distX(rng) * SpeedLineEdgeRegionRatio;
+        sy = distY(rng) * SpeedLineEdgeRegionRatio;
         break;  // 右上
       case 2:
-        sx = distX(rng) * 0.35f;
-        sy = 1080.0f - distY(rng) * 0.35f;
+        sx = distX(rng) * SpeedLineEdgeRegionRatio;
+        sy = SpeedLineViewportHeight - distY(rng) * SpeedLineEdgeRegionRatio;
         break;  // 左下
       case 3:
-        sx = 1920.0f - distX(rng) * 0.35f;
-        sy = 1080.0f - distY(rng) * 0.35f;
+        sx = SpeedLineViewportWidth - distX(rng) * SpeedLineEdgeRegionRatio;
+        sy = SpeedLineViewportHeight - distY(rng) * SpeedLineEdgeRegionRatio;
         break;  // 右下
     }
 
@@ -613,13 +626,15 @@ void APlayer::DrawSpeedLines(float speed) {
   }
 }
 bool APlayer::CanStartDrift(float speed) const {
-  return m_accelInput >= 0.0f && m_driftKeyPressed && std::abs(m_slider) > 0.3f &&
+  return m_accelInput >= 0.0f && m_driftKeyPressed &&
+         std::abs(m_slider) > DriftStartSteeringThreshold &&
          (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
 }
 
 bool APlayer::WantsToContinueDrift() const {
   const float CurrentDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
-  return m_accelInput >= 0.0f && m_driftKeyPressed && std::abs(m_slider) > 0.1f &&
+  return m_accelInput >= 0.0f && m_driftKeyPressed &&
+         std::abs(m_slider) > DriftContinueSteeringThreshold &&
          CurrentDirection == m_driftDirection;
 }
 
@@ -633,10 +648,10 @@ void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
     }
     m_isDrifting = true;
 
-    if (std::abs(m_slider) > 0.1f) {
+    if (std::abs(m_slider) > DriftContinueSteeringThreshold) {
       const float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
       if (currentDir == m_driftDirection) {
-        m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+        m_driftGauge = std::min(m_driftGauge + DeltaTime * DriftGaugeBuildRate, MaxDriftGauge);
       }
     }
   } else {
@@ -659,10 +674,10 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
     }
 
     // ドリフト中は固定方向のステア入力のみ受け付ける
-    if (std::abs(m_slider) > 0.1f) {
+    if (std::abs(m_slider) > DriftContinueSteeringThreshold) {
       float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
       if (currentDir == m_driftDirection) {
-        m_driftGauge = std::min(m_driftGauge + DeltaTime * 40.0f, MaxDriftGauge);
+        m_driftGauge = std::min(m_driftGauge + DeltaTime * DriftGaugeBuildRate, MaxDriftGauge);
       } else {
         m_slider = 0.0f;
       }
@@ -676,7 +691,7 @@ void APlayer::UpdateDrift(float DeltaTime, float speed) {
       BeginSkidReleaseTrail();
       // ドリフト終了 → ブースト
       float boostRatio = m_driftGauge / MaxDriftGauge;
-      if (boostRatio > 0.2f) {
+      if (boostRatio > DriftBoostActivationRatio) {
         float boostForce = DriftBoostForce * boostRatio;
         Movement->AddLocalForce({0.0f, -boostForce});
         M_LOG(Log, "Drift Boost! ratio={}", boostRatio);
