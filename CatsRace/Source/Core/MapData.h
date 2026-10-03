@@ -12,21 +12,9 @@ struct FMapInfo {
 };
 
 inline const std::vector<FMapInfo> AvailableMaps = {
-    {"Stage1",
-     "Resources-EOS/Stage1/Stage1.BLevel",
-     "Resources-EOS/Stage1/Stage1_Preview.png",
-     "stage1",
-     3},
-    {"Stage2",
-     "Resources-EOS/Stage2/Stage2.BLevel",
-     "Resources-EOS/Stage2/Stage2_Preview.png",
-     "stage2",
-     3},
-    {"Stage3",
-     "Resources-EOS/Stage3/Stage3.BLevel",
-     "Resources-EOS/Stage3/Stage3_Preview.png",
-     "stage3",
-     3},
+    {"Stage1", "/Game/images/Stage1.BLevel", "/Game/images/Stage1_Preview.png", "stage1", 3},
+    {"Stage2", "/Game/images/Stage2.BLevel", "/Game/images/Stage2_Preview.png", "stage2", 3},
+    {"Stage3", "Resources-EOS/Stage3.BLevel", "/Game/images/Stage3_Preview.png", "stage3", 3},
 };
 
 inline const FMapInfo* FindMapInfo(const std::string& LevelPath) {
