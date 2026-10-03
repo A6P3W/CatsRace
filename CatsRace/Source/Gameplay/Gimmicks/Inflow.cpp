@@ -1,4 +1,4 @@
-#include "Objects/Inflow.h"
+#include "Gameplay/Gimmicks/Inflow.h"
 
 #include "CircleCollisionComponent.h"
 #include "ForceFieldComponent.h"
@@ -26,9 +26,7 @@ AInflow::AInflow() {
 
   InflowSprite->SetRenderSettings(0, RenderSpace::World);
   InflowSprite->SubmitGraph(
-      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/Inflow.png"),
-      FScale(1.0f),
-      100
+      ResourceManager::GetInstance().LoadResourceGraph("/Game/images/Inflow.png"), FScale(1.0f), 100
   );
   InflowSprite->AttachToComponent(GetRootComponent());
   InflowSprite->RegisterComponent();
