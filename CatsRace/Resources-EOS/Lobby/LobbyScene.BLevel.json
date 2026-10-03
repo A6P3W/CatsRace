@@ -677,36 +677,6 @@
         "rotation": -81.5,
         "scale": 1.0
       }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_12",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/vote-a.png"
-      },
-      "transform": {
-        "location": {
-          "x": -758.573486328125,
-          "y": 16.46088409423828
-        },
-        "rotation": 0.0,
-        "scale": 0.25
-      }
-    },
-    {
-      "class": "ASpriteActor",
-      "instance_name": "ASpriteActor_13",
-      "properties": {
-        "ImagePath": "Resources-EOS/Lobby/not-a.png"
-      },
-      "transform": {
-        "location": {
-          "x": -759.9452514648438,
-          "y": -272.97674560546875
-        },
-        "rotation": 0.0,
-        "scale": 0.25
-      }
     }
   ],
   "meta": {
