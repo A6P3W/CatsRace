@@ -8,10 +8,10 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
-#include "GameplayTuning.h"
-#include "Scenes/Game/PlayerDriftVisuals.h"
-#include "Scenes/Game/PlayerRaceProgress.h"
-#include "Scenes/Game/RaceRules.h"
+#include "Gameplay/GameplayTuning.h"
+#include "Gameplay/Race/Player/PlayerDriftVisuals.h"
+#include "Gameplay/Race/Progress/PlayerRaceProgress.h"
+#include "Gameplay/Race/Progress/RaceRules.h"
 #include "SoundComponent.h"
 #include "UMath.h"
 

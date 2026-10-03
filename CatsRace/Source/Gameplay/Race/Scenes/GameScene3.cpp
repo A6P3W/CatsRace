@@ -3,8 +3,8 @@
 #include <SceneManager.h>
 
 #include "Core/GameSceneIds.h"
-#include "Objects/Items/HeldSpeedItem.h"
-#include "Scenes/Game/LapCheckpoint.h"
+#include "Gameplay/Items/HeldSpeedItem.h"
+#include "Gameplay/Race/Progress/LapCheckpoint.h"
 
 REGISTER_GAME_MODE(AGameScene3)
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "GameModeBase.h"
-#include "Scenes/Game/RacePhase.h"
+#include "Gameplay/Race/Progress/RacePhase.h"
 #include "UMath.h"
 
 class WCountDown;

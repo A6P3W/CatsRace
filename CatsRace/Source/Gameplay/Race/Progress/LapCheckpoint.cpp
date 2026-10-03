@@ -1,8 +1,8 @@
-#include "Scenes/Game/LapCheckpoint.h"
+#include "Gameplay/Race/Progress/LapCheckpoint.h"
 
+#include "Gameplay/Race/Player/Player.h"
 #include "Log.h"
 #include "RectangleCollisionComponent.h"
-#include "Scenes/Game/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
 

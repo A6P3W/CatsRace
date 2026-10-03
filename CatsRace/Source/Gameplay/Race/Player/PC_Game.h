@@ -5,7 +5,7 @@
 
 #include "NetworkManager.h"
 #include "PlayerController.h"
-#include "Scenes/Game/RacePhase.h"
+#include "Gameplay/Race/Progress/RacePhase.h"
 
 class EditorMode;
 class MEnhancedInputComponent;

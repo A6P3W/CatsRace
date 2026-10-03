@@ -1,5 +1,5 @@
 #define NOMINMAX
-#include "Player.h"
+#include "Gameplay/Race/Player/Player.h"
 
 #include <EasyShakeComponent.h>
 #include <EnhancedInputComponent.h>
@@ -16,16 +16,16 @@
 #include "Core/GI_main.h"
 #include "InputManager.h"
 #include "InputMapper.h"
-#include "LapCheckpoint.h"
+#include "Gameplay/Race/Progress/LapCheckpoint.h"
 #include "Log.h"
 #include "NetMovementComponent.h"
-#include "Objects/Items/HeldSpeedItem.h"
-#include "Objects/Items/SpeedDownstage.h"
+#include "Gameplay/Items/HeldSpeedItem.h"
+#include "Gameplay/Items/SpeedDownstage.h"
 #include "RectangleCollisionComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
-#include "Scenes/Game/GameSceneBase.h"
+#include "Gameplay/Race/Scenes/GameSceneBase.h"
 #include "Scenes/Practice/PracticeGameMode.h"
 #include "SpriteComponent.h"
 namespace {

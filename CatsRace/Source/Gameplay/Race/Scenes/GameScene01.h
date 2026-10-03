@@ -1,4 +1,5 @@
 #pragma once
+#include "Gameplay/Race/Scenes/GameSceneBase.h"
 #include "GameSceneBase.h"
 
 class AGameScene01 : public AGameSceneBase {

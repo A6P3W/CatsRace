@@ -1,4 +1,4 @@
-#include "GameSceneBase.h"
+#include "Gameplay/Race/Scenes/GameSceneBase.h"
 
 #include <EnhancedInputComponent.h>
 #include <NetBuffer.h>
@@ -19,22 +19,22 @@
 #include <utility>
 
 #include "ActorManager.h"
-#include "Actors/HostServerTravelActor.h"
-#include "Core/CatsRacePacketType.h"
+#include "Networking/HostServerTravelActor.h"
+#include "Networking/CatsRacePacketType.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
-#include "Ghost/GhostRecorderComponent.h"
+#include "Gameplay/Ghost/GhostRecorderComponent.h"
 #include "Log.h"
-#include "Objects/Items/HeldSpeedItem.h"
-#include "Objects/SampleA.h"
-#include "PC_Game.h"
+#include "Gameplay/Items/HeldSpeedItem.h"
+#include "Gameplay/Debug/SampleA.h"
+#include "Gameplay/Race/Player/PC_Game.h"
 #include "ResourceManager.h"
 #include "Scenes/Clear/ClearScene.h"
-#include "Scenes/Game/Player.h"
-#include "Scenes/Game/RaceRules.h"
-#include "Scenes/Game/UI/WCountDown.h"
-#include "Scenes/Game/UI/WMainHUD.h"
-#include "Scenes/Game/UI/WPauseMenu.h"
+#include "Gameplay/Race/Player/Player.h"
+#include "Gameplay/Race/Progress/RaceRules.h"
+#include "Gameplay/Race/UI/WCountDown.h"
+#include "Gameplay/Race/UI/WMainHUD.h"
+#include "Gameplay/Race/UI/WPauseMenu.h"
 #include "UMath.h"
 
 AGameSceneBase::AGameSceneBase() {

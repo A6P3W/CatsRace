@@ -8,7 +8,7 @@
 #include "Geometry2D.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
-#include "Scenes/Game/Player.h"
+#include "Gameplay/Race/Player/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
 

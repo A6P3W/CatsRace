@@ -2,7 +2,7 @@
 
 #include "Log.h"
 #include "RectAngleCollisionComponent.h"
-#include "Scenes/Game/Player.h"
+#include "Gameplay/Race/Player/Player.h"
 #include "World.h"
 
 REGISTER_ACTOR(AGoalActor)
