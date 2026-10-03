@@ -63,7 +63,7 @@ void PC_Game::BeginPlay() {
     PlayerDirectionIndicator = GetWorld()->SpawnActor<APlayerDirectionIndicator>();
 
     if (dynamic_cast<APracticeGameMode*>(GetWorld()->GetGameMode())) {
-      RaceRunning = true;
+      RacePhase = ERacePhase::Running;
       SetInputMode(EInputMode::GameOnly);
       if (auto* player = dynamic_cast<APlayer*>(GetPawn())) {
         player->SetCanMove(true);
@@ -89,7 +89,7 @@ void PC_Game::OnUpdate(float DeltaTime) {
   APlayerController::OnUpdate(DeltaTime);
 
   if (bIsLocallyControlled) {
-    if (!RaceRunning && !bHasRaceStartTime) {
+    if (RacePhase == ERacePhase::WaitingForStart) {
       if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
         double PendingStartTime = 0.0;
         if (gi->ConsumePendingRaceStartTime(PendingStartTime)) {
@@ -98,7 +98,7 @@ void PC_Game::OnUpdate(float DeltaTime) {
       }
     }
 
-    if (!RaceRunning && bHasRaceStartTime) {
+    if (RacePhase == ERacePhase::Countdown) {
       const double RemainingTime =
           RaceStartServerTime - NetworkManager::GetInstance().GetEstimatedServerTime();
       if (RemainingTime <= 0.0) {
@@ -109,7 +109,7 @@ void PC_Game::OnUpdate(float DeltaTime) {
       }
     }
 
-    if (RaceRunning) {
+    if (RacePhase == ERacePhase::Running) {
       RaceTime += DeltaTime;
       for (AGhostPlayer* GhostPlayer : GhostPlayers) {
         if (GhostPlayer && GhostPlayer->GetPlaybackComponent()) {
@@ -182,11 +182,11 @@ void PC_Game::HandleNetworkPacket(FNetworkConnectionId ConnectionId, FNetBuffer&
 }
 
 void PC_Game::ReceiveRaceStartTime(double StartTime) {
-  if (RaceRunning || bHasRaceStartTime) {
+  if (RacePhase != ERacePhase::WaitingForStart) {
     return;
   }
   RaceStartServerTime = StartTime;
-  bHasRaceStartTime = true;
+  RacePhase = ERacePhase::Countdown;
   M_LOG(
       Log,
       "Race start time received: connection={} local={} start_time={} estimated_server_time={}",
@@ -210,10 +210,10 @@ void PC_Game::UpdateCountdown(double RemainingTime) {
 }
 
 void PC_Game::StartLocalRace() {
-  if (RaceRunning) {
+  if (RacePhase == ERacePhase::Running) {
     return;
   }
-  RaceRunning = true;
+  RacePhase = ERacePhase::Running;
   RaceTime = 0.0f;
   if (CountDownWidget) {
     CountDownWidget->SetCountText("Go!");
@@ -233,7 +233,7 @@ void PC_Game::ClearCountDown() {
 }
 
 void PC_Game::TogglePause() {
-  if (!RaceRunning && !bPaused) {
+  if (RacePhase != ERacePhase::Running && !bPaused) {
     return;
   }
 

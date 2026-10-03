@@ -5,6 +5,7 @@
 
 #include "NetworkManager.h"
 #include "PlayerController.h"
+#include "Scenes/Game/RacePhase.h"
 
 class EditorMode;
 class MEnhancedInputComponent;
@@ -50,10 +51,9 @@ class PC_Game : public APlayerController {
   std::vector<AGhostPlayer*> GhostPlayers;
 
   float RaceTime = 0.0f;
-  bool RaceRunning = false;
+  ERacePhase RacePhase = ERacePhase::WaitingForStart;
   bool bPaused = false;
   double RaceStartServerTime = 0.0;
-  bool bHasRaceStartTime = false;
   int LastDisplayedCount = 0;
   FTimerHandle CountHandle;
   NetworkManager::CallbackHandle NetworkPacketCallbackHandle = 0;

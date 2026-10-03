@@ -42,16 +42,16 @@ AGameSceneBase::AGameSceneBase() {
 }
 
 void AGameSceneBase::OnUpdate(float DeltaTime) {
-  if (ResultTravelDelay >= 0.0f && GetWorld()->IsServer()) {
+  if (RacePhase == ERacePhase::ResultPending && GetWorld()->IsServer()) {
     ResultTravelDelay -= DeltaTime;
     if (ResultTravelDelay <= 0.0f) {
       TravelToClear();
     }
   }
-  if (!RaceRunning && bHasRaceStartTime &&
+  if (RacePhase == ERacePhase::Countdown &&
       NetworkManager::GetInstance().GetEstimatedServerTime() >= RaceStartServerTime) {
     RaceStart();
-  } else if (RaceRunning) {
+  } else if (RacePhase == ERacePhase::Running || RacePhase == ERacePhase::ResultPending) {
     RaceTime += DeltaTime;
   }
 }
@@ -96,16 +96,15 @@ void AGameSceneBase::BeginPlay() {
 }
 
 void AGameSceneBase::OnAllClientsTravelReady() {
-  if (bHasRaceStartTime) {
+  if (RacePhase != ERacePhase::WaitingForStart) {
     return;
   }
 
   RaceStartServerTime = NetworkManager::GetInstance().GetEstimatedServerTime() + 3.0;
-  bHasRaceStartTime = true;
+  RacePhase = ERacePhase::Countdown;
 
   if (GetWorld()) {
-    if (auto* Controller =
-            dynamic_cast<PC_Game*>(GetWorld()->GetOrCreateLocalPlayerController())) {
+    if (auto* Controller = dynamic_cast<PC_Game*>(GetWorld()->GetOrCreateLocalPlayerController())) {
       Controller->ReceiveRaceStartTime(RaceStartServerTime);
     }
   }
@@ -128,7 +127,7 @@ void AGameSceneBase::OnPlayerSpawned(
   if (!player) return;
 
   // ゲーム固有のプレイヤー初期化設定
-  player->SetCanMove(RaceRunning);
+  player->SetCanMove(RacePhase == ERacePhase::Running || RacePhase == ERacePhase::ResultPending);
 
   if (auto* gi = dynamic_cast<GI_main*>(SceneManager::GetInstance().GetGameInstance())) {
     player->SetRotateCamera(gi->bRotateCamera);
@@ -207,7 +206,7 @@ void AGameSceneBase::OnClientDisconnected(FNetworkConnectionId ConnectionId) {
 }
 
 void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
-  if (!Player || !GetWorld()->IsServer() || bResultTravelRequested) {
+  if (!Player || !GetWorld()->IsServer() || RacePhase == ERacePhase::TravelingToResult) {
     return;
   }
 
@@ -218,7 +217,8 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
     return;
   }
 
-  if (ResultTravelDelay < 0.0f) {
+  if (RacePhase != ERacePhase::ResultPending) {
+    RacePhase = ERacePhase::ResultPending;
     ResultTravelDelay = 30.0f;
   }
 }
@@ -301,11 +301,10 @@ bool AGameSceneBase::AreAllPlayersFinished() const {
 }
 
 void AGameSceneBase::TravelToClear() {
-  if (bResultTravelRequested || !GetWorld()->IsServer()) {
+  if (RacePhase == ERacePhase::TravelingToResult || !GetWorld()->IsServer()) {
     return;
   }
-  bResultTravelRequested = true;
-  RaceRunning = false;
+  RacePhase = ERacePhase::TravelingToResult;
   for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
     (void)ConnectionId;
     if (Recorder && Recorder->GetOwner() && !Recorder->GetOwner()->IsPendingDestroy()) {
@@ -318,7 +317,7 @@ void AGameSceneBase::TravelToClear() {
 void AGameSceneBase::RaceStart() {
   M_LOG(Log, "start", 0);
 
-  RaceRunning = true;
+  RacePhase = ERacePhase::Running;
   for (const auto& [ConnectionId, Recorder] : GhostRecorders) {
     (void)ConnectionId;
     if (Recorder && Recorder->GetOwner() && !Recorder->GetOwner()->IsPendingDestroy()) {

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "GameModeBase.h"
+#include "Scenes/Game/RacePhase.h"
 #include "UMath.h"
 
 class WCountDown;
@@ -48,11 +49,9 @@ class AGameSceneBase : public AGameModeBase {
   std::unordered_map<FNetworkConnectionId, MGhostRecorderComponent*> GhostRecorders;
 
   float RaceTime = 0.0f;
-  bool RaceRunning = false;
+  ERacePhase RacePhase = ERacePhase::WaitingForStart;
   double RaceStartServerTime = 0.0;
-  bool bHasRaceStartTime = false;
   bool bPaused = false;
-  bool bResultTravelRequested = false;
   float ResultTravelDelay = -1.0f;
   std::string MapId;
   int MapVersion = 1;
