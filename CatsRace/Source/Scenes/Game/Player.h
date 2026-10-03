@@ -8,6 +8,7 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
+#include "GameplayTuning.h"
 #include "Scenes/Game/PlayerDriftVisuals.h"
 #include "Scenes/Game/PlayerRaceProgress.h"
 #include "Scenes/Game/RaceRules.h"
@@ -79,7 +80,6 @@ class APlayer : public APawn {
   static constexpr float AccelForce = 3.5f;
   static constexpr float ReverseForce = 2.0f;
   static constexpr float BaseMaxSteer = 2.5f;
-  static constexpr float SlowEffectReferenceFrameRate = 60.0f;
   static constexpr float AccelerationSpeedRetention = 0.8f;
   static constexpr float SteeringSpeedReference = 3.0f;
   static constexpr float NormalSteerMultiplier = 0.7f;

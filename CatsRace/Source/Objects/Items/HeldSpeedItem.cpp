@@ -1,16 +1,21 @@
 #include "Objects/Items/HeldSpeedItem.h"
 
-#include <TimerManager.h>  
-#include "RectangleCollisionComponent.h" 
+#include <TimerManager.h>
+
 #include "CircleCollisionComponent.h"
 #include "Log.h"
+#include "RectangleCollisionComponent.h"
+#include "ResourceManager.h"
 #include "Scenes/Game/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
-#include "ResourceManager.h"
 namespace {
 enum : FNetworkRPCId { RPC_MulticastHideAndDestroy = 15 };
-}
+constexpr float CollisionWidth = 108.0f;
+constexpr float CollisionHeight = 26.0f;
+constexpr float SpriteScale = 0.3f;
+constexpr float DestroyDelaySeconds = 0.1f;
+}  // namespace
 
 REGISTER_ACTOR(AHeldSpeedItem);
 
@@ -26,7 +31,7 @@ AHeldSpeedItem::AHeldSpeedItem() {
 
   // 当たり判定（Overlap）
   m_collision = NewObject<MRectangleCollisionComponent>(this);
-  m_collision->SetSize(108.0f, 26.0f);
+  m_collision->SetSize(CollisionWidth, CollisionHeight);
   m_collision->AttachToComponent(GetRootComponent());
   m_collision->SetCollisionType(ECollisionType::Overlap);
   m_collision->SetStatic(true);
@@ -37,7 +42,7 @@ AHeldSpeedItem::AHeldSpeedItem() {
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(0, RenderSpace::World);
   m_sprite->AttachToComponent(GetRootComponent());
-  m_sprite->SubmitGraph(handle, FScale(0.3f), 255);
+  m_sprite->SubmitGraph(handle, FScale(SpriteScale), 255);
   m_sprite->RegisterComponent();
 
   // サウンド
@@ -75,10 +80,14 @@ void AHeldSpeedItem::BeginOverlap(AActor* OtherActor) {
 void AHeldSpeedItem::Multicast_HideAndDestroy() {
   M_LOG(Log, "HeldSpeedItem: Multicast_HideAndDestroy executed.");
 
-
   if (GetWorld()) {
     GetWorldTimerManager().SetTimer(
-        m_destroyTimerHandle, this, &AHeldSpeedItem::TriggerDestroy, 0.1f, false, 0.1f
+        m_destroyTimerHandle,
+        this,
+        &AHeldSpeedItem::TriggerDestroy,
+        DestroyDelaySeconds,
+        false,
+        DestroyDelaySeconds
     );
   }
 }

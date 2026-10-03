@@ -218,7 +218,8 @@ void APlayer::OnUpdate(float DeltaTime) {
           strongest = strength;
         }
       }
-      float decayPerFrame = std::pow(strongest, DeltaTime * SlowEffectReferenceFrameRate);
+      float decayPerFrame =
+          std::pow(strongest, DeltaTime * GameplayTuning::ReferenceFramesPerSecond);
       Movement->SetWorldVelocity(Movement->GetVelocity() * decayPerFrame);
     }
     if (m_accelInput > 0.0f) {

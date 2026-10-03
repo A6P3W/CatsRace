@@ -8,10 +8,20 @@
 #include "RectangleCollisionComponent.h"
 #include "Scenes/Game/Player.h"
 #include "SoundComponent.h"
+
+namespace {
+constexpr float CollisionWidth = 195.0f;
+constexpr float CollisionHeight = 98.0f;
+constexpr float SpriteScale = 0.1f;
+constexpr float SpeedBoostForce = 25.0f;
+constexpr float BoostFOV = 0.7f;
+constexpr float BoostDurationSeconds = 2.0f;
+}  // namespace
+
 REGISTER_ACTOR(SpeedUpItem);
 SpeedUpItem::SpeedUpItem() {
   auto* collision = NewObject<MRectangleCollisionComponent>(this);
-  collision->SetSize(195.0f, 98.0f);
+  collision->SetSize(CollisionWidth, CollisionHeight);
   collision->AttachToComponent(GetRootComponent());
   collision->SetCollisionType(ECollisionType::Overlap);
   collision->RegisterComponent();
@@ -19,7 +29,7 @@ SpeedUpItem::SpeedUpItem() {
   int handle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/speedfloa.png");
   auto* sprite = NewObject<MSpriteComponent>(this);
   sprite->SetRenderSettings(0, RenderSpace::World);
-  sprite->SubmitGraph(handle, FScale(0.1f), 255);
+  sprite->SubmitGraph(handle, FScale(SpriteScale), 255);
   sprite->AttachToComponent(GetRootComponent());
   sprite->RegisterComponent();
 
@@ -37,8 +47,8 @@ void SpeedUpItem::BeginOverlap(AActor* OtherActor) {
     return;
   }
 
-  player->GetComponents<MMovementComponent>()[0]->AddLocalForce({0, -25.0f});
-  player->ApplyFOVEffect(0.7f, 2.0f, true);
+  player->GetComponents<MMovementComponent>()[0]->AddLocalForce({0, -SpeedBoostForce});
+  player->ApplyFOVEffect(BoostFOV, BoostDurationSeconds, true);
   if (m_sound) m_sound->PlaySE("/Game/images/cat2d.mp3", false);
   M_LOG(Log, "Speed Up!");
 }

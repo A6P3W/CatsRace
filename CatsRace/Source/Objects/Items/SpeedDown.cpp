@@ -1,11 +1,17 @@
 #include "SpeedDown.h"
 
+#include "GameplayTuning.h"
 #include "Log.h"
 #include "MovementComponent.h"
 #include "RectangleCollisionComponent.h"
 #include "Scenes/Game/Player.h"
 #include "SoundComponent.h"
 #include "SpriteComponent.h"
+
+namespace {
+constexpr float SlowEffectFOV = 1.4f;
+constexpr float SlowEffectDurationSeconds = 3.0f;
+}  // namespace
 
 REGISTER_ACTOR(ASlowFloor);
 
@@ -43,7 +49,7 @@ void ASlowFloor::BeginOverlap(AActor* OtherActor) {
 
   // プレイヤーならFOVを狭めてSEを鳴らす
   if (auto* player = dynamic_cast<APlayer*>(OtherActor)) {
-    player->ApplyFOVEffect(1.4f, 3.0f, false);
+    player->ApplyFOVEffect(SlowEffectFOV, SlowEffectDurationSeconds, false);
     if (m_sound) m_sound->PlaySE("/Game/images/cat19.mp3", false);
   }
 
@@ -72,7 +78,8 @@ void ASlowFloor::OnUpdate(float DeltaTime) {
       continue;
     }
 
-    float decayPerFrame = std::pow(m_slowStrength, DeltaTime * 60.0f);
+    float decayPerFrame =
+        std::pow(m_slowStrength, DeltaTime * GameplayTuning::ReferenceFramesPerSecond);
     FVector2D v = move->GetVelocity();
     move->SetWorldVelocity(v * decayPerFrame);
   }
