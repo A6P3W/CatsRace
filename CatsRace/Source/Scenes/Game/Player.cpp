@@ -50,7 +50,7 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
   RegisterReplicatedProperty(&m_PlayerName);
   RegisterReplicatedProperty(&PlayerColorIndex, this, &APlayer::OnRepPlayerColorIndex);
   RegisterReplicatedProperty(&ReplicatedDriftGaugeRatio);
-  RegisterReplicatedProperty(&m_currentLap);
+  RegisterReplicatedProperty(&RaceProgress.GetReplicatedLap());
   RegisterReplicatedProperty(&SpeedMultiplier);
   RegisterRPC(RPC_ServerSetDrift, ENetRPCType::Server, this, &APlayer::Server_SetDrift);
   RegisterRPC(RPC_ServerNotifyGoal, ENetRPCType::Server, this, &APlayer::Server_NotifyGoal);
@@ -966,9 +966,9 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   M_LOG(
       Log,
       "LapLine: lap={}, cooldown={}, lastCP={}, totalCP={}",
-      m_currentLap,
+      RaceProgress.GetCurrentLap(),
       m_lapLineCooldown,
-      m_lastPassedCheckpoint,
+      RaceProgress.GetLastPassedCheckpoint(),
       totalCheckpoints
   );
 
@@ -977,31 +977,30 @@ void APlayer::OnLapLineCrossed(int totalCheckpoints) {
   //   return;
   // }
 
-  if (totalCheckpoints > 0 && m_lastPassedCheckpoint < totalCheckpoints - 1) {
+  if (!RaceProgress.CanCompleteLap(totalCheckpoints)) {
     M_LOG(Log, "LapLine: ignored by checkpoint incomplete");
     return;
   }
 
-  m_lastPassedCheckpoint = -1;
-  m_currentLap++;
+  const int CurrentLap = RaceProgress.CompleteLap();
   m_lapLineCooldown = 5.0f;
   MarkReplicatedStateDirty();
   InvokeRPC(
-      RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, m_currentLap
+      RPC_MulticastUpdateLap, ENetRPCType::Multicast, ENetPacketReliability::Reliable, CurrentLap
   );
 
-  M_LOG(Log, "Lap {} / {} completed!", m_currentLap, TotalLaps);
+  M_LOG(Log, "Lap {} / {} completed!", CurrentLap, TotalLaps);
 
-  if (m_currentLap >= TotalLaps) {
+  if (CurrentLap >= TotalLaps) {
     NotifyGoalReached();
   }
 }
 void APlayer::Multicast_UpdateLap(int newLap) {
-  m_currentLap = std::min(newLap, TotalLaps);
+  RaceProgress.SetReplicatedLap(newLap, TotalLaps);
   M_LOG(
       Log,
       "Multicast_UpdateLap received: lap={}, isLocal={}, hasAuthority={}",
-      m_currentLap,
+      RaceProgress.GetCurrentLap(),
       bIsLocallyControlled,
       bHasAuthority
   );

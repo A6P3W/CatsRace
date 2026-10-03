@@ -8,6 +8,7 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
+#include "Scenes/Game/PlayerRaceProgress.h"
 #include "SoundComponent.h"
 #include "UMath.h"
 
@@ -37,9 +38,9 @@ class APlayer : public APawn {
   bool HasHeldItem() const { return m_hasHeldItem; }
   void GrantHeldItem();
   void UseHeldItem();
-  int GetCurrentLap() const { return m_currentLap; }
-  int GetLastPassedCheckpoint() const { return m_lastPassedCheckpoint; }
-  void SetLastPassedCheckpoint(int index) { m_lastPassedCheckpoint = index; }
+  int GetCurrentLap() const { return RaceProgress.GetCurrentLap(); }
+  int GetLastPassedCheckpoint() const { return RaceProgress.GetLastPassedCheckpoint(); }
+  void SetLastPassedCheckpoint(int index) { RaceProgress.SetLastPassedCheckpoint(index); }
   void OnLapLineCrossed(int totalCheckpoints);
   void SetRotateCamera(bool bInRotateCamera) { bRotateCamera = bInRotateCamera; }
   bool IsRotateCamera() const { return bRotateCamera; }
@@ -109,9 +110,8 @@ class APlayer : public APawn {
   FShakeHandle m_crashshake;
   // ---- スピードダウン管理 ----
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
-  int m_currentLap = 0;                                   // 完了した周回数（0始まり）
-  int m_lastPassedCheckpoint = -1;                        // 最後に通過したチェックポイント番号
-  static constexpr int TotalLaps = 2;                     // 総周回数
+  FPlayerRaceProgress RaceProgress;
+  static constexpr int TotalLaps = 2;  // 総周回数
   struct FSkidMark {
     FVector2D Location;
     FRotator Rotation;
