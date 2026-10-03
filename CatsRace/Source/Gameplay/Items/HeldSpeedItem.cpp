@@ -1,12 +1,12 @@
-#include "Objects/Items/HeldSpeedItem.h"
+#include "Gameplay/Items/HeldSpeedItem.h"
 
 #include <TimerManager.h>
 
 #include "CircleCollisionComponent.h"
+#include "Gameplay/Race/Player/Player.h"
 #include "Log.h"
 #include "RectangleCollisionComponent.h"
 #include "ResourceManager.h"
-#include "Scenes/Game/Player.h"
 #include "SpriteComponent.h"
 #include "World.h"
 namespace {

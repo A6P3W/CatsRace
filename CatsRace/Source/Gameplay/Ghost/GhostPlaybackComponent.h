@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "ActorComponent.h"
-#include "Ghost/GhostData.h"
+#include "Gameplay/Ghost/GhostData.h"
 
 class MGhostPlaybackComponent : public MActorComponent {
  public:

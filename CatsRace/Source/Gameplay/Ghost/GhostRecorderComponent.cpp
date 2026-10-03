@@ -1,4 +1,4 @@
-#include "Ghost/GhostRecorderComponent.h"
+#include "Gameplay/Ghost/GhostRecorderComponent.h"
 
 #include <algorithm>
 #include <cmath>

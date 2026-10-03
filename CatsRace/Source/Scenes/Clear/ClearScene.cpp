@@ -10,7 +10,7 @@
 
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
-#include "Gameplay/Race/Player.h"
+#include "Gameplay/Race/Player/Player.h"
 #include "Networking/HostServerTravelActor.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/PC_Clear.h"

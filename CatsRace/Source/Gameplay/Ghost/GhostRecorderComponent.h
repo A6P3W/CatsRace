@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "ActorComponent.h"
-#include "Ghost/GhostData.h"
+#include "Gameplay/Ghost/GhostData.h"
 
 class MGhostRecorderComponent : public MActorComponent {
  public:

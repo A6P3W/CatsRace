@@ -1,8 +1,8 @@
-#include "Objects/InflowMoveSpawner.h"
+#include "Gameplay/Gimmicks/InflowMoveSpawner.h"
 
 #include <random>
 
-#include "Objects/InflowMove.h"
+#include "Gameplay/Gimmicks/InflowMove.h"
 #include "ResourceManager.h"
 #include "SpriteComponent.h"
 #include "World.h"

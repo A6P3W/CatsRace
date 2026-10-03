@@ -1,9 +1,9 @@
 #include "SpeedDownstage.h"
 
+#include "Gameplay/Race/Player/Player.h"
 #include "Log.h"
 #include "MovementComponent.h"
 #include "RectangleCollisionComponent.h"
-#include "Scenes/Game/Player.h"
 #include "SoundComponent.h"
 #include "SpriteComponent.h"
 
@@ -17,7 +17,6 @@ ASlowFloor2::ASlowFloor2(float width, float height, float slowStrength)
   col->SetStatic(true);
   col->AttachToComponent(GetRootComponent());
   col->RegisterComponent();
-
 
   m_sound = NewObject<MSoundComponent>(this);
   m_sound->RegisterComponent();

@@ -3,10 +3,10 @@
 #include <SpriteComponent.h>
 
 #include "CircleCollisionComponent.h"
+#include "Gameplay/Race/Player/Player.h"
 #include "Log.h"
 #include "MovementComponent.h"
 #include "RectangleCollisionComponent.h"
-#include "Scenes/Game/Player.h"
 #include "SoundComponent.h"
 
 namespace {

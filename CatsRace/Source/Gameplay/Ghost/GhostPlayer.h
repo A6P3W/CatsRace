@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Actor.h"
-#include "Ghost/GhostData.h"
+#include "Gameplay/Ghost/GhostData.h"
 
 class MGhostPlaybackComponent;
 class MSpriteComponent;

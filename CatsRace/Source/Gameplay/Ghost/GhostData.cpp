@@ -1,4 +1,4 @@
-#include "Ghost/GhostData.h"
+#include "Gameplay/Ghost/GhostData.h"
 
 #include <sstream>
 

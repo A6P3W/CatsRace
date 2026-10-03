@@ -1,6 +1,6 @@
-#include "Ghost/GhostPlayer.h"
+#include "Gameplay/Ghost/GhostPlayer.h"
 
-#include "Ghost/GhostPlaybackComponent.h"
+#include "Gameplay/Ghost/GhostPlaybackComponent.h"
 #include "RenderSystem.h"
 #include "ResourceManager.h"
 #include "SpriteComponent.h"

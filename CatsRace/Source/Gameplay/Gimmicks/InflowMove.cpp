@@ -1,4 +1,4 @@
-#include "Objects/InflowMove.h"
+#include "Gameplay/Gimmicks/InflowMove.h"
 
 REGISTER_ACTOR(AInflowMove)
 

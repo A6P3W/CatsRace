@@ -1,4 +1,4 @@
-#include "Actors/Gimmicks/RotatingBarActor.h"
+#include "Gameplay/Gimmicks/RotatingBarActor.h"
 
 #include <cmath>
 

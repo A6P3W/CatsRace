@@ -1,4 +1,4 @@
-#include "Actors/Gimmicks/DirectionalForceFieldActor.h"
+#include "Gameplay/Gimmicks/DirectionalForceFieldActor.h"
 
 #include "ForceFieldComponent.h"
 

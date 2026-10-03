@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Objects/Inflow.h"
+#include "Gameplay/Gimmicks/Inflow.h"
 
 class AInflowMove : public AInflow {
  public:
