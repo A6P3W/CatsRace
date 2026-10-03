@@ -9,12 +9,12 @@
 #include "NetworkManager.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
-#include "Scenes/Common/UI/WControlGuide.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "Scenes/Lobby/UI/WLeaveLobbyConfirmDialog.h"
 #include "Scenes/Lobby/UI/WLobbyHUD.h"
 #include "Scenes/Lobby/UI/WMapSelectDialog.h"
+#include "UI/Common/WControlGuide.h"
 #include "UIManager.h"
 #include "World.h"
 

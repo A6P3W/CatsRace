@@ -12,8 +12,8 @@
 #include "OnlinePlayManager.h"
 #include "PlayerController.h"
 #include "SceneManager.h"
-#include "Scenes/Common/UI/WControlGuide.h"
 #include "Scenes/Menu/UI/MenuWidgets.h"
+#include "UI/Common/WControlGuide.h"
 #include "UIManager.h"
 #include "World.h"
 

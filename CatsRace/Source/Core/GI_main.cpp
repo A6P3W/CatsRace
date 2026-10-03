@@ -1,10 +1,10 @@
 #include "Core/GI_main.h"
 
-#include "Core/CatsRacePacketType.h"
 #include "Log.h"
 #include "NetBuffer.h"
 #include "NetPacketType.h"
 #include "NetworkManager.h"
+#include "Networking/CatsRacePacketType.h"
 
 GI_main::GI_main() {
   NetworkPacketCallbackHandle = NetworkManager::GetInstance().AddOnPacketReceived(

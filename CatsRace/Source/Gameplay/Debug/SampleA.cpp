@@ -1,4 +1,4 @@
-#include "Objects/SampleA.h"
+#include "Gameplay/Debug/SampleA.h"
 
 #include "ResourceManager.h"
 #include "SpriteComponent.h"

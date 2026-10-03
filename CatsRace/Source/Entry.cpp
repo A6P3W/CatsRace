@@ -5,14 +5,14 @@
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
 #include "EOSCoreManager.h"
+#include "Gameplay/Race/GameScene01.h"
+#include "Gameplay/Race/GameScene2.h"
+#include "Gameplay/Race/PC_Game.h"
 #include "NetworkManager.h"
 #include "PathResolver.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Clear/PC_Clear.h"
-#include "Scenes/Game/GameScene01.h"
-#include "Scenes/Game/GameScene2.h"
-#include "Scenes/Game/PC_Game.h"
 #include "Scenes/Loading/LoadingScene.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "Scenes/Lobby/PC_Lobby.h"
@@ -22,7 +22,7 @@ namespace {
 void SetupGame() {
   ImGui::SetCurrentContext(static_cast<ImGuiContext*>(Application::GetImGuiContext()));
   EOSCoreManager::GetInstance().InitializeOnlineServices();
-  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::EOSP2P);
+  NetworkManager::GetInstance().SetTransportType(ENetworkTransportType::ENet);
 
   auto& sceneManager = SceneManager::GetInstance();
   sceneManager.SetGameInstance<GI_main>();

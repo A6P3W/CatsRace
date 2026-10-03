@@ -1,4 +1,4 @@
-#include "Actors/HostServerTravelActor.h"
+#include "Networking/HostServerTravelActor.h"
 
 #include <imgui.h>
 
@@ -9,9 +9,9 @@
 #include "ActorManager.h"
 #include "Core/GI_main.h"
 #include "Core/PlayerColorPalette.h"
+#include "Gameplay/Race/Player.h"
 #include "PathResolver.h"
 #include "SceneManager.h"
-#include "Scenes/Game/Player.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "Scenes/Lobby/LobbyScene.h"
 #include "World.h"

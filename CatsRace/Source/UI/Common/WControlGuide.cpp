@@ -1,4 +1,4 @@
-#include "Scenes/Common/UI/WControlGuide.h"
+#include "UI/Common/WControlGuide.h"
 
 #include <InputManager.h>
 #include <ResourceManager.h>
