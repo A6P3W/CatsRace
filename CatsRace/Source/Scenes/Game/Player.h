@@ -147,6 +147,8 @@ class APlayer : public APawn {
   void Multicast_UpdateLap(int newLap);
   void OnDriftPressed();
   void OnDriftReleased();
+  bool CanStartDrift(float speed) const;
+  bool WantsToContinueDrift() const;
   void UpdateDrift(float DeltaTime, float speed);
   void UpdateLocalDriftVisual(float DeltaTime, float speed);
   void OnMove(const FInputActionValue& Value);

@@ -612,18 +612,19 @@ void APlayer::DrawSpeedLines(float speed) {
     );
   }
 }
-void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
-  // ドリフト開始条件と継続条件を分離
-  bool bCanStartDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
-                        (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+bool APlayer::CanStartDrift(float speed) const {
+  return m_accelInput >= 0.0f && m_driftKeyPressed && std::abs(m_slider) > 0.3f &&
+         (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
+}
 
-  bool bWantsDrift = bCanStartDrift;
-  if (m_isDrifting) {
-    float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
-    // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
-    bWantsDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.1f) &&
-                  (currentDir == m_driftDirection);
-  }
+bool APlayer::WantsToContinueDrift() const {
+  const float CurrentDirection = (m_slider > 0.0f) ? 1.0f : -1.0f;
+  return m_accelInput >= 0.0f && m_driftKeyPressed && std::abs(m_slider) > 0.1f &&
+         CurrentDirection == m_driftDirection;
+}
+
+void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
+  const bool bWantsDrift = m_isDrifting ? WantsToContinueDrift() : CanStartDrift(speed);
 
   if (bWantsDrift) {
     if (m_driftGauge <= 0.0f) {
@@ -646,17 +647,7 @@ void APlayer::UpdateLocalDriftVisual(float DeltaTime, float speed) {
 }
 
 void APlayer::UpdateDrift(float DeltaTime, float speed) {
-  // ドリフト開始条件と継続条件を分離
-  bool bCanStartDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.3f) &&
-                        (speed > DriftMinSpeed || std::abs(m_accelInput) > 0.1f);
-
-  bool bWantsDrift = bCanStartDrift;
-  if (m_isDrifting) {
-    float currentDir = (m_slider > 0.0f) ? 1.0f : -1.0f;
-    // ドリフトボタン押下状態、ステアリング入力あり、かつ方向が同じ場合のみ継続
-    bWantsDrift = m_accelInput >= 0.0f && m_driftKeyPressed && (std::abs(m_slider) > 0.1f) &&
-                  (currentDir == m_driftDirection);
-  }
+  const bool bWantsDrift = m_isDrifting ? WantsToContinueDrift() : CanStartDrift(speed);
 
   if (bWantsDrift) {
     if (!m_isDrifting) {
