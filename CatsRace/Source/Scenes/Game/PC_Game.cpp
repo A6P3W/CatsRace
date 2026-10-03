@@ -23,6 +23,7 @@
 #include "Scenes/Game/GameSceneBase.h"
 #include "Scenes/Game/Player.h"
 #include "Scenes/Game/PlayerDirectionIndicator.h"
+#include "Scenes/Game/RaceRules.h"
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
@@ -130,7 +131,7 @@ void PC_Game::OnUpdate(float DeltaTime) {
           MainHUD->SetLapVisible(false);
         } else {
           MainHUD->SetLapVisible(true);
-          MainHUD->UpdateLapText(player->GetCurrentLap(), 2);
+          MainHUD->UpdateLapText(player->GetCurrentLap(), RaceRules::TotalLaps);
         }
       }
     }
@@ -199,7 +200,7 @@ void PC_Game::ReceiveRaceStartTime(double StartTime) {
 
 void PC_Game::UpdateCountdown(double RemainingTime) {
   const int Count = static_cast<int>(std::ceil(RemainingTime));
-  if (Count < 1 || Count > 3 || Count == LastDisplayedCount) {
+  if (Count < 1 || Count > RaceRules::StartCountdownSeconds || Count == LastDisplayedCount) {
     return;
   }
   LastDisplayedCount = Count;
@@ -222,7 +223,14 @@ void PC_Game::StartLocalRace() {
   if (PlayerDirectionIndicator) {
     PlayerDirectionIndicator->InitializePlayers(dynamic_cast<APlayer*>(GetPawn()));
   }
-  GetWorldTimerManager().SetTimer(CountHandle, this, &PC_Game::ClearCountDown, 1.0f, false, 1.0f);
+  GetWorldTimerManager().SetTimer(
+      CountHandle,
+      this,
+      &PC_Game::ClearCountDown,
+      RaceRules::CountdownMessageDurationSeconds,
+      false,
+      RaceRules::CountdownMessageDurationSeconds
+  );
 }
 
 void PC_Game::ClearCountDown() {

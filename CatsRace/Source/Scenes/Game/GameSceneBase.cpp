@@ -31,6 +31,7 @@
 #include "ResourceManager.h"
 #include "Scenes/Clear/ClearScene.h"
 #include "Scenes/Game/Player.h"
+#include "Scenes/Game/RaceRules.h"
 #include "Scenes/Game/UI/WCountDown.h"
 #include "Scenes/Game/UI/WMainHUD.h"
 #include "Scenes/Game/UI/WPauseMenu.h"
@@ -100,7 +101,8 @@ void AGameSceneBase::OnAllClientsTravelReady() {
     return;
   }
 
-  RaceStartServerTime = NetworkManager::GetInstance().GetEstimatedServerTime() + 3.0;
+  RaceStartServerTime =
+      NetworkManager::GetInstance().GetEstimatedServerTime() + RaceRules::StartCountdownSeconds;
   RacePhase = ERacePhase::Countdown;
 
   if (GetWorld()) {
@@ -219,7 +221,7 @@ void AGameSceneBase::NotifyPlayerFinished(APlayer* Player) {
 
   if (RacePhase != ERacePhase::ResultPending) {
     RacePhase = ERacePhase::ResultPending;
-    ResultTravelDelay = 30.0f;
+    ResultTravelDelay = RaceRules::ResultTravelDelaySeconds;
   }
 }
 
@@ -347,7 +349,13 @@ void AGameSceneBase::SpawnHeldSpeedItemWithRespawn(FVector2D location) {
     // タイマーハンドルをメンバに積んで SetTimer のメンバ関数版で呼ぶ
     m_pendingRespawnLocations.push_back(location);
     FTimerHandle handle;
-    GetWorldTimerManager().SetTimer(handle, this, &AGameSceneBase::RespawnNextItem, 3.0f, false);
+    GetWorldTimerManager().SetTimer(
+        handle,
+        this,
+        &AGameSceneBase::RespawnNextItem,
+        RaceRules::HeldItemRespawnDelaySeconds,
+        false
+    );
     m_itemRespawnHandles.push_back(handle);
   });
 }

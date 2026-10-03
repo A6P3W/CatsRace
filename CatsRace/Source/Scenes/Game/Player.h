@@ -10,6 +10,7 @@
 #include "Core/PlayerColorPalette.h"
 #include "Scenes/Game/PlayerDriftVisuals.h"
 #include "Scenes/Game/PlayerRaceProgress.h"
+#include "Scenes/Game/RaceRules.h"
 #include "SoundComponent.h"
 #include "UMath.h"
 
@@ -55,7 +56,7 @@ class APlayer : public APawn {
   static constexpr float MinSpeedMultiplier = 0.8f;
   static constexpr float MaxSpeedMultiplier = 2.0f;
   static constexpr float DefaultSpeedMultiplier = 1.0f;
-  static constexpr int TotalLaps = 2;
+  static constexpr int TotalLaps = RaceRules::TotalLaps;
 
  private:
   MCameraComponent* m_camera = nullptr;
