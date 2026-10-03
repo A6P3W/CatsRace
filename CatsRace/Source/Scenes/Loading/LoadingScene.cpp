@@ -23,14 +23,14 @@ struct FLevelRegistration {
   FNetworkSceneId SceneId;
 };
 
-constexpr const char* LevelsArchiveFileName = "Levels.zip";
+constexpr const char* Stage3LevelFileName = "Stage3.BLevel";
 
 constexpr std::array<FLevelRegistration, 5> LevelRegistrations = {{
-    {"Resources-EOS/Stage1/Stage1.BLevel", GameSceneIds::Game01},
-    {"Resources-EOS/Stage2/Stage2.BLevel", GameSceneIds::Game02},
-    {"Resources-EOS/Stage3/Stage3.BLevel", GameSceneIds::Game03},
-    {"Resources-EOS/Lobby/LobbyScene.BLevel", GameSceneIds::Lobby},
-    {"Resources-EOS/Practice/PracticeScene.BLevel", GameSceneIds::Practice},
+    {"/Game/images/Stage1.BLevel", GameSceneIds::Game01},
+    {"/Game/images/Stage2.BLevel", GameSceneIds::Game02},
+    {"Resources-EOS/Stage3.BLevel", GameSceneIds::Game03},
+    {"/Game/images/LobbyScene.BLevel", GameSceneIds::Lobby},
+    {"/Game/images/PracticeScene.BLevel", GameSceneIds::Practice},
 }};
 
 constexpr float QuitDelaySeconds = 5.0f;
@@ -120,7 +120,7 @@ void ALoadingScene::StartLevelDownload() {
 
   if constexpr (IsRelease) {
     EOSTitleStorageManager::GetInstance().Download(
-        LevelsArchiveFileName, [this](const FTitleStorageDownloadResult& Result) {
+        Stage3LevelFileName, [this](const FTitleStorageDownloadResult& Result) {
           if (bFailed) {
             return;
           }

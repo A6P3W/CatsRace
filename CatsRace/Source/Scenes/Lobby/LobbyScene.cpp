@@ -6,12 +6,12 @@
 #include <unordered_set>
 
 #include "ActorManager.h"
-#include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/MapData.h"
 #include "EOSLobbyManager.h"
 #include "Log.h"
 #include "NetworkManager.h"
+#include "Networking/HostServerTravelActor.h"
 #include "OnlinePlayManager.h"
 #include "SceneManager.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"

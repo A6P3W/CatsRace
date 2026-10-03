@@ -8,12 +8,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Actors/HostServerTravelActor.h"
 #include "Core/GI_main.h"
 #include "Core/GameSceneIds.h"
+#include "Gameplay/Race/Player/Player.h"
+#include "Networking/HostServerTravelActor.h"
 #include "SceneManager.h"
 #include "Scenes/Clear/PC_Clear.h"
-#include "Scenes/Game/Player.h"
 #include "Scenes/Lobby/LobbyPlayerState.h"
 #include "World.h"
 

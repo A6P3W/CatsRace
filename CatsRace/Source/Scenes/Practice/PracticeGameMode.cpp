@@ -1,7 +1,7 @@
 #include "PracticeGameMode.h"
 
-#include "Scenes/Game/PC_Game.h"
-#include "Scenes/Game/Player.h"
+#include "Gameplay/Race/Player/PC_Game.h"
+#include "Gameplay/Race/Player/Player.h"
 
 REGISTER_GAME_MODE(APracticeGameMode)
 
