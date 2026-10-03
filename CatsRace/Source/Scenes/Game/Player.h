@@ -8,6 +8,7 @@
 
 #include "Actor.h"
 #include "Core/PlayerColorPalette.h"
+#include "Scenes/Game/PlayerDriftVisuals.h"
 #include "Scenes/Game/PlayerRaceProgress.h"
 #include "SoundComponent.h"
 #include "UMath.h"
@@ -92,7 +93,6 @@ class APlayer : public APawn {
   const float DriftSteerMultiplier = 1.0f;
   const float DriftMinSpeed = 3.0f;
   const float DriftBoostForce = 20.0f;
-  FVector2D m_prevLocation = FVector2D::ZeroVector();
   MSoundComponent* m_sound = nullptr;
   std::string m_PlayerName;
   int m_PlayerNameFontHandle = -1;
@@ -112,38 +112,7 @@ class APlayer : public APawn {
   std::unordered_map<ASlowFloor2*, float> m_slowSources;  // ← クラス内に移動
   FPlayerRaceProgress RaceProgress;
   static constexpr int TotalLaps = 2;  // 総周回数
-  struct FSkidMark {
-    FVector2D Location;
-    FRotator Rotation;
-    float Alpha;
-    float Age;
-    FColor Color;
-  };
-  std::vector<FSkidMark> m_skidMarks;
-  float SkidDistance = 0.0f;
-  bool bHasPreviousSkidLocation = false;
-  float SkidReleaseTimer = 0.0f;
-  float SkidReleaseGaugeRatio = 0.0f;
-  int NextSkidMarkSide = -1;
-  int PawPrintHandle = -1;
-  static constexpr float SkidDistanceInterval = 44.0f;
-  static constexpr float SkidVisibleDuration = 5.0f;
-  static constexpr float SkidFadeDuration = 0.5f;
-  static constexpr float SkidReleaseDuration = 0.2f;
-  static constexpr float SkidMarkScale = 0.5f;
-  static constexpr int SkidMarkMaxAlpha = 160;
-
-  struct FDriftParticle {
-    FVector2D Location;
-    FVector2D Velocity;
-    float Life;
-    float MaxLife;
-    float Radius;
-    bool IsSpark;
-  };
-  std::vector<FDriftParticle> m_driftParticles;
-  float m_particleTimer = 0.0f;
-  static constexpr float ParticleInterval = 0.02f;
+  FPlayerDriftVisuals DriftVisuals;
   void Multicast_UpdateLap(int newLap);
   void OnDriftPressed();
   void OnDriftReleased();
@@ -160,12 +129,8 @@ class APlayer : public APawn {
   void OnWheel(const FInputActionValue& Value);
   void BeginPlay();
   void DrawSpeedLines(float speed);
-  void UpdateDriftEffect(float DeltaTime);
-  void DrawDriftEffect();
   void BeginSkidReleaseTrail();
   float GetDriftGaugeRatioForVisuals() const;
-  void SpawnSkidMark(const FVector2D& Location);
-  void SpawnDriftParticles();
   void BeginOverlap(AActor* OtherActor) override;
   void EndOverlap(AActor* OtherActor) override;
 };

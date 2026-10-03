@@ -71,8 +71,6 @@ APlayer::APlayer(FVector2D location, FRotator rotation) {
       ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_4_bw.png");
   m_walkAnimHandles[4] =
       ResourceManager::GetInstance().LoadResourceGraph("/Game/images/cat_walk_5_bw.png");
-  PawPrintHandle = ResourceManager::GetInstance().LoadResourceGraph("/Game/images/paw-print.png");
-
   m_sprite = NewObject<MSpriteComponent>(this);
   m_sprite->SetRenderSettings(50, RenderSpace::World);
   m_sprite->SubmitGraph(m_walkAnimHandles[0]);
@@ -220,7 +218,7 @@ void APlayer::OnUpdate(float DeltaTime) {
     if (!bHasAuthority) {
       const float driftGaugeRatio = m_isDrifting
                                         ? std::clamp(m_driftGauge / MaxDriftGauge, 0.0f, 1.0f)
-                                        : SkidReleaseGaugeRatio;
+                                        : DriftVisuals.GetReleaseGaugeRatio();
       InvokeRPC(
           RPC_ServerSyncDriftState,
           ENetRPCType::Server,
@@ -239,8 +237,10 @@ void APlayer::OnUpdate(float DeltaTime) {
     UpdateLocalDriftVisual(DeltaTime, speed);
   }
 
-  UpdateDriftEffect(DeltaTime);
-  DrawDriftEffect();
+  DriftVisuals.Update(
+      DeltaTime, GetActorLocation(), GetActorRotation(), CurrentPlayerColor, m_isDrifting
+  );
+  DriftVisuals.Draw(GetDriftGaugeRatioForVisuals());
   // ---- アニメーション ----
   if (m_sprite) {
     const float MoveAnimSpeedMin = 0.1f;
@@ -693,8 +693,7 @@ void APlayer::BeginSkidReleaseTrail() {
     return;
   }
 
-  SkidReleaseGaugeRatio = GetDriftGaugeRatioForVisuals();
-  SkidReleaseTimer = SkidReleaseDuration;
+  DriftVisuals.BeginRelease(m_isDrifting, GetDriftGaugeRatioForVisuals());
 }
 
 float APlayer::GetDriftGaugeRatioForVisuals() const {
@@ -714,201 +713,6 @@ void APlayer::ApplyFOVEffect(float targetFOV, float duration, bool showSpeedLine
 
   m_isSpeedUp = showSpeedLines;
 }
-void APlayer::UpdateDriftEffect(float DeltaTime) {
-  // ----- タイヤ痕の生成 -----
-  const FVector2D currentLocation = GetActorLocation();
-  if (!bHasPreviousSkidLocation) {
-    m_prevLocation = currentLocation;
-    bHasPreviousSkidLocation = true;
-  } else {
-    const FVector2D movedVector = currentLocation - m_prevLocation;
-    float remainingDistance = movedVector.Size();
-    if (remainingDistance > 0.0f) {
-      const float interval = m_isDrifting ? SkidDistanceInterval * 0.5f : SkidDistanceInterval;
-      if (SkidDistance >= interval) {
-        SkidDistance = std::fmod(SkidDistance, interval);
-      }
-      FVector2D segmentStart = m_prevLocation;
-      const FVector2D direction = movedVector / remainingDistance;
-      while (SkidDistance + remainingDistance >= interval) {
-        const float distanceToMark = interval - SkidDistance;
-        const FVector2D markLocation = segmentStart + direction * distanceToMark;
-        SpawnSkidMark(markLocation);
-        segmentStart = markLocation;
-        remainingDistance -= distanceToMark;
-        SkidDistance = 0.0f;
-      }
-      SkidDistance += remainingDistance;
-    } else {
-      SkidDistance = 0.0f;
-    }
-  }
-  m_prevLocation = currentLocation;
-
-  // タイヤ痕フェードアウト＆削除
-  for (auto& mark : m_skidMarks) {
-    mark.Age += DeltaTime;
-    if (mark.Age > SkidVisibleDuration) {
-      mark.Alpha =
-          std::clamp(1.0f - (mark.Age - SkidVisibleDuration) / SkidFadeDuration, 0.0f, 0.75f);
-    }
-  }
-  m_skidMarks.erase(
-      std::remove_if(
-          m_skidMarks.begin(), m_skidMarks.end(), [](const FSkidMark& m) { return m.Alpha <= 0.0f; }
-      ),
-      m_skidMarks.end()
-  );
-
-  // ----- パーティクルの生成 -----
-  if (m_isDrifting) {
-    m_particleTimer += DeltaTime;
-    if (m_particleTimer >= ParticleInterval) {
-      m_particleTimer = 0.0f;
-      SpawnDriftParticles();
-    }
-  } else {
-    m_particleTimer = 0.0f;
-  }
-
-  // パーティクルの移動・寿命・サイズ更新
-  for (auto& p : m_driftParticles) {
-    p.Location = p.Location + p.Velocity * DeltaTime;
-    p.Life -= DeltaTime;
-    if (!p.IsSpark) {
-      p.Radius += 25.0f * DeltaTime;  // 煙は膨らむ
-    }
-  }
-  m_driftParticles.erase(
-      std::remove_if(
-          m_driftParticles.begin(),
-          m_driftParticles.end(),
-          [](const FDriftParticle& p) { return p.Life <= 0.0f; }
-      ),
-      m_driftParticles.end()
-  );
-}
-
-void APlayer::SpawnSkidMark(const FVector2D& Location) {
-  if (m_skidMarks.size() >= 300) {
-    m_skidMarks.erase(m_skidMarks.begin());
-  }
-
-  // 左右の足跡を交互に1つずつ生成
-  const float TireOffset = 6.0f;
-  FVector2D offset =
-      FVector2D(TireOffset * NextSkidMarkSide, 10.0f).RotateVector(GetActorRotation());
-  m_skidMarks.push_back({
-      Location + offset,
-      GetActorRotation(),
-      1.0f,
-      0.0f,
-      CurrentPlayerColor,
-  });
-  NextSkidMarkSide *= -1;
-}
-
-void APlayer::SpawnDriftParticles() {
-  static std::mt19937 rng{std::random_device{}()};
-  std::uniform_real_distribution<float> distAngle(0.0f, 360.0f);
-  std::uniform_real_distribution<float> distSmoke(20.0f, 80.0f);
-  std::uniform_real_distribution<float> distSpark(100.0f, 280.0f);
-  std::uniform_real_distribution<float> distLife(0.25f, 0.55f);
-  std::uniform_real_distribution<float> distSparkLife(0.05f, 0.12f);
-  std::uniform_real_distribution<float> distOfs(-15.0f, 15.0f);
-
-  FVector2D base = GetActorLocation();
-
-  // 煙 2つ
-  for (int i = 0; i < 1; ++i) {
-    float a = UMath::DegToRad(distAngle(rng));
-    float s = distSmoke(rng);
-    float life = distLife(rng);
-    FDriftParticle p;
-    p.Location = {base.X + distOfs(rng), base.Y + distOfs(rng)};
-    p.Velocity = {std::cos(a) * s, std::sin(a) * s};
-    p.Life = life;
-    p.MaxLife = life;
-    p.Radius = 6.0f;
-    p.IsSpark = false;
-    m_driftParticles.push_back(p);
-  }
-
-  // 火花 3つ
-  for (int i = 0; i < 3; ++i) {
-    float a = UMath::DegToRad(distAngle(rng));
-    float s = distSpark(rng);
-    float life = distSparkLife(rng);
-    FDriftParticle p;
-    p.Location = {base.X + distOfs(rng), base.Y + distOfs(rng)};
-    p.Velocity = {std::cos(a) * s, std::sin(a) * s};
-    p.Life = life;
-    p.MaxLife = life;
-    p.Radius = 0.0f;
-    p.IsSpark = true;
-    m_driftParticles.push_back(p);
-  }
-}
-
-void APlayer::DrawDriftEffect() {
-  auto& rs = RenderSystem::GetInstance();
-  const float gaugeRatio = GetDriftGaugeRatioForVisuals();
-
-  FColor driftColor{255, 204, 0, 100};
-  if (gaugeRatio > 0.9f) {
-    driftColor = FColor{255, 68, 68, 255};
-  } else if (gaugeRatio > 0.2f) {
-    driftColor = FColor{68, 204, 255, 100};
-  }
-
-  // ----- タイヤ痕 -----
-  for (const auto& mark : m_skidMarks) {
-    int alpha = static_cast<int>(mark.Alpha * SkidMarkMaxAlpha);
-    FColor markColor = mark.Color;
-
-    if (PawPrintHandle == -1) {
-      continue;
-    }
-    rs.SubmitGraph(
-        mark.Location,
-        PawPrintHandle,
-        FScale(SkidMarkScale),
-        mark.Rotation,
-        RenderSpace::World,
-        2,
-        alpha,
-        markColor
-    );
-  }
-
-  // ----- 煙・火花パーティクル -----
-  for (const auto& p : m_driftParticles) {
-    float lifeRatio = p.Life / p.MaxLife;
-    int alpha = static_cast<int>(lifeRatio * 190.0f);
-
-    if (p.IsSpark) {
-      FColor sparkColor{255, 204, 0, static_cast<uint8_t>(alpha)};
-      if (gaugeRatio > 0.9f) {
-        sparkColor = FColor{255, 68, 68, static_cast<uint8_t>(alpha)};
-      } else if (gaugeRatio > 0.2f) {
-        sparkColor = FColor{68, 204, 255, static_cast<uint8_t>(alpha)};
-      }
-
-      FVector2D tip = p.Location + p.Velocity * 0.025f;
-      rs.SubmitLine(p.Location, tip, sparkColor, RenderSpace::World, 3);
-    } else {
-      rs.SubmitCircle(
-          p.Location,
-          p.Radius,
-          FColor{187, 187, 187, static_cast<uint8_t>(alpha)},
-          true,
-          RenderSpace::World,
-          3
-      );
-    }
-  }
-}
-
 void APlayer::GrantHeldItem() {
   if (!bHasAuthority) {
     return;
